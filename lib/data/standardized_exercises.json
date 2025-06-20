@@ -1,0 +1,941 @@
+[
+  {
+    "id": "running",
+    "name": "Running",
+    "muscleGroup": "Cardio",
+    "instructions": "Run at a steady pace for a set distance or time, maintaining good form and breathing.",
+    "type": "Duration + Distance",
+    "weightedSupport": false,
+    "targetedMuscles": {
+      "Quadriceps": 0.4,
+      "Hamstrings": 0.3,
+      "Calves": 0.3
+    },
+    "equipment": "None"
+  },
+  {
+    "id": "tricep_rope_pushdown",
+    "name": "Tricep Rope Pushdown",
+    "muscleGroup": "Arms",
+    "instructions": "Stand facing a cable machine with a rope attachment. Grip the rope with both hands, elbows close to your body, and push the rope down until your arms are fully extended.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Triceps Brachii": 0.7,
+      "Forearm Muscles": 0.3
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "bench_press",
+    "name": "Bench Press",
+    "muscleGroup": "Chest",
+    "instructions": "Lie on a bench with a barbell at chest level. Grip the barbell and press it upwards until your arms are fully extended, then lower it back down to your chest.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Pectoralis Major": 0.5,
+      "Triceps Brachii": 0.3,
+      "Deltoid (Anterior)": 0.2
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "dumbbell_bench_press",
+    "name": "Dumbbell Bench Press",
+    "muscleGroup": "Chest",
+    "instructions": "Lie on a bench with a dumbbell in each hand at chest level. Grip the dumbbells and press them upwards until your arms are fully extended, then lower them back down to your chest.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Pectoralis Major": 0.5,
+      "Triceps Brachii": 0.3,
+      "Deltoid (Anterior)": 0.2
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "dumbbell_lateral_raise",
+    "name": "Dumbbell Lateral Raise",
+    "muscleGroup": "Shoulders",
+    "instructions": "Stand with a dumbbell in each hand at your sides. Raise the dumbbells out to the sides until your arms are parallel to the ground, then lower them back down.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Deltoid (Lateral)": 0.7,
+      "Trapezius": 0.3
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "lat_pulldown",
+    "name": "Lat Pulldown",
+    "muscleGroup": "Back",
+    "instructions": "Sit at a lat pulldown machine, grip the bar with an overhand grip, pull the bar down towards your chest while keeping your back straight, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Latissimus Dorsi": 0.6,
+      "Biceps Brachii": 0.2,
+      "Trapezius": 0.2
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "cable_bicep_curl",
+    "name": "Cable Bicep Curl",
+    "muscleGroup": "Arms",
+    "instructions": "Stand facing a cable machine with a straight bar attachment. Grip the bar with both hands, palms facing up, and curl the bar towards your shoulders while keeping your elbows close to your body.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Biceps Brachii": 0.8,
+      "Forearm Muscles": 0.2
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "iso_lateral_chest_press",
+    "name": "Iso-Lateral Chest Press",
+    "muscleGroup": "Chest",
+    "instructions": "Sit on an iso-lateral chest press machine, grip the handles, and press them forward while keeping your elbows slightly bent, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Pectoralis Major": 0.6,
+      "Deltoid (Anterior)": 0.2,
+      "Triceps Brachii": 0.2
+    },
+    "equipment": "Plate-Loaded Machine"
+  },
+  {
+    "id": "iso_lateral_shoulder_press",
+    "name": "Iso-Lateral Shoulder Press",
+    "muscleGroup": "Shoulders",
+    "instructions": "Sit on an iso-lateral shoulder press machine, grip the handles, and press them overhead while keeping your elbows slightly bent, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Deltoid (General)": 0.6,
+      "Triceps Brachii": 0.3,
+      "Pectoralis Major (Upper)": 0.1
+    },
+    "equipment": "Plate-Loaded Machine"
+  },
+  {
+    "id": "machine_chest_fly",
+    "name": "Machine Chest Fly",
+    "muscleGroup": "Chest",
+    "instructions": "Sit on a chest fly machine, grip the handles, and bring them together in front of your chest while keeping your elbows slightly bent, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Pectoralis Major": 0.6,
+      "Deltoid (Anterior)": 0.2,
+      "Triceps Brachii": 0.2
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "straight_arm_pulldown",
+    "name": "Straight Arm Pulldown",
+    "muscleGroup": "Back",
+    "instructions": "Stand facing a cable machine with a straight bar attachment at shoulder height. Grip the bar with both hands, arms straight, and pull the bar down towards your thighs while keeping your arms straight.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Latissimus Dorsi": 0.6,
+      "Trapezius": 0.2,
+      "Deltoid (General)": 0.2
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "wrist_curl",
+    "name": "Wrist Curl",
+    "muscleGroup": "Forearms",
+    "instructions": "Sit on a bench with your forearms resting on your thighs, holding a dumbbell in each hand. Curl the dumbbells upwards by flexing your wrists, then lower them back down.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Forearm Flexors": 0.8,
+      "Forearm Extensors": 0.2
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "assisted_pull_up",
+    "name": "Assisted Pull Up",
+    "muscleGroup": "Back",
+    "instructions": "Use an assisted pull-up machine, grip the handles, and pull your body up while the machine assists you by counterbalancing your weight.",
+    "type": "Assisted Bodyweight",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Latissimus Dorsi": 0.5,
+      "Biceps Brachii": 0.3,
+      "Trapezius": 0.2
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "pull_up",
+    "name": "Pull Up",
+    "muscleGroup": "Back",
+    "instructions": "Hang from a pull-up bar with an overhand grip, pull your body up until your chin is above the bar, then lower yourself back down.",
+    "type": "Bodyweight Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Latissimus Dorsi": 0.5,
+      "Biceps Brachii": 0.3,
+      "Trapezius": 0.2
+    },
+    "equipment": "None"
+  },
+  {
+    "id": "weighted_pull_up",
+    "name": "Weighted Pull Up",
+    "muscleGroup": "Back",
+    "instructions": "Hang from a pull-up bar with an overhand grip, pull your body up until your chin is above the bar, then lower yourself back down.",
+    "type": "Weighted Bodyweight",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Latissimus Dorsi": 0.5,
+      "Biceps Brachii": 0.3,
+      "Trapezius": 0.2
+    },
+    "equipment": "None"
+  },
+  {
+    "id": "negative_pullups",
+    "name": "Negative Pull Ups",
+    "muscleGroup": "Back",
+    "instructions": "Jump or step up to the top position of a pull-up, then slowly lower yourself down to a dead hang position.",
+    "type": "Bodyweight Reps",
+    "weightedSupport": false,
+    "targetedMuscles": {
+      "Latissimus Dorsi": 0.5,
+      "Biceps Brachii": 0.3,
+      "Trapezius": 0.2
+    },
+    "equipment": "None"
+  },
+  {
+    "id": "reverse_wrist_curl",
+    "name": "Reverse Wrist Curl",
+    "muscleGroup": "Forearms",
+    "instructions": "Sit on a bench with your forearms resting on your thighs, holding a dumbbell in each hand with palms facing down. Curl the dumbbells upwards by extending your wrists, then lower them back down.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Forearm Extensors": 0.8,
+      "Forearm Flexors": 0.2
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "seated_dumbbell_lateral_raise",
+    "name": "Seated Dumbbell Lateral Raise",
+    "muscleGroup": "Shoulders",
+    "instructions": "Sit on a bench with a dumbbell in each hand at your sides. Raise the dumbbells out to the sides until your arms are parallel to the ground, then lower them back down.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Deltoid (Lateral)": 0.7,
+      "Trapezius": 0.3
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "seated_dumbbell_shoulder_press",
+    "name": "Seated Dumbbell Shoulder Press",
+    "muscleGroup": "Shoulders",
+    "instructions": "Sit on a bench with a dumbbell in each hand at shoulder height. Press the dumbbells overhead until your arms are fully extended, then lower them back to shoulder height.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Deltoid (General)": 0.5,
+      "Triceps Brachii": 0.3,
+      "Pectoralis Major (Upper)": 0.2
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "seated_leg_curl",
+    "name": "Seated Leg Curl",
+    "muscleGroup": "Legs",
+    "instructions": "Sit on a leg curl machine with your legs straight. Place your ankles under the padded lever, curl your legs down towards your glutes, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Hamstrings": 0.7,
+      "Calves": 0.3
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "seated_leg_extension",
+    "name": "Seated Leg Extension",
+    "muscleGroup": "Legs",
+    "instructions": "Sit on a leg extension machine with your legs straight. Place your ankles under the padded lever, extend your legs outwards until they are fully straight, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Quadriceps": 0.8,
+      "Hip Flexors": 0.2
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "cable_lateral_raise",
+    "name": "Cable Lateral Raise",
+    "muscleGroup": "Shoulders",
+    "instructions": "Stand next to a cable machine with the pulley set at the lowest position. Grip the handle with one hand, raise it out to the side until your arm is parallel to the ground, then lower it back down.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Deltoid (Lateral)": 0.7,
+      "Trapezius": 0.3
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "dead_hang",
+    "name": "Dead Hang",
+    "muscleGroup": "Back",
+    "instructions": "Hang from a pull-up bar with an overhand grip, arms fully extended, and hold the position for as long as possible.",
+    "type": "Duration",
+    "weightedSupport": false,
+    "targetedMuscles": {
+      "Latissimus Dorsi": 0.4,
+      "Forearm Muscles": 0.3,
+      "Deltoid (General)": 0.3
+    },
+    "equipment": "None"
+  },
+  {
+    "id": "incline_bench_press",
+    "name": "Incline Bench Press",
+    "muscleGroup": "Chest",
+    "instructions": "Lie on an incline bench with a barbell at chest level. Grip the barbell and press it upwards until your arms are fully extended, then lower it back down to your chest.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Pectoralis Major (Upper)": 0.5,
+      "Triceps Brachii": 0.3,
+      "Deltoid (Anterior)": 0.2
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "iso_lateral_low_row",
+    "name": "Iso-Lateral Low Row",
+    "muscleGroup": "Back",
+    "instructions": "Sit on an iso-lateral low row machine, grip the handles, and pull them towards your torso while keeping your elbows close to your body, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Latissimus Dorsi": 0.6,
+      "Biceps Brachii": 0.2,
+      "Trapezius": 0.2
+    },
+    "equipment": "Plate-Loaded Machine"
+  },
+  {
+    "id": "machine_reverse_fly",
+    "name": "Machine Reverse Fly",
+    "muscleGroup": "Shoulders",
+    "instructions": "Sit on a reverse fly machine, grip the handles, and pull them out to the sides while keeping your elbows slightly bent, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Deltoid (Posterior)": 0.6,
+      "Trapezius": 0.2,
+      "Rhomboids": 0.2
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "preacher_curl",
+    "name": "Preacher Curl",
+    "muscleGroup": "Arms",
+    "instructions": "Sit at a preacher curl bench with a barbell or dumbbells. Rest your arms on the bench and curl the weight towards your shoulders, then lower it back down.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Biceps Brachii": 0.8,
+      "Forearm Muscles": 0.2
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "squat",
+    "name": "Squat",
+    "muscleGroup": "Legs",
+    "instructions": "Stand with feet shoulder-width apart, lower your body by bending your knees and hips, then return to standing position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Quadriceps": 0.4,
+      "Hamstrings": 0.3,
+      "Gluteus Maximus": 0.3
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "incline_dumbbell_bench_press",
+    "name": "Incline Dumbbell Bench Press",
+    "muscleGroup": "Chest",
+    "instructions": "Lie on an incline bench with a dumbbell in each hand at chest level. Grip the dumbbells and press them upwards until your arms are fully extended, then lower them back down to your chest.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Pectoralis Major (Upper)": 0.5,
+      "Triceps Brachii": 0.3,
+      "Deltoid (Anterior)": 0.2
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "machine_row",
+    "name": "Machine Row",
+    "muscleGroup": "Back",
+    "instructions": "Sit at a rowing machine, grip the handles, and pull them towards your torso while keeping your elbows close to your body, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Latissimus Dorsi": 0.6,
+      "Biceps Brachii": 0.2,
+      "Trapezius": 0.2
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "reverse_hyperextension",
+    "name": "Reverse Hyperextension",
+    "muscleGroup": "Lower Back",
+    "instructions": "Lie face down on a reverse hyperextension machine, grip the handles, and lift your legs upwards while keeping your hips pressed against the pad, then lower them back down.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Erector Spinae": 0.6,
+      "Gluteus Maximus": 0.4
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "seated_calf_raise",
+    "name": "Seated Calf Raise",
+    "muscleGroup": "Calves",
+    "instructions": "Sit on a calf raise machine with your feet on the platform and your knees under the padded lever. Raise your heels by extending your ankles, then lower them back down.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Gastrocnemius": 0.6,
+      "Soleus": 0.4
+    },
+    "equipment": "Plate-Loaded Machine"
+  },
+  {
+    "id": "assisted_dip",
+    "name": "Assisted Dip",
+    "muscleGroup": "Arms",
+    "instructions": "Use an assisted dip machine, grip the handles, and lower your body by bending your elbows, then push yourself back up to the starting position while the machine assists you by counterbalancing your weight.",
+    "type": "Assisted Bodyweight",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Triceps Brachii": 0.6,
+      "Pectoralis Major": 0.3,
+      "Deltoid (General)": 0.1
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "barbell_curl",
+    "name": "Barbell Curl",
+    "muscleGroup": "Arms",
+    "instructions": "Stand with a barbell in both hands, arms fully extended. Curl the barbell towards your shoulders while keeping your elbows close to your body, then lower it back down.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Biceps Brachii": 0.8,
+      "Forearm Muscles": 0.2
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "bayesian_curl",
+    "name": "Bayesian Curl",
+    "muscleGroup": "Arms",
+    "instructions": "Stand with a cable machine set at the lowest position. Grip the handle with one hand, lean back slightly, and curl the handle towards your shoulder while keeping your elbow stationary.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Biceps Brachii": 0.8,
+      "Forearm Muscles": 0.2
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "cable_overhead_tricep_extension",
+    "name": "Cable Overhead Tricep Extension",
+    "muscleGroup": "Arms",
+    "instructions": "Stand facing away from a cable machine with the pulley set at the highest position. Grip the rope attachment with both hands, extend your arms overhead, then lower the rope behind your head by bending your elbows.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Triceps Brachii": 0.8,
+      "Forearm Muscles": 0.2
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "dumbbell_row",
+    "name": "Dumbbell Row",
+    "muscleGroup": "Back",
+    "instructions": "Stand with a dumbbell in one hand, bend forward at the hips while keeping your back straight, and pull the dumbbell towards your torso while keeping your elbow close to your body.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Latissimus Dorsi": 0.5,
+      "Biceps Brachii": 0.3,
+      "Trapezius": 0.2
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "incline_dumbbell_curl",
+    "name": "Incline Dumbbell Curl",
+    "muscleGroup": "Arms",
+    "instructions": "Sit on an incline bench with a dumbbell in each hand, arms fully extended. Curl the dumbbells towards your shoulders while keeping your elbows stationary, then lower them back down.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Biceps Brachii": 0.8,
+      "Forearm Muscles": 0.2
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "sled_leg_press",
+    "name": "Sled Leg Press",
+    "muscleGroup": "Legs",
+    "instructions": "Sit on a sled leg press machine with your feet on the platform. Push the platform away by extending your legs, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Quadriceps": 0.5,
+      "Hamstrings": 0.3,
+      "Gluteus Maximus": 0.2
+    },
+    "equipment": "Plate-Loaded Machine"
+  },
+  {
+    "id": "one_arm_dumbbell_preacher_curl",
+    "name": "One Arm Dumbbell Preacher Curl",
+    "muscleGroup": "Arms",
+    "instructions": "Sit at a preacher curl bench with a dumbbell in one hand. Rest your arm on the bench and curl the dumbbell towards your shoulder, then lower it back down.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Biceps Brachii": 0.8,
+      "Forearm Muscles": 0.2
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "sled_press_calf_raise",
+    "name": "Sled Press Calf Raise",
+    "muscleGroup": "Calves",
+    "instructions": "Sit on a sled machine with your feet on the platform. Raise your heels by extending your ankles, then lower them back down.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Gastrocnemius": 0.6,
+      "Soleus": 0.4
+    },
+    "equipment": "Plate-Loaded Machine"
+  },
+  {
+    "id": "front_squat",
+    "name": "Front Squat",
+    "muscleGroup": "Legs",
+    "instructions": "Stand with feet shoulder-width apart, hold a barbell across the front of your shoulders, lower your body by bending your knees and hips, then return to standing position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Quadriceps": 0.5,
+      "Hamstrings": 0.3,
+      "Gluteus Maximus": 0.2
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "barbell_hip_thrust",
+    "name": "Barbell Hip Thrust",
+    "muscleGroup": "Glutes",
+    "instructions": "Sit on the ground with your upper back against a bench, roll a barbell over your hips, and thrust your hips upwards until your body is in a straight line from shoulders to knees.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Gluteus Maximus": 0.6,
+      "Hamstrings": 0.3,
+      "Erector Spinae": 0.1
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "bent_over_row",
+    "name": "Bent-Over Row",
+    "muscleGroup": "Back",
+    "instructions": "Stand with feet shoulder-width apart, bend forward at the hips while keeping your back straight, and pull a barbell or dumbbells towards your torso while keeping your elbows close to your body.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Latissimus Dorsi": 0.5,
+      "Biceps Brachii": 0.3,
+      "Trapezius": 0.2
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "cable_tricep_pushdown",
+    "name": "Cable Tricep Pushdown",
+    "muscleGroup": "Arms",
+    "instructions": "Stand facing a cable machine with a straight bar attachment. Grip the bar with both hands, elbows close to your body, and push the bar down until your arms are fully extended.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Triceps Brachii": 0.7,
+      "Forearm Muscles": 0.3
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "machine_seated_crunch",
+    "name": "Machine Seated Crunch",
+    "muscleGroup": "Core",
+    "instructions": "Sit on a seated crunch machine, grip the handles, and crunch your torso down towards your thighs while keeping your back straight, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Rectus Abdominis": 0.7,
+      "Obliques": 0.3
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "dumbbell_curl",
+    "name": "Dumbbell Curl",
+    "muscleGroup": "Arms",
+    "instructions": "Stand with a dumbbell in each hand, arms fully extended. Curl the dumbbells towards your shoulders while keeping your elbows close to your body, then lower them back down.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Biceps Brachii": 0.8,
+      "Forearm Muscles": 0.2
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "deadlift",
+    "name": "Deadlift",
+    "muscleGroup": "Back",
+    "instructions": "Stand with feet hip-width apart, grip the barbell on the floor, lift it by extending your hips and knees until you are standing upright.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Hamstrings": 0.4,
+      "Gluteus Maximus": 0.3,
+      "Erector Spinae": 0.3
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "romanian_deadlift",
+    "name": "Romanian Deadlift",
+    "muscleGroup": "Legs",
+    "instructions": "Stand with feet hip-width apart, hold a barbell in front of your thighs, bend forward at the hips while keeping your back straight, and lower the barbell towards the ground, then return to standing position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Hamstrings": 0.5,
+      "Gluteus Maximus": 0.3,
+      "Erector Spinae": 0.2
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "bulgarian_split_squat",
+    "name": "Bulgarian Split Squat",
+    "muscleGroup": "Legs",
+    "instructions": "Stand a few feet in front of a bench, place one foot on the bench behind you, lower your body by bending your front knee until your thigh is parallel to the ground, then return to standing position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Quadriceps": 0.4,
+      "Hamstrings": 0.3,
+      "Gluteus Maximus": 0.3
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "cable_face_pull",
+    "name": "Cable Face Pull",
+    "muscleGroup": "Shoulders",
+    "instructions": "Stand facing a cable machine with the pulley set at upper chest height. Grip the rope attachment with both hands, pull the rope towards your face while keeping your elbows high, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Deltoid (Posterior)": 0.6,
+      "Trapezius": 0.3,
+      "Rhomboids": 0.1
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "machine_hip_adduction",
+    "name": "Machine Hip Adduction",
+    "muscleGroup": "Legs",
+    "instructions": "Sit on a hip adduction machine, place your legs against the padded levers, and squeeze your legs together while keeping your back straight, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Adductors": 0.7,
+      "Quadriceps": 0.2,
+      "Hamstrings": 0.1
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "machine_hip_abduction",
+    "name": "Machine Hip Abduction",
+    "muscleGroup": "Legs",
+    "instructions": "Sit on a hip abduction machine, place your legs against the padded levers, and push your legs apart while keeping your back straight, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Gluteus Medius": 0.6,
+      "Gluteus Maximus": 0.3,
+      "Quadriceps": 0.1
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "machine_glute_kickback",
+    "name": "Machine Glute Kickback",
+    "muscleGroup": "Glutes",
+    "instructions": "Stand facing a glute kickback machine, place one foot on the padded lever, and extend your leg back while keeping your back straight, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Gluteus Maximus": 0.7,
+      "Hamstrings": 0.2,
+      "Erector Spinae": 0.1
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "machine_chest_press",
+    "name": "Machine Chest Press",
+    "muscleGroup": "Chest",
+    "instructions": "Sit on a chest press machine, grip the handles, and press them forward while keeping your elbows slightly bent, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Pectoralis Major": 0.6,
+      "Deltoid (Anterior)": 0.2,
+      "Triceps Brachii": 0.2
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "machine_shoulder_press",
+    "name": "Machine Shoulder Press",
+    "muscleGroup": "Shoulders",
+    "instructions": "Sit on a shoulder press machine, grip the handles, and press them overhead while keeping your elbows slightly bent, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Deltoid (General)": 0.6,
+      "Triceps Brachii": 0.3,
+      "Pectoralis Major (Upper)": 0.1
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "machine_leg_press",
+    "name": "Machine Leg Press",
+    "muscleGroup": "Legs",
+    "instructions": "Sit on a leg press machine with your feet on the platform. Push the platform away by extending your legs, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Quadriceps": 0.5,
+      "Hamstrings": 0.3,
+      "Gluteus Maximus": 0.2
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "dumbbell_wrist_curl",
+    "name": "Dumbbell Wrist Curl",
+    "muscleGroup": "Forearms",
+    "instructions": "Sit on a bench with your forearms resting on your thighs, holding a dumbbell in each hand. Curl the dumbbells upwards by flexing your wrists, then lower them back down.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Forearm Flexors": 0.8,
+      "Forearm Extensors": 0.2
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "dumbbell_reverse_wrist_curl",
+    "name": "Dumbbell Reverse Wrist Curl",
+    "muscleGroup": "Forearms",
+    "instructions": "Sit on a bench with your forearms resting on your thighs, holding a dumbbell in each hand with palms facing down. Curl the dumbbells upwards by extending your wrists, then lower them back down.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Forearm Extensors": 0.8,
+      "Forearm Flexors": 0.2
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "glute_hyperextension",
+    "name": "Glute Hyperextension",
+    "muscleGroup": "Glutes",
+    "instructions": "Lie face down on a hyperextension bench with your hips at the edge. Lower your upper body towards the ground, then raise it back up by contracting your glutes.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Gluteus Maximus": 0.6,
+      "Hamstrings": 0.3,
+      "Erector Spinae": 0.1
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "split_squat",
+    "name": "Split Squat",
+    "muscleGroup": "Legs",
+    "instructions": "Stand with one foot forward and the other foot back, lower your body by bending your front knee until your thigh is parallel to the ground, then return to standing position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Quadriceps": 0.4,
+      "Hamstrings": 0.3,
+      "Gluteus Maximus": 0.3
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "tibialis_raise",
+    "name": "Tibialis Raise",
+    "muscleGroup": "Lower Legs",
+    "instructions": "Sit on a bench with your feet flat on the ground. Lift your toes upwards while keeping your heels on the ground, then lower them back down.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Tibialis Anterior": 0.8,
+      "Calves": 0.2
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "cable_woodchopper",
+    "name": "Cable Woodchopper",
+    "muscleGroup": "Core",
+    "instructions": "Stand next to a cable machine with the pulley set at the highest position. Grip the handle with both hands, pull it down and across your body while rotating your torso, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Obliques": 0.6,
+      "Rectus Abdominis": 0.3,
+      "Deltoid (General)": 0.1
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "chest_supported_t_bar_row",
+    "name": "Chest Supported T-Bar Row",
+    "muscleGroup": "Back",
+    "instructions": "Lie face down on a chest-supported row bench, grip the T-bar handle, and pull it towards your torso while keeping your elbows close to your body, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Latissimus Dorsi": 0.6,
+      "Biceps Brachii": 0.2,
+      "Trapezius": 0.2
+    },
+    "equipment": "Plate-Loaded Machine"
+  },
+  {
+    "id": "shoulder_press",
+    "name": "Shoulder Press",
+    "muscleGroup": "Shoulders",
+    "instructions": "Sit or stand with a barbell or dumbbells at shoulder height, press them overhead until your arms are fully extended, then lower them back to shoulder height.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Deltoid (General)": 0.5,
+      "Triceps Brachii": 0.3,
+      "Pectoralis Major (Upper)": 0.2
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "dumbbell_side_bend",
+    "name": "Dumbbell Side Bend",
+    "muscleGroup": "Core",
+    "instructions": "Stand with a dumbbell in one hand, feet shoulder-width apart. Lean to the side, bringing the dumbbell down towards your knee, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Obliques": 0.7,
+      "Rectus Abdominis": 0.3
+    },
+    "equipment": "Free Weights"
+  },
+  {
+    "id": "horizontal_leg_press",
+    "name": "Horizontal Leg Press",
+    "muscleGroup": "Legs",
+    "instructions": "Sit on a horizontal leg press machine with your feet on the platform. Push the platform away by extending your legs, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Quadriceps": 0.5,
+      "Hamstrings": 0.3,
+      "Gluteus Maximus": 0.2
+    },
+    "equipment": "CableMachine"
+  },
+  {
+    "id": "palloff_press",
+    "name": "Palloff Press",
+    "muscleGroup": "Core",
+    "instructions": "Stand next to a cable machine with the pulley set at chest height. Grip the handle with both hands, press it away from your chest while keeping your core engaged, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Rectus Abdominis": 0.6,
+      "Obliques": 0.4
+    },
+    "equipment": "Cable Machine"
+  },
+  {
+    "id": "iso_lateral_leg_extension",
+    "name": "Iso-Lateral Leg Extension",
+    "muscleGroup": "Legs",
+    "instructions": "Sit on an iso-lateral leg extension machine, grip the handles, and extend one leg at a time while keeping your back straight, then return to the starting position.",
+    "type": "Weighted Reps",
+    "weightedSupport": true,
+    "targetedMuscles": {
+      "Quadriceps": 0.8,
+      "Hip Flexors": 0.2
+    },
+    "equipment": "Plate-Loaded Machine"
+  }
+]
