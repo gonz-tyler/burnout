@@ -1,5 +1,5 @@
-
 // screens/workout_screen.dart
+import 'package:burnout/services/workout_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:burnout/widgets/workout_card.dart';
 import 'package:burnout/screens/workout_detail_screen.dart';
@@ -15,32 +15,94 @@ class WorkoutsPage extends StatefulWidget {
 class _WorkoutsPageState extends State<WorkoutsPage> {
   List<WorkoutModel> workouts = [];
   String searchQuery = '';
+  bool isLoading = true; // Add loading state
 
   @override
   void initState() {
     super.initState();
-    workouts = [];
+    _loadWorkouts(); // Load workouts when screen initializes
   }
 
-  void _addWorkout(WorkoutModel workout) {
-    setState(() {
-      workouts.add(workout);
-    });
+  // Load workouts from storage
+  Future<void> _loadWorkouts() async {
+    try {
+      final loadedWorkouts = await WorkoutStorage.loadWorkouts();
+      setState(() {
+        workouts = loadedWorkouts;
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading workouts: $e');
+      setState(() {
+        workouts = [];
+        isLoading = false;
+      });
+    }
   }
 
-  void _updateWorkout(WorkoutModel updatedWorkout) {
-    setState(() {
-      int index = workouts.indexWhere((w) => w.id == updatedWorkout.id);
-      if (index != -1) {
-        workouts[index] = updatedWorkout;
-      }
-    });
+  // Add workout and save to storage
+  Future<void> _addWorkout(WorkoutModel workout) async {
+    try {
+      setState(() {
+        workouts.add(workout);
+      });
+      await WorkoutStorage.saveWorkouts(workouts);
+    } catch (e) {
+      print('Error saving workout: $e');
+      // Revert the state if save failed
+      setState(() {
+        workouts.removeLast();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save workout')),
+      );
+    }
   }
 
-  void _deleteWorkout(String workoutId) {
-    setState(() {
-      workouts.removeWhere((w) => w.id == workoutId);
-    });
+  // Update workout and save to storage
+  Future<void> _updateWorkout(WorkoutModel updatedWorkout) async {
+    try {
+      setState(() {
+        int index = workouts.indexWhere((w) => w.id == updatedWorkout.id);
+        if (index != -1) {
+          workouts[index] = updatedWorkout;
+        }
+      });
+      await WorkoutStorage.saveWorkouts(workouts);
+    } catch (e) {
+      print('Error updating workout: $e');
+      // Reload workouts if update failed
+      await _loadWorkouts();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update workout')),
+      );
+    }
+  }
+
+  // Delete workout and save to storage
+  Future<void> _deleteWorkout(String workoutId) async {
+    try {
+      // Store the workout in case we need to restore it
+      WorkoutModel? deletedWorkout;
+      int deletedIndex = -1;
+      
+      setState(() {
+        deletedIndex = workouts.indexWhere((w) => w.id == workoutId);
+        if (deletedIndex != -1) {
+          deletedWorkout = workouts[deletedIndex];
+          workouts.removeAt(deletedIndex);
+        }
+      });
+      
+      await WorkoutStorage.saveWorkouts(workouts);
+    } catch (e) {
+      print('Error deleting workout: $e');
+      // Reload workouts if delete failed
+      await _loadWorkouts();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete workout')),
+      );
+    }
   }
 
   List<WorkoutModel> get filteredWorkouts {
@@ -77,8 +139,8 @@ class _WorkoutsPageState extends State<WorkoutsPage> {
                           Row(
                             children: [
                               IconButton(
-                                icon: Icon(Icons.menu, color: Colors.white),
-                                onPressed: () {},
+                                icon: Icon(Icons.refresh, color: Colors.white),
+                                onPressed: _loadWorkouts, // Add refresh button
                               ),
                               IconButton(
                                 icon: Icon(Icons.add, color: Colors.white),
@@ -90,7 +152,7 @@ class _WorkoutsPageState extends State<WorkoutsPage> {
                                     ),
                                   );
                                   if (result != null && result is WorkoutModel) {
-                                    _addWorkout(result);
+                                    await _addWorkout(result);
                                   }
                                 },
                               ),
@@ -122,68 +184,94 @@ class _WorkoutsPageState extends State<WorkoutsPage> {
                       ),
                       SizedBox(height: 20),
                       Expanded(
-                        child: filteredWorkouts.isEmpty 
+                        child: isLoading
                           ? Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.fitness_center,
-                                    size: 64,
-                                    color: Colors.grey[600],
-                                  ),
-                                  SizedBox(height: 16),
-                                  Text(
-                                    searchQuery.isEmpty 
-                                      ? 'No workouts yet'
-                                      : 'No workouts found',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.grey[500],
-                                    ),
-                                  ),
-                                  SizedBox(height: 8),
-                                  Text(
-                                    searchQuery.isEmpty
-                                      ? 'Create your first workout to get started'
-                                      : 'Try a different search term',
-                                    style: TextStyle(
-                                      fontSize: 14,
+                              child: CircularProgressIndicator(),
+                            )
+                          : filteredWorkouts.isEmpty 
+                            ? Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.fitness_center,
+                                      size: 64,
                                       color: Colors.grey[600],
                                     ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          : ListView.builder(
-                              itemCount: filteredWorkouts.length,
-                              itemBuilder: (context, index) {
-                                final workout = filteredWorkouts[index];
-                                return Padding(
-                                  padding: EdgeInsets.only(bottom: 16),
-                                  child: GestureDetector(
-                                    onTap: () async {
-                                      final result = await Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => WorkoutDetailScreen(
-                                            workout: workout,
-                                            onWorkoutUpdated: _updateWorkout,
-                                            onWorkoutDeleted: _deleteWorkout,
-                                          ),
-                                        ),
-                                      );
-                                      if (result != null && result is WorkoutModel) {
-                                        _updateWorkout(result);
-                                      }
-                                    },
-                                    child: EnhancedWorkoutCard(
-                                      workout: workout,
+                                    SizedBox(height: 16),
+                                    Text(
+                                      searchQuery.isEmpty 
+                                        ? 'No workouts yet'
+                                        : 'No workouts found',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        color: Colors.grey[500],
+                                      ),
                                     ),
-                                  ),
-                                );
-                              },
-                            ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      searchQuery.isEmpty
+                                        ? 'Create your first workout to get started'
+                                        : 'Try a different search term',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : ListView.builder(
+                                itemCount: filteredWorkouts.length,
+                                itemBuilder: (context, index) {
+                                  final workout = filteredWorkouts[index];
+                                  return Padding(
+                                    padding: EdgeInsets.only(bottom: 16),
+                                    child: GestureDetector(
+                                      onTap: () async {
+                                        final result = await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => WorkoutDetailScreen(
+                                              workout: workout,
+                                              onWorkoutUpdated: _updateWorkout,
+                                              onWorkoutDeleted: _deleteWorkout,
+                                            ),
+                                          ),
+                                        );
+                                        if (result != null && result is WorkoutModel) {
+                                          await _updateWorkout(result);
+                                        }
+                                      },
+                                      child: WorkoutCard(
+                                        id: workout.id,
+                                        title: workout.name,
+                                        exercises: workout.exercises,
+                                        colors: workout.exercises
+                                            .map((e) {
+                                              final colorMap = {
+                                                'Chest': Colors.pink,
+                                                'Back': Colors.green,
+                                                'Shoulders': Colors.orange,
+                                                'Arms': Colors.purple,
+                                                'Legs': Colors.blue,
+                                                'Core': Colors.yellow,
+                                                'Cardio': Colors.red,
+                                                'Full Body': Colors.teal,
+                                                'Hamstrings': Colors.red,
+                                                'Quads': Colors.blue,
+                                                'Biceps': Colors.purple,
+                                              };
+                                              return colorMap[e.muscleGroup] ?? Colors.grey;
+                                            })
+                                            .toSet()
+                                            .toList(),
+
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
                       ),
                     ],
                   ),

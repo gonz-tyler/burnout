@@ -94,6 +94,179 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
     );
   }
 
+  void _showMoreOptions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.grey[900],
+      builder: (context) => Container(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: Text('Delete Workout', style: TextStyle(color: Colors.red)),
+              leading: Icon(Icons.delete, color: Colors.red),
+              onTap: () {
+                Navigator.pop(context);
+                _deleteWorkout();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getSetDisplayText(ExerciseInWorkout exercise) {
+    final normalSets = exercise.sets.where((s) => s.setType.toString() == 'SetType.normal').length;
+    final warmupSets = exercise.sets.where((s) => s.setType.toString() == 'SetType.warmup').length;
+    final failureSets = exercise.sets.where((s) => s.setType.toString() == 'SetType.failure').length;
+    
+    List<String> setParts = [];
+    if (normalSets > 0) setParts.add('$normalSets');
+    if (warmupSets > 0) setParts.add('${warmupSets}W');
+    if (failureSets > 0) setParts.add('${failureSets}F');
+    
+    return setParts.join(' + ');
+  }
+
+  Widget _buildSetDisplay(ExerciseInWorkout exercise, int setIndex) {
+    final set = exercise.sets[setIndex];
+    
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 4),
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[850],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            alignment: Alignment.center,
+            child: Text(
+              _getSetDisplayNumber(set, setIndex, exercise.sets),
+              style: TextStyle(
+                color: _getSetTypeColor(set.setType),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          SizedBox(width: 16),
+          
+          if (exercise.hasReps) ...[
+            Expanded(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.grey[800],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '${set.targetReps ?? 0}',
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+            SizedBox(width: 8),
+          ],
+          
+          if (exercise.hasWeight) ...[
+            Expanded(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.grey[800],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '${set.targetWeight ?? 0}',
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+            SizedBox(width: 8),
+          ],
+          
+          if (exercise.hasDuration) ...[
+            Expanded(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.grey[800],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  _formatDuration(set.targetDuration ?? Duration.zero),
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+            SizedBox(width: 8),
+          ],
+          
+          if (exercise.hasDistance) ...[
+            Expanded(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.grey[800],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '${set.targetDistance ?? 0}',
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+            SizedBox(width: 8),
+          ],
+        ],
+      ),
+    );
+  }
+
+  String _getSetDisplayNumber(dynamic set, int actualIndex, List<dynamic> allSets) {
+    // Simplified version - you may need to adjust based on your SetType enum
+    final setTypeString = set.setType.toString();
+    if (setTypeString.contains('warmup')) {
+      return 'W';
+    } else if (setTypeString.contains('failure')) {
+      return 'F';
+    } else {
+      int normalSetsBefore = 0;
+      for (int i = 0; i < actualIndex; i++) {
+        if (allSets[i].setType.toString().contains('normal')) {
+          normalSetsBefore++;
+        }
+      }
+      return '${normalSetsBefore + 1}';
+    }
+  }
+
+  Color _getSetTypeColor(dynamic setType) {
+    final setTypeString = setType.toString();
+    if (setTypeString.contains('warmup')) {
+      return Colors.orange;
+    } else if (setTypeString.contains('failure')) {
+      return Colors.red;
+    } else {
+      return Colors.white;
+    }
+  }
+
+  String _formatDuration(Duration duration) {
+    final minutes = duration.inMinutes;
+    final seconds = duration.inSeconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,267 +278,153 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
           icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
+        title: Center(
+          child: Text(
+            currentWorkout.name,
+            style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+        ),
         actions: [
           IconButton(
-            icon: Icon(Icons.edit, color: Colors.white),
-            onPressed: _editWorkout,
-          ),
-          PopupMenuButton<String>(
             icon: Icon(Icons.more_vert, color: Colors.white),
-            color: Colors.grey[800],
-            onSelected: (value) {
-              if (value == 'delete') {
-                _deleteWorkout();
-              }
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'delete',
-                child: Row(
-                  children: [
-                    Icon(Icons.delete, color: Colors.red, size: 20),
-                    SizedBox(width: 8),
-                    Text('Delete', style: TextStyle(color: Colors.red)),
-                  ],
-                ),
-              ),
-            ],
+            onPressed: _showMoreOptions,
           ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Workout Header
-                    Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[900],
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(Icons.fitness_center, 
-                                   color: Colors.white, size: 28),
-                              SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  currentWorkout.name,
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          if (currentWorkout.description.isNotEmpty) ...[
-                            SizedBox(height: 8),
-                            Text(
-                              currentWorkout.description,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey[400],
-                              ),
-                            ),
-                          ],
-                          SizedBox(height: 16),
-                          Row(
-                            children: [
-                              _buildStatItem(
-                                'Exercises', 
-                                currentWorkout.exercises.length.toString()
-                              ),
-                              _buildStatItem(
-                                'Sets', 
-                                currentWorkout.totalSets.toString()
-                              ),
-                              _buildStatItem(
-                                'Last', 
-                                currentWorkout.lastCompleted != null 
-                                  ? _formatLastCompleted(currentWorkout.lastCompleted!)
-                                  : 'Never'
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    SizedBox(height: 24),
-                    
-                    // Exercises List
-                    Text(
-                      'Exercises (${currentWorkout.exercises.length})',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    
-                    ...currentWorkout.exercises.asMap().entries.map((entry) {
-                      int index = entry.key;
-                      ExerciseInWorkout exercise = entry.value;
-                      
-                      return Container(
-                        margin: EdgeInsets.only(bottom: 12),
-                        padding: EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[850],
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CircleAvatar(
-                              backgroundColor: Colors.blueGrey[700],
-                              child: Text(
-                                '${index + 1}',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    exercise.exerciseName,
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    '${exercise.sets} sets',
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      color: Colors.grey[400],
-                                    ),
-                                  ),
-                                  if (exercise.notes != null && exercise.notes!.isNotEmpty) ...[
-                                    SizedBox(height: 6),
-                                    Text(
-                                      exercise.notes!,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey[500],
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                    
-                    if (currentWorkout.exercises.isEmpty)
-                      Center(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 32),
-                          child: Text(
-                            'No exercises added yet.',
-                            style: TextStyle(
-                              color: Colors.grey[500],
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-            // Start Workout Button
-            Padding(
-              padding: EdgeInsets.all(20),
-              child: SizedBox(
-                width: double.infinity,
-                height: 54,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: currentWorkout.exercises.isEmpty ? null : _startWorkout,
-                  child: Text(
-                    'Start Workout',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatItem(String label, String value) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: Column(
         children: [
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+          Container(
+            alignment: Alignment.centerLeft,
+            padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
+            child: Text(
+              'Overview',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.left,
             ),
           ),
-          SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.grey[400],
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: SizedBox(
+              width: double.infinity,
+              height: 54,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blueAccent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+                ),
+                onPressed: currentWorkout.exercises.isEmpty ? null : _startWorkout,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Start Workout',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(width: 8),
+                    Icon(Icons.play_arrow, color: Colors.white),
+                  ],
+                ),
+              ),
             ),
           ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: SizedBox(
+              width: double.infinity,
+              height: 54,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blueGrey,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+                ),
+                onPressed: _editWorkout,
+                child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Edit Routine',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(width: 8),
+              Icon(Icons.edit, color: Colors.white),
+            ],
+                ),
+              ),
+            ),
+          ),
+          ...currentWorkout.exercises.asMap().entries.map((entry) {
+            final exerciseIndex = entry.key;
+            final exercise = entry.value;
+            return Container(
+              margin: EdgeInsets.only(bottom: 20, left: 20, right: 20),
+              decoration: BoxDecoration(
+                color: Colors.grey[900],
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey[700]!, width: 2),
+              ),
+              child: Column(
+                children: [
+            // Exercise Header
+            Container(
+              padding: EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Expanded(
+              child: Text(
+                exercise.exerciseName,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+                  ),
+                ],
+              ),
+            ),
+            // Sets List
+            ...exercise.sets.asMap().entries.map((entry) {
+              final setIndex = entry.key;
+              return Container(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: _buildSetDisplay(exercise, setIndex),
+              );
+            }).toList(),
+            SizedBox(height: 16),
+                ],
+              ),
+            );
+          }).toList(),
+          SizedBox(height: 20),
+              ],
+            ),
+          ),
+          SizedBox(height: 20),
         ],
       ),
     );
-  }
-
-  String _formatLastCompleted(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inDays == 0) {
-      return 'Today';
-    } else if (difference.inDays == 1) {
-      return 'Yesterday';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays} days ago';
-    } else {
-      return '${date.day}/${date.month}/${date.year}';
-    }
   }
 }

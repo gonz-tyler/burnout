@@ -1,0 +1,6 @@
+{
+  "@@locale": "es",
+  "appTitle": "Mi Aplicación Increíble",
+  "welcomeMessage": "¡Hola {userName}, bienvenido de nuevo!",
+  "buttonSubmit": "Enviar"
+}

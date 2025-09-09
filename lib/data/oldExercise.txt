@@ -1,0 +1,627 @@
+    ExerciseModel(
+      id: 'ab_wheel_rollout',
+      name: 'Ab Wheel Rollout',
+      muscleGroup: 'Core',
+      category: 'Bodyweight',
+      instructions: 'Kneel on the floor with the ab wheel in front of you. Grip the handles and roll the wheel forward, extending your body while keeping your core tight. Roll back to the starting position.',
+      targetedMuscles: {
+        'Abdominals': 0.6,
+        'Obliques': 0.4,
+      },
+      type: 'Bodyweight Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'abcoaster',
+      name: 'Ab Coaster',
+      muscleGroup: 'Core',
+      category: 'Machine',
+      instructions: 'Sit on the Ab Coaster with your feet on the footrests. Grip the handles and curl your hips up towards your chest, then lower back down.',
+      targetedMuscles: {
+        'Abdominals': 0.7,
+        'Obliques': 0.3,
+      },
+      type: 'Bodyweight Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'air_bike',
+      name: 'Air Bike',
+      muscleGroup: 'Cardio',
+      category: 'Cardio',
+      instructions: 'Sit on the air bike and pedal while simultaneously moving the handlebars. Engage your core throughout the movement.',
+      targetedMuscles: {
+        'Rectus Abdominis': 0.5,
+        'Obliques': 0.3,
+        'Hip Flexors': 0.2,
+      },
+      type: 'Duration',
+      weightedSupport: false
+    ),
+    ExerciseModel(
+      id: 'archer_pullups',
+      name: 'Archer Pull Ups',
+      muscleGroup: 'Back',
+      category: 'Bodyweight',
+      instructions: 'Hang from a pull-up bar with a wide grip. Pull your body up towards one hand while extending the other arm out to the side, then alternate sides.',
+      targetedMuscles: {
+        'Latissimus Dorsi': 0.5,
+        'Biceps': 0.3,
+        'Rhomboids': 0.2,
+      },
+      type: 'Bodyweight Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'archer_pushups',
+      name: 'Archer Push Ups',
+      muscleGroup: 'Chest',
+      category: 'Bodyweight',
+      instructions: 'Start in a push-up position with your hands wider than shoulder-width. Lower your body towards one hand while extending the other arm out to the side, then alternate sides.',
+      targetedMuscles: {
+        'Pectoralis Major': 0.5,
+        'Triceps': 0.3,
+        'Deltoids': 0.2,
+      },
+      type: 'Bodyweight Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'arnold_press',
+      name: 'Arnold Press',
+      muscleGroup: 'Shoulders',
+      category: 'Dumbbell',
+      instructions: 'Sit or stand with a dumbbell in each hand at shoulder height, palms facing you. Rotate your palms outward as you press the weights overhead, then reverse the motion to return to the starting position.',
+      targetedMuscles: {
+        'Front Deltoids': 0.2,
+        'Side Deltoids': 0.2,
+        'Rear Deltoids': 0.1,
+        'Trapezius': 0.1,
+        'Triceps': 0.3,
+        'Upper Pectorals': 0.1,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'assisted_chin_ups',
+      name: 'Assisted Chin Ups',
+      muscleGroup: 'Back',
+      category: 'Assisted',
+      instructions: 'Use an assisted pull-up machine or resistance bands to support part of your body weight. Grip the handles and pull your chin above the bar, then lower back down.',
+      targetedMuscles: {
+        'Latissimus Dorsi': 0.5,
+        'Biceps': 0.3,
+        'Rhomboids': 0.2,
+      },
+      type: 'Assisted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'assisted_dips',
+      name: 'Assisted Dips',
+      muscleGroup: 'Triceps',
+      category: 'Assisted',
+      instructions: 'Use an assisted dip machine or resistance bands to support part of your body weight. Grip the handles and lower your body by bending your elbows, then push back up.',
+      targetedMuscles: {
+        'Triceps': 0.6,
+        'Pectoralis Major': 0.3,
+        'Front Deltoids': 0.1,
+      },
+      type: 'Assisted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'assisted_muscle_up',
+      name: 'Assisted Muscle Up',
+      muscleGroup: 'Back',
+      category: 'Assisted',
+      instructions: 'Use an assisted pull-up machine or resistance bands to support part of your body weight. Perform a pull-up followed by a dip in one fluid motion.',
+      targetedMuscles: {
+        'Latissimus Dorsi': 0.4,
+        'Biceps': 0.3,
+        'Triceps': 0.2,
+        'Rhomboids': 0.1,
+      },
+      type: 'Assisted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'assisted_pull_ups',
+      name: 'Assisted Pull Ups',
+      muscleGroup: 'Back',
+      category: 'Assisted',
+      instructions: 'Use an assisted pull-up machine or resistance bands to support part of your body weight. Grip the handles and pull your chin above the bar, then lower back down.',
+      targetedMuscles: {
+        'Latissimus Dorsi': 0.5,
+        'Biceps': 0.3,
+        'Rhomboids': 0.2,
+      },
+      type: 'Assisted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'back_extension',
+      name: 'Back Extension',
+      muscleGroup: 'Lower Back',
+      category: 'Machine',
+      instructions: 'Sit on the back extension machine with your feet secured. Lean forward at the hips, then extend your back to return to the starting position.',
+      targetedMuscles: {
+        'Erector Spinae': 0.7,
+        'Glutes': 0.3,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'back_lever',
+      name: 'Back Lever',
+      muscleGroup: 'Back',
+      category: 'Bodyweight',
+      instructions: 'Hang from a pull-up bar with an overhand grip. Engage your core and pull your body into a horizontal position, keeping your body straight and parallel to the ground.',
+      targetedMuscles: {
+        'Latissimus Dorsi': 0.4,
+        'Abdominals': 0.3,
+        'Rear Deltoids': 0.2,
+        'Core': 0.1,
+      },
+      type: 'Duration',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'badminton',
+      name: 'Badminton',
+      muscleGroup: 'Cardio',
+      category: 'Cardio',
+      instructions: 'Play a game of badminton, focusing on agility, speed, and coordination. Use a racket to hit the shuttlecock over the net.',
+      targetedMuscles: {
+        'Legs': 0.4,
+        'Core': 0.3,
+        'Shoulders': 0.2,
+        'Arms': 0.1,
+      },
+      type: 'Duration',
+      weightedSupport: false
+    ),
+    ExerciseModel(
+      id: 'band_assisted_pull_ups',
+      name: 'Band Assisted Pull Ups',
+      muscleGroup: 'Back',
+      category: 'Assisted',
+      instructions: 'Use a resistance band to assist with pull-ups. Loop the band over the pull-up bar and place your foot or knee in the band for support. Grip the bar and pull your chin above the bar, then lower back down.',
+      targetedMuscles: {
+        'Latissimus Dorsi': 0.5,
+        'Biceps': 0.3,
+        'Rhomboids': 0.2,
+      },
+      type: 'Assisted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'barbell_calf_raise',
+      name: 'Barbell Calf Raise',
+      muscleGroup: 'Calves',
+      category: 'Barbell',
+      instructions: 'Stand with a barbell on your upper back. Raise your heels off the ground by pushing through the balls of your feet, then lower back down.',
+      targetedMuscles: {
+        'Gastrocnemius': 0.6,
+        'Soleus': 0.4,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'barbell_concentration_curl',
+      name: 'Barbell Concentration Curl',
+      muscleGroup: 'Biceps',
+      category: 'Free Weights',
+      instructions: 'Sit on a bench with your legs spread. Hold a barbell with both hands and rest your elbows on the inside of your thighs. Curl the barbell towards your shoulders, then lower back down.',
+      targetedMuscles: {
+        'Biceps Brachii': 0.7,
+        'Brachialis': 0.3,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'barbell_curl',
+      name: 'Barbell Curl',
+      muscleGroup: 'Biceps',
+      category: 'Free Weights',
+      instructions: 'Stand with a barbell in both hands, arms fully extended. Curl the barbell towards your shoulders while keeping your elbows close to your body, then lower back down.',
+      targetedMuscles: {
+        'Biceps Brachii': 0.7,
+        'Brachialis': 0.3,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'barbell_flexion_row',
+      name: 'Barbell Flexion Row',
+      muscleGroup: 'Back',
+      category: 'Free Weights',
+      instructions: 'Stand with a barbell in both hands, arms fully extended. Bend your knees slightly and hinge at the hips to lower your torso. Pull the barbell towards your lower ribcage while keeping your elbows close to your body, then lower back down.',
+      targetedMuscles: {
+        'Latissimus Dorsi': 0.5,
+        'Rhomboids': 0.3,
+        'Biceps': 0.2,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'barbell_front_raise',
+      name: 'Barbell Front Raise',
+      muscleGroup: 'Shoulders',
+      category: 'Free Weights',
+      instructions: 'Stand with a barbell in both hands, arms fully extended in front of you. Raise the barbell to shoulder height while keeping your arms straight, then lower back down.',
+      targetedMuscles: {
+        'Front Deltoids': 0.6,
+        'Side Deltoids': 0.4,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'barbell_glute_bridge',
+      name: 'Barbell Glute Bridge',
+      muscleGroup: 'Glutes',
+      category: 'Free Weights',
+      instructions: 'Lie on your back with your knees bent and feet flat on the ground. Place a barbell across your hips. Push through your heels to lift your hips towards the ceiling, squeezing your glutes at the top, then lower back down.',
+      targetedMuscles: {
+        'Gluteus Maximus': 0.7,
+        'Hamstrings': 0.2,
+        'Lower Back': 0.1,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'barbell_hack_squat',
+      name: 'Barbell Hack Squat',
+      muscleGroup: 'Quads',
+      category: 'Free Weights',
+      instructions: 'Stand with a barbell behind your legs, feet shoulder-width apart. Squat down while keeping your back straight and chest up, then push through your heels to return to the starting position.',
+      targetedMuscles: {
+        'Quadriceps': 0.6,
+        'Hamstrings': 0.2,
+        'Glutes': 0.2,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'barbell_lunge',
+      name: 'Barbell Lunge',
+      muscleGroup: 'Legs',
+      category: 'Free Weights',
+      instructions: 'Stand with a barbell on your upper back. Step forward with one leg and lower your body until both knees are bent at about 90 degrees. Push through your front heel to return to the starting position, then alternate legs.',
+      targetedMuscles: {
+        'Quadriceps': 0.5,
+        'Hamstrings': 0.3,
+        'Glutes': 0.2,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'barbell_power_shrug',
+      name: 'Barbell Power Shrug',
+      muscleGroup: 'Traps',
+      category: 'Free Weights',
+      instructions: 'Stand with a barbell in both hands, arms fully extended at your sides. Shrug your shoulders up towards your ears while keeping your arms straight, then lower back down.',
+      targetedMuscles: {
+        'Trapezius': 0.7,
+        'Deltoids': 0.3,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'barbell_pullover',
+      name: 'Barbell Pullover',
+      muscleGroup: 'Chest',
+      category: 'Free Weights',
+      instructions: 'Lie on a bench with a barbell held above your chest. Lower the barbell behind your head while keeping your arms straight, then pull it back to the starting position.',
+      targetedMuscles: {
+        'Pectoralis Major': 0.5,
+        'Latissimus Dorsi': 0.3,
+        'Triceps': 0.2,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'barbell_reverse_lunge',
+      name: 'Barbell Reverse Lunge',
+      muscleGroup: 'Legs',
+      category: 'Free Weights',
+      instructions: 'Stand with a barbell on your upper back. Step backward with one leg and lower your body until both knees are bent at about 90 degrees. Push through your front heel to return to the starting position, then alternate legs.',
+      targetedMuscles: {
+        'Quadriceps': 0.5,
+        'Hamstrings': 0.3,
+        'Glutes': 0.2,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'barbell_shrug',
+      name: 'Barbell Shrug',
+      muscleGroup: 'Traps',
+      category: 'Free Weights',
+      instructions: 'Stand with a barbell in both hands, arms fully extended at your sides. Shrug your shoulders up towards your ears while keeping your arms straight, then lower back down.',
+      targetedMuscles: {
+        'Trapezius': 0.7,
+        'Deltoids': 0.3,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'battle_rope',
+      name: 'Battle Rope',
+      muscleGroup: 'Cardio',
+      category: 'Cardio',
+      instructions: 'Hold the ends of a battle rope in each hand. Alternate waves by moving your arms up and down rapidly, engaging your core and legs for stability.',
+      targetedMuscles: {
+        'Shoulders': 0.4,
+        'Arms': 0.3,
+        'Core': 0.2,
+        'Legs': 0.1,
+      },
+      type: 'Duration',
+      weightedSupport: false
+    ),
+    ExerciseModel(
+      id: 'bayesian_curl',
+      name: 'Bayesian Curl',
+      muscleGroup: 'Biceps',
+      category: 'Cable',
+      instructions: 'Stand facing a cable machine with the pulley set at the lowest position. Attach a straight bar or rope handle. Grip the handle and curl it towards your shoulders while keeping your elbows stationary.',
+      targetedMuscles: {
+        'Biceps Brachii': 0.7,
+        'Brachialis': 0.3,
+      },
+      type: 'Cable Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'behind_the_back_barbell_shrug',
+      name: 'Behind the Back Barbell Shrug',
+      muscleGroup: 'Traps',
+      category: 'Free Weights',
+      instructions: 'Stand with a barbell behind your back, arms fully extended. Shrug your shoulders up towards your ears while keeping your arms straight, then lower back down.',
+      targetedMuscles: {
+        'Trapezius': 0.7,
+        'Deltoids': 0.3,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'behind_the_back_deadlift',
+      name: 'Behind the Back Deadlift',
+      muscleGroup: 'Hamstrings',
+      category: 'Free Weights',
+      instructions: 'Stand with a barbell behind your legs, feet shoulder-width apart. Bend at the hips and knees to grip the barbell. Lift the barbell by extending your hips and knees, keeping your back straight.',
+      targetedMuscles: {
+        'Hamstrings': 0.6,
+        'Glutes': 0.3,
+        'Lower Back': 0.1,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'behind_the_neck_press',
+      name: 'Behind the Neck Press',
+      muscleGroup: 'Shoulders',
+      category: 'Barbell',
+      instructions: 'Stand with a barbell behind your neck, resting on your upper traps. Press the barbell overhead while keeping your elbows slightly in front of your body, then lower back down.',
+      targetedMuscles: {
+        'Front Deltoids': 0.4,
+        'Side Deltoids': 0.3,
+        'Trapezius': 0.2,
+        'Triceps': 0.1,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'belt_squat',
+      name: 'Belt Squat',
+      muscleGroup: 'Legs',
+      category: 'Machine',
+      instructions: 'Stand in a belt squat machine with a belt around your waist. Squat down while keeping your back straight and chest up, then push through your heels to return to the starting position.',
+      targetedMuscles: {
+        'Quadriceps': 0.5,
+        'Hamstrings': 0.3,
+        'Glutes': 0.2,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'bench_dips',
+      name: 'Bench Dips',
+      muscleGroup: 'Triceps',
+      category: 'Bodyweight',
+      instructions: 'Sit on the edge of a bench with your hands next to your hips. Slide your buttocks off the bench and lower your body by bending your elbows, then push back up to the starting position.',
+      targetedMuscles: {
+        'Triceps': 0.6,
+        'Pectoralis Major': 0.3,
+        'Front Deltoids': 0.1,
+      },
+      type: 'Bodyweight Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'bench_pin_press',
+      name: 'Bench Pin Press',
+      muscleGroup: 'Chest',
+      category: 'Barbell',
+      instructions: 'Lie on a bench with a barbell set on pins at chest level. Grip the barbell and press it upwards, then lower it back down to the pins without touching them.',
+      targetedMuscles: {
+        'Pectoralis Major': 0.5,
+        'Triceps': 0.3,
+        'Front Deltoids': 0.2,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'bench_press',
+      name: 'Bench Press',
+      muscleGroup: 'Chest',
+      category: 'Barbell',
+      instructions: 'Lie on a bench with a barbell at chest level. Grip the barbell and press it upwards until your arms are fully extended, then lower it back down to your chest.',
+      targetedMuscles: {
+        'Pectoralis Major': 0.5,
+        'Triceps': 0.3,
+        'Front Deltoids': 0.2,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'bench_pull',
+      name: 'Bench Pull',
+      muscleGroup: 'Back',
+      category: 'Free Weights',
+      instructions: 'Lie face down on a bench with a barbell hanging off the edge. Grip the barbell and pull it towards your lower ribcage while keeping your elbows close to your body, then lower back down.',
+      targetedMuscles: {
+        'Latissimus Dorsi': 0.5,
+        'Rhomboids': 0.3,
+        'Biceps': 0.2,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'bent_arm_barbell_pullover',
+      name: 'Bent Arm Barbell Pullover',
+      muscleGroup: 'Chest',
+      category: 'Free Weights',
+      instructions: 'Lie on a bench with a barbell held above your chest, arms bent at 90 degrees. Lower the barbell behind your head while keeping your elbows bent, then pull it back to the starting position.',
+      targetedMuscles: {
+        'Pectoralis Major': 0.5,
+        'Latissimus Dorsi': 0.3,
+        'Triceps': 0.2,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'bent_over_dumbbell_fly',
+      name: 'Bent Over Dumbbell Fly',
+      muscleGroup: 'Shoulders',
+      category: 'Free Weights',
+      instructions: 'Stand with a dumbbell in each hand, arms hanging down. Bend at the hips and knees to lower your torso. Raise the dumbbells out to the sides while keeping your elbows slightly bent, then lower back down.',
+      targetedMuscles: {
+        'Rear Deltoids': 0.5,
+        'Rhomboids': 0.3,
+        'Trapezius': 0.2,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'bent_over_row',
+      name: 'Bent Over Row',
+      muscleGroup: 'Back',
+      category: 'Barbell',
+      instructions: 'Stand with a barbell in both hands, arms fully extended. Bend at the hips and knees to lower your torso. Pull the barbell towards your lower ribcage while keeping your elbows close to your body, then lower back down.',
+      targetedMuscles: {
+        'Latissimus Dorsi': 0.5,
+        'Rhomboids': 0.3,
+        'Biceps': 0.2,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'bicycle_crunch',
+      name: 'Bicycle Crunch',
+      muscleGroup: 'Core',
+      category: 'Bodyweight',
+      instructions: 'Lie on your back with your hands behind your head and legs raised. Bring one knee towards your chest while extending the opposite leg, then twist your torso to bring your elbow towards the bent knee. Alternate sides in a pedaling motion.',
+      targetedMuscles: {
+        'Rectus Abdominis': 0.5,
+        'Obliques': 0.3,
+        'Hip Flexors': 0.2,
+      },
+      type: 'Bodyweight Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'bird_dog',
+      name: 'Bird Dog',
+      muscleGroup: 'Core',
+      category: 'Bodyweight',
+      instructions: 'Start on all fours with your hands under your shoulders and knees under your hips. Extend one arm forward and the opposite leg back while keeping your core engaged. Hold for a moment, then return to the starting position and switch sides.',
+      targetedMuscles: {
+        'Core': 0.5,
+        'Lower Back': 0.3,
+        'Glutes': 0.2,
+      },
+      type: 'Bodyweight Reps',
+      weightedSupport: true
+    ),
+    ExerciseModel(
+      id: 'bodyweight_calf_raise',
+      name: 'Bodyweight Calf Raise',
+      muscleGroup: 'Calves',
+      category: 'Bodyweight',
+      instructions: 'Stand with your feet shoulder-width apart. Raise your heels off the ground by pushing through the balls of your feet, then lower back down.',
+      targetedMuscles: {
+        'Gastrocnemius': 0.6,
+        'Soleus': 0.4,
+      },
+      type: 'Bodyweight Reps',
+      weightedSupport: false
+    ),
+    ExerciseModel(
+      id: 'box_jump',
+      name: 'Box Jump',
+      muscleGroup: 'Legs',
+      category: 'Bodyweight',
+      instructions: 'Stand in front of a sturdy box or platform. Bend your knees and swing your arms back, then jump onto the box, landing softly with your knees slightly bent. Step back down and repeat.',
+      targetedMuscles: {
+        'Quadriceps': 0.4,
+        'Hamstrings': 0.3,
+        'Glutes': 0.2,
+        'Calves': 0.1,
+      },
+      type: 'Bodyweight Reps',
+      weightedSupport: false
+    ),
+    ExerciseModel(
+      id: 'box_squat',
+      name: 'Box Squat',
+      muscleGroup: 'Legs',
+      category: 'Bodyweight',
+      instructions: 'Stand in front of a sturdy box or platform. Squat down until your buttocks touch the box, then push through your heels to return to the starting position.',
+      targetedMuscles: {
+        'Quadriceps': 0.5,
+        'Hamstrings': 0.3,
+        'Glutes': 0.2,
+      },
+      type: 'Bodyweight Reps',
+      weightedSupport: false
+    ),
+    ExerciseModel(
+      id: 'bulgarian_split_squat',
+      name: 'Bulgarian Split Squat',
+      muscleGroup: 'Legs',
+      category: 'Free Weights',
+      instructions: 'Stand a few feet in front of a bench or elevated surface. Place one foot on the bench behind you. Lower your body by bending your front knee until your thigh is parallel to the ground, then push through your front heel to return to the starting position.',
+      targetedMuscles: {
+        'Quadriceps': 0.5,
+        'Hamstrings': 0.3,
+        'Glutes': 0.2,
+      },
+      type: 'Weighted Reps',
+      weightedSupport: true
+    ),

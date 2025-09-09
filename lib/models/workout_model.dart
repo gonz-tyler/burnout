@@ -36,4 +36,30 @@ class WorkoutModel {
       notes: notes ?? this.notes,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'exercises': exercises.map((e) => e.toJson()).toList(),
+      'lastCompleted': lastCompleted?.toIso8601String(),
+      'notes': notes,
+    };
+  }
+
+  factory WorkoutModel.fromJson(Map<String, dynamic> json) {
+    return WorkoutModel(
+      id: json['id'],
+      name: json['name'],
+      description: json['description'] ?? '',
+      exercises: (json['exercises'] as List)
+          .map((e) => ExerciseInWorkout.fromJson(e))
+          .toList(),
+      lastCompleted: json['lastCompleted'] != null
+          ? DateTime.parse(json['lastCompleted'])
+          : null,
+      notes: json['notes'],
+    );
+  }
 }

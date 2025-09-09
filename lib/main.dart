@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'screens/workout_screen.dart';
@@ -6,6 +5,7 @@ import 'screens/exercise_screen.dart';
 import 'screens/body_metrics_screen.dart';
 import 'screens/insights_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/profile_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
           systemOverlayStyle: SystemUiOverlayStyle.light,
         ),
       ),
-      home: WorkoutApp(),
+      home: SafeArea(child: WorkoutApp()),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -41,17 +41,18 @@ class _WorkoutAppState extends State<WorkoutApp> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
-    WorkoutsPage(),
     ExercisesPage(),
     BodyMetricsPage(),
+    WorkoutsPage(),
     InsightsPage(),
-    SettingsPage(),
+    ProfilePage(),
+    // SettingsPage(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_currentIndex],
+      body: SafeArea(child: _pages[_currentIndex]),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.grey[900],
@@ -67,11 +68,7 @@ class _WorkoutAppState extends State<WorkoutApp> {
           elevation: 0,
           items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.fitness_center),
-              label: 'Workouts',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.list),
+              icon: Icon(Icons.list_rounded),
               label: 'Exercises',
             ),
             BottomNavigationBarItem(
@@ -79,31 +76,17 @@ class _WorkoutAppState extends State<WorkoutApp> {
               label: 'Metrics',
             ),
             BottomNavigationBarItem(
+              icon: Icon(Icons.fitness_center_rounded, size: 48),
+              label: '',
+            ),
+            BottomNavigationBarItem(
               icon: Icon(Icons.insights),
               label: 'Insights',
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: 'Settings',
-            ),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
           ],
         ),
       ),
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

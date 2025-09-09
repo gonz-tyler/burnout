@@ -1,0 +1,6 @@
+{
+  "@@locale": "en",
+  "appTitle": "My Awesome App",
+  "welcomeMessage": "Hello {userName}, welcome back!",
+  "buttonSubmit": "Submit"
+}
