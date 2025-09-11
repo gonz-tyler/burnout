@@ -1,6 +1,482 @@
 {
   "@@locale": "en",
-  "appTitle": "My Awesome App",
-  "welcomeMessage": "Hello {userName}, welcome back!",
-  "buttonSubmit": "Submit"
+  "dashboardTitle": "dashboard.",
+  "workoutsTitle": "workouts.",
+  "profileTitle": "profile.",
+  "yourProgress": "Your Progress",
+  "@yourProgress": {
+    "description": "Profile page progress section title"
+  },
+  "keepProgressing": "Keep building greatness!",
+  "@keepProgressing": {
+    "description": "Encouragement message on profile"
+  },
+  "totalWorkouts": "Total Workouts",
+  "@totalWorkouts": {
+    "description": "Total workouts stat label"
+  },
+  "daysLeft": "Days Left on Streak",
+  "completedToday": "Completed Due Today",
+  "@completedToday": {
+    "description": "Completed today stat label"
+  },
+  "totalCompletions": "Total Completions",
+  "@totalCompletions": {
+    "description": "Total completions stat label"
+  },
+  "quickActions": "Quick Actions",
+  "@quickActions": {
+    "description": "Quick actions section title"
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings menu item"
+  },
+  "customizeAppExperience": "Customize your app experience and preferences",
+  "@customizeAppExperience": {
+    "description": "Settings description"
+  },
+  "supportTheCreator": "Support the Creator",
+  "@supportTheCreator": {
+    "description": "Support section title"
+  },
+  "enjoyingTheApp": "Enjoying the app?",
+  "@enjoyingTheApp": {
+    "description": "Support section question"
+  },
+  "supportHelpsImprove": "Your support helps us continue improving and adding new features!",
+  "@supportHelpsImprove": {
+    "description": "Support section description"
+  },
+  "rateApp": "Rate App",
+  "@rateApp": {
+    "description": "Rate app button text"
+  },
+  "buyCoffee": "Buy Coffee",
+  "@buyCoffee": {
+    "description": "Buy coffee button text"
+  },
+  "comingSoon": "Coming Soon!",
+  "@comingSoon": {
+    "description": "Coming soon dialog title"
+  },
+  "featureAvailableInFuture": "{feature} will be available in a future update.",
+  "@featureAvailableInFuture": {
+    "description": "Coming soon dialog message",
+    "placeholders": {
+      "feature": {
+        "type": "String",
+        "description": "The feature name"
+      }
+    }
+  },
+  "madeWithLove": "Made with ",
+  "ok": "OK",
+  "@ok": {
+    "description": "OK button text"
+  },
+  "customizePreferences": "Customize your app experience and preferences",
+  "@customizePreferences": {
+    "description": "Description for customizing app preferences"
+  },
+  "supportCreator": "Support the Creator",
+  "@supportCreator": {
+    "description": "Support section title"
+  },
+  "enjoyingApp": "Enjoying the app?",
+  "@enjoyingApp": {
+    "description": "Support section question"
+  },
+  "supportMessage": "Your support helps us continue improving and adding new features!",
+  "@supportMessage": {
+    "description": "Support section description"
+  },
+  "appStoreRating": "App Store Rating",
+  "@appStoreRating": {
+    "description": "Button text for rating the app"
+  },
+  "supportOptions": "Support Options",
+  "@supportOptions": {
+    "description": "Title for support options"
+  },
+  "appDescription": "Build a better body, one day at a time.",
+  "@appDescription": {
+    "description": "Short description of the app"
+  },
+  "language": "Language",
+  "@language": {
+    "description": "Language section header"
+  },
+  "languageSelection": "Language Selection",
+  "@languageSelection": {
+    "description": "Language selection title"
+  },
+  "languageSelectionDescription": "Choose your preferred language for the app interface",
+  "@languageSelectionDescription": {
+    "description": "Description for language selection"
+  },
+  "systemDefault": "System Default",
+  "@systemDefault": {
+    "description": "System default option"
+  },
+  "followDeviceLanguage": "Follow device language settings",
+  "@followDeviceLanguage": {
+    "description": "Description for following device language"
+  },
+  "englishLanguageDescription": "Change the application language to English.",
+  "@englishLanguageDescription": {
+    "description": "Description for English language option"
+  },
+  "spanishLanguageDescription": "Cambiar el idioma de la aplicación a español.",
+  "@spanishLanguageDescription": {
+    "description": "Description for Spanish language option"
+  },
+  "frenchLanguageDescription": "Changer la langue de l'application en français.",
+  "appearance": "Appearance",
+  "@appearance": {
+    "description": "Appearance section header"
+  },
+  "themeMode": "Theme Mode",
+  "@themeMode": {
+    "description": "Theme mode selection title"
+  },
+  "themeModeDescription": "Choose between light, dark, or system theme",
+  "@themeModeDescription": {
+    "description": "Description for theme mode selection"
+  },
+  "followDeviceSettings": "Follow device theme settings",
+  "@followDeviceSettings": {
+    "description": "Description for following device theme"
+  },
+  "lightMode": "Light Mode",
+  "@lightMode": {
+    "description": "Light theme option"
+  },
+  "lightModeDescription": "Use light theme colors",
+  "@lightModeDescription": {
+    "description": "Description for light theme"
+  },
+  "darkMode": "Dark Mode",
+  "@darkMode": {
+    "description": "Dark theme option"
+  },
+  "darkModeDescription": "Use dark theme colors",
+  "@darkModeDescription": {
+    "description": "Description for dark theme"
+  },
+  "colorTheme": "Color Theme",
+  "@colorTheme": {
+    "description": "Color theme selection title"
+  },
+  "colorThemeDescription": "Choose your preferred color scheme",
+  "@colorThemeDescription": {
+    "description": "Description for color theme selection"
+  },
+  "quotes": "Quotes",
+  "@quotes": {
+    "description": "Quotes section header"
+  },
+  "showQuotes": "Show Quotes",
+  "@showQuotes": {
+    "description": "Show quotes toggle"
+  },
+  "quotesDescription": "Display inspirational quotes throughout the app",
+  "@quotesDescription": {
+    "description": "Description for quotes feature"
+  },
+  "quotesEnabled": "Quotes enabled",
+  "@quotesEnabled": {
+    "description": "Message when quotes are enabled"
+  },
+  "quotesDisabled": "Quotes disabled",
+  "@quotesDisabled": {
+    "description": "Message when quotes are disabled"
+  },
+  "dailyMoodQuiz": "Daily Mood Quiz",
+  "@dailyMoodQuiz": {
+    "description": "Daily mood quiz section header and title"
+  },
+  "moodQuizDescription": "Track your daily mood and emotional well-being",
+  "@moodQuizDescription": {
+    "description": "Description for mood quiz feature"
+  },
+  "moodQuizEnabled": "Daily mood quiz enabled",
+  "@moodQuizEnabled": {
+    "description": "Message when mood quiz is enabled"
+  },
+  "moodQuizDisabled": "Daily mood quiz disabled",
+  "@moodQuizDisabled": {
+    "description": "Message when mood quiz is disabled"
+  },
+  "notifications": "Notifications",
+  "@notifications": {
+    "description": "Notifications section header"
+  },
+  "dailyReminders": "Daily Reminders",
+  "@dailyReminders": {
+    "description": "Daily reminders setting"
+  },
+  "dailyRemindersDescription": "Get reminded to check in with your habits daily",
+  "@dailyRemindersDescription": {
+    "description": "Description for daily reminders"
+  },
+  "streakNotifications": "Streak Notifications",
+  "@streakNotifications": {
+    "description": "Streak notifications setting"
+  },
+  "streakNotificationsDescription": "Get notified about your habit streaks and milestones",
+  "@streakNotificationsDescription": {
+    "description": "Description for streak notifications"
+  },
+  "quoteOfTheDay": "Quote of the Day",
+  "@quoteOfTheDay": {
+    "description": "Quote of the day notification setting"
+  },
+  "quoteOfTheDayDescription": "Receive daily inspirational quotes",
+  "@quoteOfTheDayDescription": {
+    "description": "Description for quote of the day notifications"
+  },
+  "dataAndPrivacy": "Data & Privacy",
+  "@dataAndPrivacy": {
+    "description": "Data and privacy section header"
+  },
+  "exportData": "Export Data",
+  "@exportData": {
+    "description": "Export data option"
+  },
+  "exportDataDescription": "Export all your data to a backup file",
+  "@exportDataDescription": {
+    "description": "Description for export data feature"
+  },
+  "importData": "Import Data",
+  "@importData": {
+    "description": "Import data option"
+  },
+  "importDataDescription": "Import data from a backup file",
+  "@importDataDescription": {
+    "description": "Description for import data feature"
+  },
+  "clearAllData": "Clear All Data",
+  "@clearAllData": {
+    "description": "Clear all data option"
+  },
+  "clearAllDataDescription": "Permanently delete all your data",
+  "@clearAllDataDescription": {
+    "description": "Description for clear all data feature"
+  },
+  "clearAllDataWarning": "This action cannot be undone. All your habits, progress, and settings will be permanently deleted.",
+  "@clearAllDataWarning": {
+    "description": "Warning message for clearing all data"
+  },
+  "about": "About",
+  "@about": {
+    "description": "About section header"
+  },
+  "privacyPolicy": "Privacy Policy",
+  "@privacyPolicy": {
+    "description": "Privacy policy option"
+  },
+  "privacyPolicyDescription": "Read our privacy policy",
+  "@privacyPolicyDescription": {
+    "description": "Description for privacy policy link"
+  },
+  "termsOfService": "Terms of Service",
+  "@termsOfService": {
+    "description": "Terms of service option"
+  },
+  "termsOfServiceDescription": "Read our terms of service",
+  "@termsOfServiceDescription": {
+    "description": "Description for terms of service link"
+  },
+  "appVersion": "App Version",
+  "@appVersion": {
+    "description": "App version label"
+  },
+  "couldNotOpenPrivacyPolicy": "Could not open privacy policy",
+  "@couldNotOpenPrivacyPolicy": {
+    "description": "Error message when privacy policy cannot be opened"
+  },
+  "couldNotOpenTermsOfService": "Could not open terms of service",
+  "@couldNotOpenTermsOfService": {
+    "description": "Error message when terms of service cannot be opened"
+  },
+  "exportingData": "Exporting data...",
+  "@exportingData": {
+    "description": "Loading message while exporting data"
+  },
+  "couldNotAccessStorage": "Could not access storage",
+  "@couldNotAccessStorage": {
+    "description": "Error message when storage cannot be accessed"
+  },
+  "exportSuccessful": "Export Successful",
+  "@exportSuccessful": {
+    "description": "Success message for data export"
+  },
+  "dataExportedTo": "Your data has been exported to:",
+  "@dataExportedTo": {
+    "description": "Message showing where data was exported"
+  },
+  "copyDataDirectly": "Or copy the data directly:",
+  "@copyDataDirectly": {
+    "description": "Option to copy data directly"
+  },
+  "copyData": "Copy Data",
+  "@copyData": {
+    "description": "Button to copy data"
+  },
+  "dataCopiedToClipboard": "Data copied to clipboard",
+  "@dataCopiedToClipboard": {
+    "description": "Message when data is copied to clipboard"
+  },
+  "exportFailed": "Export Failed",
+  "@exportFailed": {
+    "description": "Error message when export fails"
+  },
+  "failedToExportData": "Failed to export data",
+  "@failedToExportData": {
+    "description": "Error message for export failure"
+  },
+  "chooseImportMethod": "Choose how you want to import your data:",
+  "@chooseImportMethod": {
+    "description": "Message for choosing import method"
+  },
+  "fromFile": "From File",
+  "@fromFile": {
+    "description": "Import from file option"
+  },
+  "selectBackupFile": "Select a backup file from your device",
+  "@selectBackupFile": {
+    "description": "Description for file import"
+  },
+  "pasteData": "Paste Data",
+  "@pasteData": {
+    "description": "Paste data option"
+  },
+  "manuallyPasteData": "Manually paste your backup data",
+  "@manuallyPasteData": {
+    "description": "Description for paste data import"
+  },
+  "readingFile": "Reading file...",
+  "@readingFile": {
+    "description": "Loading message while reading file"
+  },
+  "importFailed": "Import Failed",
+  "@importFailed": {
+    "description": "Error message when import fails"
+  },
+  "failedToImportData": "Failed to import data",
+  "@failedToImportData": {
+    "description": "Error message for import failure"
+  },
+  "pasteDataDescription": "Paste your backup data (JSON format) below:",
+  "@pasteDataDescription": {
+    "description": "Instructions for pasting data"
+  },
+  "pasteJsonDataHint": "Paste your JSON backup data here...",
+  "@pasteJsonDataHint": {
+    "description": "Hint text for JSON data input"
+  },
+  "pasteDataWarning": "Warning: This will replace all your current data!",
+  "@pasteDataWarning": {
+    "description": "Warning message for data replacement"
+  },
+  "import": "Import",
+  "@import": {
+    "description": "Import button text"
+  },
+  "importingData": "Importing data...",
+  "@importingData": {
+    "description": "Loading message while importing data"
+  },
+  "invalidImportData": "Invalid import data format",
+  "@invalidImportData": {
+    "description": "Error message for invalid import data"
+  },
+  "importSuccessful": "Import Successful",
+  "@importSuccessful": {
+    "description": "Success message for data import"
+  },
+  "dataImportedSuccessfully": "Your data has been imported successfully",
+  "@dataImportedSuccessfully": {
+    "description": "Success message for data import"
+  },
+  "clearData": "Clear Data",
+  "@clearData": {
+    "description": "Clear data button text"
+  },
+  "dataCleared": "Data Cleared",
+  "@dataCleared": {
+    "description": "Success message when data is cleared"
+  },
+  "allDataHasBeenCleared": "All your data has been permanently deleted",
+  "@allDataHasBeenCleared": {
+    "description": "Message when all data is cleared"
+  },
+  "restartAppToApplyChanges": "Some changes may require restarting the app to take full effect",
+  "@restartAppToApplyChanges": {
+    "description": "Message about restarting app for changes"
+  },
+  "restartApp": "Restart App",
+  "@restartApp": {
+    "description": "Restart app button text"
+  },
+  "dailyRemindersEnabled": "Daily reminders enabled",
+  "@dailyRemindersEnabled": {
+    "description": "Message when daily reminders are enabled"
+  },
+  "dailyRemindersDisabled": "Daily reminders disabled",
+  "@dailyRemindersDisabled": {
+    "description": "Message when daily reminders are disabled"
+  },
+  "streakNotificationsEnabled": "Streak notifications enabled",
+  "@streakNotificationsEnabled": {
+    "description": "Message when streak notifications are enabled"
+  },
+  "streakNotificationsDisabled": "Streak notifications disabled",
+  "@streakNotificationsDisabled": {
+    "description": "Message when streak notifications are disabled"
+  },
+  "notificationsEnabled": "Notifications enabled",
+  "@notificationsEnabled": {
+    "description": "Message when notifications are enabled"
+  },
+  "notificationsSetTime": "Daily habits reminder set for {time}",
+  "@notificationsSetTime": {
+    "description": "Message showing the time daily reminders are set for",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "description": "The time the reminders are set for"
+      }
+    }
+  },
+  "notificationsDisabled": "Notifications disabled",
+  "@notificationsDisabled": {
+    "description": "Message when notifications are disabled"
+  },
+  "notificationPermission": "Notification Permission",
+  "@notificationPermission": {
+    "description": "Notification permission section header"
+  },
+  "notificationPermissionDescription": "Manage notification permissions for the app",
+  "@notificationPermissionDescription": {
+    "description": "Description for notification permission management"
+  },
+  "streakCheckTitle": "Workout Streak Update",
+  "@streakCheckTitle": {
+    "description": "Title for the daily notification that checks for streak updates."
+  },
+  "streakMilestoneBody": "Congratulations! You've maintained your workout streak. Keep up the great work!",
+  "streakMilestoneTitle": "{count, plural, =1{1 Day Streak!} other{{count} Day Streak!}}",
+  "@streakMilestoneTitle": {
+    "description": "Title shown when a user hits a specific streak milestone.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
+  "dailyQuoteNotificationTitle": "Quote of the Day",
+  "streakInfo": "Keep an eye on your daily streak here. It turns orange when all of today's habits are complete!"
 }

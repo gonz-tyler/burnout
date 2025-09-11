@@ -1,52 +1,18 @@
-import 'package:Blackout/helper/streak_helper.dart';
+// lib/screens/profile_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../components/habit/habit_view_model.dart';
+import '../viewmodels/workout_view_model.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:showcaseview/showcaseview.dart';
 
-class ProfilePage extends StatelessWidget {
-  ProfilePage({Key? key}) : super(key: key);
-
-  final GlobalKey _statsCardKey = GlobalKey();
-  final GlobalKey _quickActionsKey = GlobalKey();
-  final GlobalKey _supportCardKey = GlobalKey();
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final habitViewModel = context.watch<HabitViewModel>();
-    final l10n = AppLocalizations.of(context)!; // Localization instance
-
-    // Calculate user statistics
-    final today = DateTime(
-      DateTime.now().year,
-      DateTime.now().month,
-      DateTime.now().day,
-    );
-    final totalHabits = habitViewModel.habits.length;
-    final dueToday = habitViewModel.getHabitsDueOn(today).length;
-    final completedToday =
-        habitViewModel.habits.where((habit) {
-          final today = DateTime.now();
-          final completions =
-              habit.completedDates[DateTime(
-                today.year,
-                today.month,
-                today.day,
-              )] ??
-              0;
-          return completions >= habit.timesPerDay;
-        }).length;
-
-    final totalCompletions = habitViewModel.habits.fold<int>(
-      0,
-      (sum, habit) =>
-          sum +
-          habit.completedDates.values.fold<int>(
-            0,
-            (total, count) => total + count,
-          ),
-    );
+    // We can already connect this to the ViewModel to display the streak
+    final workoutViewModel = context.watch<WorkoutViewModel>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
@@ -57,52 +23,44 @@ class ProfilePage extends StatelessWidget {
           ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         centerTitle: false,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        elevation: 0,
         actions: [
           Padding(
-            padding: const EdgeInsets.only(
-              right: 16.0,
-            ), // Add padding to match example
-            child: Consumer<HabitViewModel>(
-              builder: (context, habitViewModel, child) {
-                final int streakCount = habitViewModel.universalStreak;
-                final bool completedToday = habitViewModel.isTodayComplete;
-                return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.local_fire_department,
+                    color:
+                        workoutViewModel.didWorkoutToday
+                            ? Colors.orange
+                            : Colors.grey,
+                    size: 18,
                   ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceVariant,
-                    borderRadius: BorderRadius.circular(20),
+                  const SizedBox(width: 6),
+                  Text(
+                    '${workoutViewModel.currentStreak}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color:
+                          workoutViewModel.didWorkoutToday
+                              ? Colors.orange
+                              : Colors.grey,
+                    ),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.local_fire_department,
-                        color: completedToday ? Colors.orange : Colors.grey,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        '$streakCount',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: completedToday ? Colors.orange : Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
+                ],
+              ),
             ),
           ),
         ],
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        elevation: 0,
-        iconTheme: IconThemeData(
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -153,7 +111,7 @@ class ProfilePage extends StatelessWidget {
                                       ?.copyWith(fontWeight: FontWeight.bold),
                                 ),
                                 Text(
-                                  l10n.keepBuildingHabits,
+                                  l10n.keepProgressing,
                                   style: Theme.of(context).textTheme.bodyMedium
                                       ?.copyWith(color: Colors.grey[600]),
                                 ),
@@ -170,16 +128,18 @@ class ProfilePage extends StatelessWidget {
                         Expanded(
                           child: _buildStatItem(
                             context,
-                            l10n.totalHabits,
-                            totalHabits.toString(),
+                            l10n.totalWorkouts,
+                            // totalWorkouts.toString(),
+                            "placeholder",
                             Icons.list_alt,
                           ),
                         ),
                         Expanded(
                           child: _buildStatItem(
                             context,
-                            l10n.completedToday,
-                            '$completedToday/$dueToday',
+                            l10n.daysLeft,
+                            // daysLeft.toString(),
+                            "placeholder",
                             Icons.today,
                           ),
                         ),
@@ -187,7 +147,8 @@ class ProfilePage extends StatelessWidget {
                           child: _buildStatItem(
                             context,
                             l10n.totalCompletions,
-                            totalCompletions.toString(),
+                            // totalCompletions.toString(),
+                            "placeholder",
                             Icons.check_circle,
                           ),
                         ),
@@ -214,24 +175,6 @@ class ProfilePage extends StatelessWidget {
             ),
             // ),
             const SizedBox(height: 12),
-
-            _buildActionCard(
-              context,
-              l10n.favoriteQuotes,
-              l10n.manageQuotes,
-              Icons.favorite,
-              Colors.red,
-              () => Navigator.pushNamed(context, '/favourites'),
-            ),
-
-            _buildActionCard(
-              context,
-              l10n.journalEntries,
-              l10n.viewJournalEntries,
-              Icons.article,
-              Colors.green,
-              () => Navigator.pushNamed(context, '/journal'),
-            ),
 
             _buildActionCard(
               context,
@@ -317,6 +260,26 @@ class ProfilePage extends StatelessWidget {
             // ),
             const SizedBox(height: 24),
 
+            Row(
+              mainAxisSize: MainAxisSize.max, // Row expands fully
+              mainAxisAlignment:
+                  MainAxisAlignment
+                      .center, // Center children within the expanded space
+              children: [
+                Text(
+                  l10n.madeWithLove,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                  // textAlign: TextAlign.center, // No longer necessary if Row handles centering
+                ),
+                SizedBox(width: 4), // Add a small space between text and icon
+                Icon(Icons.favorite, color: Colors.grey[600], size: 16),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
             // App Info
             Card(
               elevation: 1,
@@ -334,7 +297,7 @@ class ProfilePage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${const String.fromEnvironment('NAME', defaultValue: 'Blackout')} v${const String.fromEnvironment('VERSION', defaultValue: '1.0.0')}',
+                            '${const String.fromEnvironment('NAME', defaultValue: 'Burnout')} v${const String.fromEnvironment('VERSION', defaultValue: '1.0.0')}',
                             style: Theme.of(context).textTheme.bodyMedium
                                 ?.copyWith(fontWeight: FontWeight.w500),
                           ),

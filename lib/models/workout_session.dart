@@ -1,88 +1,66 @@
-// models/workout_session.dart
-import 'package:burnout/models/exercise_in_workout.dart';
+// lib/models/workout_session.dart
+import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart';
+import 'enums.dart';
 
+part 'workout_session.g.dart'; // Add this line
+
+@immutable
+@HiveType(typeId: 5) // Assign unique typeId 5
 class WorkoutSession {
+  @HiveField(0)
   final String id;
-  final String workoutId;
-  final String workoutName;
-  final List<ExerciseInWorkout> exercises;
-  final DateTime startedAt;
-  final DateTime completedAt;
-  final Duration? duration;
-  final String? notes;
+  @HiveField(1)
+  final String? routineId;
+  @HiveField(2)
+  final DateTime dateCompleted;
+  @HiveField(3)
+  final int durationInMinutes;
+  @HiveField(4)
+  final List<PerformedExercise> performedExercises;
+  @HiveField(5)
+  final int? userFeedbackRPE;
 
-  WorkoutSession({
+  const WorkoutSession({
     required this.id,
-    required this.workoutId,
-    required this.workoutName,
-    required this.exercises,
-    required this.startedAt,
-    required this.completedAt,
-    this.duration,
-    this.notes,
+    this.routineId,
+    required this.dateCompleted,
+    required this.durationInMinutes,
+    required this.performedExercises,
+    this.userFeedbackRPE,
   });
+}
 
-  Duration get actualDuration => duration ?? completedAt.difference(startedAt);
+@immutable
+@HiveType(typeId: 6) // Assign unique typeId 6 for nested class
+class PerformedExercise {
+  @HiveField(0)
+  final String exerciseId;
+  @HiveField(1)
+  final List<PerformedSet> sets;
 
-  int get completedSets => exercises.fold<int>(0, (sum, exercise) => 
-    sum + exercise.sets.where((set) => set.isCompleted).length
-  );
+  const PerformedExercise({required this.exerciseId, required this.sets});
+}
 
-  int get totalSets => exercises.fold<int>(0, (sum, exercise) => 
-    sum + exercise.sets.length
-  );
+@immutable
+@HiveType(typeId: 7) // Assign unique typeId 7 for nested class
+class PerformedSet {
+  @HiveField(0)
+  final SetType setType;
+  @HiveField(1)
+  final int? reps;
+  @HiveField(2)
+  final double? weight;
+  @HiveField(3)
+  final int? durationInSeconds;
+  @HiveField(4)
+  final int? distanceInMeters;
 
-  double get completionPercentage => totalSets > 0 ? (completedSets / totalSets) * 100 : 0;
-
-  WorkoutSession copyWith({
-    String? id,
-    String? workoutId,
-    String? workoutName,
-    List<ExerciseInWorkout>? exercises,
-    DateTime? startedAt,
-    DateTime? completedAt,
-    Duration? duration,
-    String? notes,
-  }) {
-    return WorkoutSession(
-      id: id ?? this.id,
-      workoutId: workoutId ?? this.workoutId,
-      workoutName: workoutName ?? this.workoutName,
-      exercises: exercises ?? this.exercises,
-      startedAt: startedAt ?? this.startedAt,
-      completedAt: completedAt ?? this.completedAt,
-      duration: duration ?? this.duration,
-      notes: notes ?? this.notes,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'workoutId': workoutId,
-      'workoutName': workoutName,
-      'exercises': exercises.map((e) => e.toJson()).toList(),
-      'startedAt': startedAt.toIso8601String(),
-      'completedAt': completedAt.toIso8601String(),
-      'duration': duration?.inSeconds,
-      'notes': notes,
-    };
-  }
-
-  factory WorkoutSession.fromJson(Map<String, dynamic> json) {
-    return WorkoutSession(
-      id: json['id'],
-      workoutId: json['workoutId'],
-      workoutName: json['workoutName'],
-      exercises: (json['exercises'] as List)
-          .map((e) => ExerciseInWorkout.fromJson(e))
-          .toList(),
-      startedAt: DateTime.parse(json['startedAt']),
-      completedAt: DateTime.parse(json['completedAt']),
-      duration: json['duration'] != null 
-        ? Duration(seconds: json['duration']) 
-        : null,
-      notes: json['notes'],
-    );
-  }
+  const PerformedSet({
+    required this.setType,
+    this.reps,
+    this.weight,
+    this.durationInSeconds,
+    this.distanceInMeters,
+  });
 }
