@@ -20,6 +20,8 @@ enum SetType {
 
 enum WeightMode { weighted, bodyweight, assisted }
 
+enum EditorMode { planning, logging }
+
 extension SetTypeAbbreviation on SetType {
   String get abbreviation {
     switch (this) {

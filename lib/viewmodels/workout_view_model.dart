@@ -11,6 +11,7 @@ class WorkoutViewModel extends ChangeNotifier {
   late final Box<Routine> routinesBox;
   final WorkoutRepository _workoutRepository;
   final StreakService _streakService;
+  final List<Exercise> exercise = [];
 
   WorkoutViewModel({
     required WorkoutRepository workoutRepository,

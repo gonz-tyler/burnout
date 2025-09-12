@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/workout_view_model.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'workout_history_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -130,7 +131,7 @@ class ProfileScreen extends StatelessWidget {
                             context,
                             l10n.totalWorkouts,
                             // totalWorkouts.toString(),
-                            "placeholder",
+                            workoutViewModel.workoutSessions.length.toString(),
                             Icons.list_alt,
                           ),
                         ),
@@ -174,6 +175,20 @@ class ProfileScreen extends StatelessWidget {
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             // ),
+            const SizedBox(height: 12),
+
+            _buildActionCard(
+              context,
+              'Workout History', // You can add this to your l10n file
+              'View your completed sessions',
+              Icons.history,
+              Colors.green,
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const WorkoutHistoryScreen()),
+              ),
+            ),
+
             const SizedBox(height: 12),
 
             _buildActionCard(

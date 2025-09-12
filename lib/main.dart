@@ -140,6 +140,9 @@ class _WorkoutAppState extends State<WorkoutApp> {
 
             return MaterialApp(
               title: 'ProjectOut Workout Tracker',
+              scrollBehavior: const MaterialScrollBehavior().copyWith(
+                scrollbars: false,
+              ),
               theme: lightTheme,
               darkTheme: darkTheme,
               themeMode: mode,

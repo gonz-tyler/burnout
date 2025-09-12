@@ -1,4 +1,5 @@
 // lib/models/routine.dart
+import 'package:burnout/models/exercise.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'planned_set.dart';
@@ -48,6 +49,8 @@ class RoutineExercise {
 
   @HiveField(3)
   final int restTimeInSeconds;
+
+  // late final Exercise exercise;
 
   const RoutineExercise({
     required this.exerciseId,
