@@ -1,102 +1,79 @@
 // lib/repositories/workout_repository.dart
 
-import 'dart:convert';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:burnout/models/models.dart';
 import 'package:hive/hive.dart';
-import '../models/models.dart';
-import 'package:collection/collection.dart';
+import 'package:uuid/uuid.dart';
 
-// Re-use box names defined in main.dart or define them here again
+// Box names
 const String exerciseBoxName = 'exercises';
 const String routineBoxName = 'routines';
 const String workoutSessionBoxName = 'workoutSessions';
+const String planBoxName = 'workoutPlans';
 
 class WorkoutRepository {
-  /// Loads exercises from the local JSON asset file into the Hive box.
-  /// This should be run once on first app launch.
-  Future<void> loadExercisesFromJson() async {
-    final Box<Exercise> exerciseBox = Hive.box<Exercise>(exerciseBoxName);
+  late final Box<Exercise> _exerciseBox;
+  late final Box<Routine> _routineBox;
+  late final Box<WorkoutSession> _workoutSessionBox;
+  late final Box<WorkoutPlan> _planBox;
 
-    // Only load if the box is empty to avoid duplicates on subsequent launches
-    if (exerciseBox.isEmpty) {
-      final String jsonString = await rootBundle.loadString(
-        'assets/data/standardized_exercises.json',
-      );
-      final List<dynamic> jsonList = json.decode(jsonString);
-
-      final Map<String, Exercise> exerciseMap = {};
-      for (var jsonItem in jsonList) {
-        final exercise = Exercise.fromJson(jsonItem);
-        exerciseMap[exercise.id] = exercise; // Use exercise ID as key
-      }
-
-      await exerciseBox.putAll(exerciseMap);
-    }
+  WorkoutRepository() {
+    _exerciseBox = Hive.box<Exercise>(exerciseBoxName);
+    _routineBox = Hive.box<Routine>(routineBoxName);
+    _workoutSessionBox = Hive.box<WorkoutSession>(workoutSessionBoxName);
+    _planBox = Hive.box<WorkoutPlan>(planBoxName);
   }
 
-  PerformedExercise? getPreviousPerformance(String exerciseId) {
-    final allSessions = getAllWorkoutSessions();
-
-    // Use lastWhereOrNull to safely find the session or return null
-    final lastSessionWithExercise = allSessions.lastWhereOrNull(
-      (session) =>
-          session.performedExercises.any((pe) => pe.exerciseId == exerciseId),
-    );
-
-    if (lastSessionWithExercise == null) {
-      return null;
-    }
-
-    return lastSessionWithExercise.performedExercises.firstWhereOrNull(
-      (pe) => pe.exerciseId == exerciseId,
-    );
+  // --- GETTERS ---
+  List<Exercise> getExercises() {
+    return _exerciseBox.values.toList();
   }
 
-  /// Retrieves all exercises stored in the database.
-  List<Exercise> getAllExercises() {
-    final Box<Exercise> exerciseBox = Hive.box<Exercise>(exerciseBoxName);
-    return exerciseBox.values.toList();
+  List<Routine> getRoutines() {
+    return _routineBox.values.toList();
   }
 
-  // --- Workout Session Management ---
-
-  /// Saves a new workout session to the database.
-  Future<void> saveWorkoutSession(WorkoutSession session) async {
-    final Box<WorkoutSession> sessionBox = Hive.box<WorkoutSession>(
-      workoutSessionBoxName,
-    );
-    // 'add' generates an auto-incrementing integer key, suitable for simple local storage.
-    await sessionBox.add(session);
-  }
-
-  /// Retrieves all historical workout sessions, sorted by date.
-  List<WorkoutSession> getAllWorkoutSessions() {
-    final Box<WorkoutSession> sessionBox = Hive.box<WorkoutSession>(
-      workoutSessionBoxName,
-    );
-    final sessions = sessionBox.values.toList();
-    // Sort by date ascending to prepare for streak calculation
+  List<WorkoutSession> getWorkoutSessions() {
+    // Sort by date ascending to make sure the latest is always last
+    final sessions = _workoutSessionBox.values.toList();
     sessions.sort((a, b) => a.dateCompleted.compareTo(b.dateCompleted));
     return sessions;
   }
 
-  // --- Routine Management (Example) ---
-
-  /// Retrieves all user-created routines from the database.
-  List<Routine> getAllRoutines() {
-    final Box<Routine> routineBox = Hive.box<Routine>(routineBoxName);
-    return routineBox.values.toList();
+  // --- WORKOUT SESSION METHODS ---
+  Future<void> addWorkoutSession(WorkoutSession session) async {
+    await _workoutSessionBox.put(session.id, session);
   }
 
-  /// Saves a user-created routine.
-  Future<void> saveRoutine(Routine routine) async {
-    final Box<Routine> routineBox = Hive.box<Routine>(routineBoxName);
-    await routineBox.put(routine.id, routine);
+  // --- ROUTINE METHODS ---
+  Future<void> addRoutine(Routine routine) async {
+    await _routineBox.put(routine.id, routine);
   }
 
-  /// Deletes a routine by its ID.
-  Future<void> deleteRoutine(String routineId) async {
-    final Box<Routine> routineBox = Hive.box<Routine>(routineBoxName);
-    await routineBox.delete(routineId);
+  Future<void> updateRoutine(Routine routine) async {
+    await _routineBox.put(routine.id, routine);
+  }
+
+  Future<void> deleteRoutine(String id) async {
+    await _routineBox.delete(id);
+  }
+
+  Future<void> duplicateRoutine(String id) async {
+    final original = _routineBox.get(id);
+    if (original != null) {
+      final newId = const Uuid().v4();
+      final duplicatedRoutine = original.copyWith(
+        id: newId,
+        name: '${original.name} (Copy)',
+      );
+      await addRoutine(duplicatedRoutine);
+    }
+  }
+
+  // --- EXERCISE METHODS ---
+  Future<void> addExercises(List<Exercise> exercises) async {
+    final Map<String, Exercise> exerciseMap = {
+      for (var e in exercises) e.id: e,
+    };
+    await _exerciseBox.putAll(exerciseMap);
   }
 }

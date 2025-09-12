@@ -1,75 +1,73 @@
 // lib/services/streak_service.dart
 
-import '../models/workout_session.dart';
+import 'package:burnout/models/workout_session.dart';
 
 class StreakService {
-  /// Calculates the user's current workout streak based on a rolling cadence.
-  ///
-  /// [sessions]: A list of all historical workout sessions, sorted by date ascending.
-  /// [streakCadenceInDays]: The number of days a user has to complete a workout
-  ///                        before the streak breaks (e.g., 3 days).
-  int calculateStreak({
-    required List<WorkoutSession> sessions,
-    required int streakCadenceInDays,
-  }) {
+  bool didWorkoutToday(List<WorkoutSession> sessions) {
+    if (sessions.isEmpty) {
+      return false;
+    }
+    final now = DateTime.now();
+    final lastWorkoutDate = sessions.last.dateCompleted;
+
+    return now.year == lastWorkoutDate.year &&
+        now.month == lastWorkoutDate.month &&
+        now.day == lastWorkoutDate.day;
+  }
+
+  int calculateStreak(List<WorkoutSession> sessions) {
     if (sessions.isEmpty) {
       return 0;
     }
 
-    sessions.sort((a, b) => a.dateCompleted.compareTo(b.dateCompleted));
-    final List<WorkoutSession> filteredSessions = _filterSameDayWorkouts(
-      sessions,
-    );
+    final uniqueWorkoutDays =
+        sessions
+            .map(
+              (s) => DateTime(
+                s.dateCompleted.year,
+                s.dateCompleted.month,
+                s.dateCompleted.day,
+              ),
+            )
+            .toSet()
+            .toList();
 
-    if (filteredSessions.isEmpty) {
+    uniqueWorkoutDays.sort((a, b) => b.compareTo(a));
+
+    if (uniqueWorkoutDays.isEmpty) {
       return 0;
     }
 
-    int currentStreak = 0;
-    DateTime? deadline;
+    int streak = 0;
+    final today = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
+    final yesterday = today.subtract(const Duration(days: 1));
 
-    for (final session in filteredSessions) {
-      final sessionDate = session.dateCompleted;
+    // Check if the most recent workout was today or yesterday to start the streak
+    if (uniqueWorkoutDays.first == today ||
+        uniqueWorkoutDays.first == yesterday) {
+      streak = 1;
+      for (int i = 0; i < uniqueWorkoutDays.length - 1; i++) {
+        final currentDay = uniqueWorkoutDays[i];
+        final nextDay = uniqueWorkoutDays[i + 1];
+        final difference = currentDay.difference(nextDay).inDays;
 
-      if (deadline == null) {
-        currentStreak = 1;
-      } else {
-        if (!sessionDate.isAfter(deadline)) {
-          currentStreak++;
+        if (difference == 1) {
+          streak++;
         } else {
-          currentStreak = 1;
+          break; // Streak is broken
         }
       }
-      deadline = _calculateNextDeadline(sessionDate, streakCadenceInDays);
     }
 
-    if (deadline != null && DateTime.now().isAfter(deadline)) {
-      return 0;
+    // If the only workout was today, the streak should be 1.
+    if (didWorkoutToday(sessions) && streak == 0 && sessions.length == 1) {
+      return 1;
     }
 
-    return currentStreak;
-  }
-
-  DateTime _calculateNextDeadline(
-    DateTime currentWorkoutDate,
-    int cadenceDays,
-  ) {
-    final nextDate = currentWorkoutDate.add(Duration(days: cadenceDays));
-    return DateTime(nextDate.year, nextDate.month, nextDate.day, 23, 59, 59);
-  }
-
-  List<WorkoutSession> _filterSameDayWorkouts(List<WorkoutSession> sessions) {
-    final Map<DateTime, WorkoutSession> uniqueDaySessions = {};
-    for (final session in sessions) {
-      final dateOnly = DateTime(
-        session.dateCompleted.year,
-        session.dateCompleted.month,
-        session.dateCompleted.day,
-      );
-      if (!uniqueDaySessions.containsKey(dateOnly)) {
-        uniqueDaySessions[dateOnly] = session;
-      }
-    }
-    return uniqueDaySessions.values.toList();
+    return streak;
   }
 }

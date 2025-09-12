@@ -1,178 +1,218 @@
 // lib/viewmodels/workout_view_model.dart
 
-import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import '../models/models.dart';
 import '../repositories/workout_repository.dart';
 import '../services/streak_service.dart';
+import '../models/models.dart';
 
 class WorkoutViewModel extends ChangeNotifier {
-  late final Box<Routine> routinesBox;
   final WorkoutRepository _workoutRepository;
   final StreakService _streakService;
-  final List<Exercise> exercise = [];
+
+  late List<Routine> _routines;
+  late List<Exercise> _exercises;
+  late List<WorkoutSession> _workoutSessions;
 
   WorkoutViewModel({
     required WorkoutRepository workoutRepository,
     required StreakService streakService,
   }) : _workoutRepository = workoutRepository,
        _streakService = streakService {
-    // --- ADD THIS ---
-    print('✅ WorkoutViewModel CREATED! HashCode: ${this.hashCode}');
-    // ---------------
-    routinesBox = Hive.box<Routine>('routines');
-    // _loadRoutines();
-    // Load initial data when the view model is created
-    loadData();
+    _loadData();
   }
 
-  // --- Internal State ---
-  List<Exercise> _exercises = [];
-  List<WorkoutSession> _sessions = [];
-  List<Routine> _routines = [];
-  int _currentStreak = 0;
-  bool _isLoading = false;
-
-  // --- Getters for UI ---
-  List<Exercise> get exercises => _exercises;
+  // --- Getters to expose data to the UI ---
   List<Routine> get routines => _routines;
-  int get currentStreak => _currentStreak;
-  bool get isLoading => _isLoading;
+  List<Exercise> get exercises => _exercises;
+  List<WorkoutSession> get workoutSessions => _workoutSessions;
 
-  // --- Data Loading Method ---
-  Future<void> loadData() async {
-    _setLoading(true);
+  // Getters for streak data
+  int get currentStreak => _streakService.calculateStreak(_workoutSessions);
+  bool get didWorkoutToday => _streakService.didWorkoutToday(_workoutSessions);
 
-    // Load static exercises from JSON into Hive (if not already done)
-    await _workoutRepository.loadExercisesFromJson();
-
-    // Fetch data from repository
-    _exercises = _workoutRepository.getAllExercises();
-    _sessions = _workoutRepository.getAllWorkoutSessions();
-    _routines = _workoutRepository.getAllRoutines();
-
-    // Calculate business logic
-    _calculateStreak();
-
-    _setLoading(false);
+  // **NEW**: Getters for dashboard statistics
+  double get totalVolume {
+    if (_workoutSessions.isEmpty) return 0;
+    return _workoutSessions.fold(0, (total, session) {
+      return total +
+          session.performedExercises.fold(0, (total, exercise) {
+            return total +
+                exercise.sets.fold(0, (total, set) {
+                  return total + ((set.weight ?? 0) * (set.reps ?? 0));
+                });
+          });
+    });
   }
 
-  // --- Business Logic Methods ---
+  Map<int, int> get weeklyWorkoutCounts {
+    final counts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0};
+    final today = DateTime.now();
+    final sevenDaysAgo = today.subtract(const Duration(days: 6));
 
-  PerformedExercise? getPreviousPerformanceForExercise(String exerciseId) {
-    return _workoutRepository.getPreviousPerformance(exerciseId);
+    for (var session in _workoutSessions) {
+      if (session.dateCompleted.isAfter(sevenDaysAgo) ||
+          DateUtils.isSameDay(session.dateCompleted, sevenDaysAgo)) {
+        counts[session.dateCompleted.weekday] =
+            (counts[session.dateCompleted.weekday] ?? 0) + 1;
+      }
+    }
+    return counts;
   }
 
-  /// Checks if the last workout session occurred today.
-  bool get didWorkoutToday {
-    if (_sessions.isEmpty) return false;
-
-    final lastWorkoutDate = _sessions.last.dateCompleted;
-    final now = DateTime.now();
-
-    return now.day == lastWorkoutDate.day &&
-        now.month == lastWorkoutDate.month &&
-        now.year == lastWorkoutDate.year;
+  // --- Private method to load all data from the repository ---
+  void _loadData() {
+    _routines = _workoutRepository.getRoutines();
+    _exercises = _workoutRepository.getExercises();
+    _workoutSessions = _workoutRepository.getWorkoutSessions();
   }
 
-  // --- Routine Management ---
-  Future<void> addRoutine(Routine routine) async {
-    await _workoutRepository.saveRoutine(routine);
-    // Refresh routines list from repository
-    _routines = _workoutRepository.getAllRoutines();
-    notifyListeners();
-  }
-
-  /// Adds a new workout session and updates the streak.
-  Future<void> addWorkoutSession(WorkoutSession session) async {
-    // Save to database
-    await _workoutRepository.saveWorkoutSession(session);
-
-    // Refresh local state from database
-    _sessions = _workoutRepository.getAllWorkoutSessions();
-
-    // Recalculate streak
-    _calculateStreak();
-
-    // Notify UI to update
-    notifyListeners();
-  }
-
-  void _calculateStreak() {
-    // TODO: Get user's cadence goal from settings (e.g., 3 days)
-    const int streakCadenceInDays = 3;
-
-    _currentStreak = _streakService.calculateStreak(
-      sessions: _sessions,
-      streakCadenceInDays: streakCadenceInDays,
-    );
-  }
-
-  void _setLoading(bool loading) {
-    _isLoading = loading;
-    notifyListeners();
-  }
-
-  // --- DELETE LOGIC ---
-  void deleteRoutine(String routineId) {
-    _routines.removeWhere((routine) => routine.id == routineId);
-    routinesBox.delete(routineId);
-    notifyListeners();
-  }
-
-  // --- EDIT/UPDATE LOGIC ---
-  void updateRoutine(Routine updatedRoutine) {
-    final index = _routines.indexWhere((r) => r.id == updatedRoutine.id);
-    if (index != -1) {
-      _routines[index] = updatedRoutine;
-      routinesBox.put(updatedRoutine.id, updatedRoutine);
-      notifyListeners();
+  // --- Helper Methods ---
+  Exercise? getExerciseById(String id) {
+    try {
+      return _exercises.firstWhere((ex) => ex.id == id);
+    } catch (e) {
+      return null;
     }
   }
 
-  // --- DUPLICATE LOGIC ---
+  // --- Methods to modify data and update the UI ---
+  void addRoutine(Routine routine) {
+    _workoutRepository.addRoutine(routine);
+    _routines = _workoutRepository.getRoutines();
+    notifyListeners();
+  }
+
+  void updateRoutine(Routine routine) {
+    _workoutRepository.updateRoutine(routine);
+    _routines = _workoutRepository.getRoutines();
+    notifyListeners();
+  }
+
+  void deleteRoutine(String routineId) {
+    _workoutRepository.deleteRoutine(routineId);
+    _routines = _workoutRepository.getRoutines();
+    notifyListeners();
+  }
+
   void duplicateRoutine(String routineId) {
-    final originalRoutine = _routines.firstWhere((r) => r.id == routineId);
+    _workoutRepository.duplicateRoutine(routineId);
+    _routines = _workoutRepository.getRoutines();
+    notifyListeners();
+  }
 
-    // 1. Find the base name (strip any existing " copy X" suffix)
-    final baseName = originalRoutine.name.split(' copy ')[0];
+  void addWorkoutSession(WorkoutSession session) {
+    _workoutRepository.addWorkoutSession(session);
+    _workoutSessions = _workoutRepository.getWorkoutSessions();
+    notifyListeners();
+  }
 
-    // 2. Find all other routines that are copies of this original
-    final existingCopies = _routines.where(
-      (r) => r.name.startsWith(baseName + ' copy '),
-    );
+  int? get totalWorkouts {
+    return _workoutSessions.length;
+  }
 
-    // 3. Find the next available copy number
-    int nextCopyNumber = 1;
-    if (existingCopies.isNotEmpty) {
-      final copyNumbers =
-          existingCopies.map((r) {
-            final numPart = r.name.replaceFirst(baseName + ' copy ', '');
-            return int.tryParse(numPart) ?? 0;
-          }).toList();
-      copyNumbers.sort();
-      // Find the first missing number in the sequence (e.g., if we have 1 and 3, use 2)
-      for (int i = 0; i < copyNumbers.length; i++) {
-        if (copyNumbers[i] != i + 1) {
-          nextCopyNumber = i + 1;
-          break;
-        }
-        // If we get to the end, the next number is the highest + 1
-        if (i == copyNumbers.length - 1) {
-          nextCopyNumber = copyNumbers.length + 1;
-        }
+  // Property: Best streak achieved
+  int? get bestStreak {
+    if (_workoutSessions.isEmpty) return 0;
+
+    // Get unique workout dates and sort them
+    final workoutDates =
+        _workoutSessions
+            .map(
+              (session) => DateTime(
+                session.dateCompleted.year,
+                session.dateCompleted.month,
+                session.dateCompleted.day,
+              ),
+            )
+            .toSet()
+            .toList()
+          ..sort();
+
+    if (workoutDates.isEmpty) return 0;
+
+    int maxStreak = 1;
+    int currentStreak = 1;
+
+    for (int i = 1; i < workoutDates.length; i++) {
+      final daysDifference =
+          workoutDates[i].difference(workoutDates[i - 1]).inDays;
+
+      if (daysDifference == 1) {
+        currentStreak++;
+      } else {
+        maxStreak = maxStreak > currentStreak ? maxStreak : currentStreak;
+        currentStreak = 1;
       }
     }
 
-    // 4. Create the new duplicate object
-    final newName = '$baseName copy $nextCopyNumber';
-    final newRoutine = originalRoutine.copyWith(
-      id: const Uuid().v4(), // Give it a new unique ID!
-      name: newName,
+    return maxStreak > currentStreak ? maxStreak : currentStreak;
+  }
+
+  // Property: Workouts completed this week
+  int? get weeklyWorkouts {
+    if (_workoutSessions.isEmpty) return 0;
+
+    final now = DateTime.now();
+    final startOfWeek = now.subtract(Duration(days: now.weekday - 1)); // Monday
+    final startOfWeekDate = DateTime(
+      startOfWeek.year,
+      startOfWeek.month,
+      startOfWeek.day,
+    );
+    final endOfWeekDate = startOfWeekDate.add(
+      const Duration(days: 6, hours: 23, minutes: 59, seconds: 59),
     );
 
-    // 5. Add it using your existing addRoutine method
-    addRoutine(newRoutine);
+    return _workoutSessions.where((session) {
+      return session.dateCompleted.isAfter(
+            startOfWeekDate.subtract(const Duration(seconds: 1)),
+          ) &&
+          session.dateCompleted.isBefore(
+            endOfWeekDate.add(const Duration(seconds: 1)),
+          );
+    }).length;
+  }
+
+  // Property: Workouts completed this month
+  int? get monthlyWorkouts {
+    if (_workoutSessions.isEmpty) return 0;
+
+    final now = DateTime.now();
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    final endOfMonth = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
+
+    return _workoutSessions.where((session) {
+      return session.dateCompleted.isAfter(
+            startOfMonth.subtract(const Duration(seconds: 1)),
+          ) &&
+          session.dateCompleted.isBefore(
+            endOfMonth.add(const Duration(seconds: 1)),
+          );
+    }).length;
+  }
+
+  // Method: Get workout count for specific day of current week
+  int getWorkoutsForDay(int dayIndex) {
+    if (_workoutSessions.isEmpty) return 0;
+
+    final now = DateTime.now();
+    final startOfWeek = now.subtract(Duration(days: now.weekday - 1)); // Monday
+    final targetDate = startOfWeek.add(Duration(days: dayIndex));
+    final targetDateOnly = DateTime(
+      targetDate.year,
+      targetDate.month,
+      targetDate.day,
+    );
+
+    return _workoutSessions.where((session) {
+      final sessionDateOnly = DateTime(
+        session.dateCompleted.year,
+        session.dateCompleted.month,
+        session.dateCompleted.day,
+      );
+      return sessionDateOnly.isAtSameMomentAs(targetDateOnly);
+    }).length;
   }
 }

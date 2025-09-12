@@ -1,15 +1,14 @@
 // lib/screens/routine_editor_screen.dart
 
+import 'package:burnout/models/models.dart';
+import 'package:burnout/providers/user_settings_provider.dart';
+import 'package:burnout/viewmodels/workout_view_model.dart';
+import 'package:burnout/widgets/hevy_style_set_row.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
-import '../models/models.dart';
-import '../viewmodels/workout_view_model.dart';
-import '../widgets/planned_set_editor_row.dart';
-import '../providers/user_settings_provider.dart';
 import 'exercise_picker_screen.dart';
-import '../models/enums.dart';
 
 class RoutineEditorScreen extends StatefulWidget {
   final Routine? initialRoutine;
@@ -33,7 +32,6 @@ class _RoutineEditorScreenState extends State<RoutineEditorScreen> {
     if (_isEditing) {
       final routine = widget.initialRoutine!;
       _nameController.text = routine.name;
-      // Deep copy to ensure the original routine isn't mutated until saved
       _routineExercises.addAll(routine.exercises.map((e) => e.copyWith()));
     }
   }
@@ -52,6 +50,7 @@ class _RoutineEditorScreenState extends State<RoutineEditorScreen> {
         builder:
             (_) =>
                 ExercisePickerScreen(initiallySelectedIds: currentExerciseIds),
+        fullscreenDialog: true,
       ),
     );
 
@@ -70,9 +69,7 @@ class _RoutineEditorScreenState extends State<RoutineEditorScreen> {
               RoutineExercise(
                 exerciseId: exercise.id,
                 exerciseName: exercise.name,
-                plannedSets: [
-                  PlannedSet(setType: SetType.normal, targetReps: ''),
-                ],
+                plannedSets: [PlannedSet(setType: SetType.normal)],
                 restTimeInSeconds: 60,
               ),
             );
@@ -92,23 +89,20 @@ class _RoutineEditorScreenState extends State<RoutineEditorScreen> {
         );
         return;
       }
-
-      final routineToSave =
-          _isEditing
-              ? widget.initialRoutine!.copyWith(
-                name: _nameController.text,
-                exercises: _routineExercises,
-              )
-              : Routine(
-                id: const Uuid().v4(),
-                name: _nameController.text,
-                exercises: _routineExercises,
-              );
-
+      final workoutViewModel = context.read<WorkoutViewModel>();
       if (_isEditing) {
-        context.read<WorkoutViewModel>().updateRoutine(routineToSave);
+        final updatedRoutine = widget.initialRoutine!.copyWith(
+          name: _nameController.text,
+          exercises: _routineExercises,
+        );
+        workoutViewModel.updateRoutine(updatedRoutine);
       } else {
-        context.read<WorkoutViewModel>().addRoutine(routineToSave);
+        final newRoutine = Routine(
+          id: const Uuid().v4(),
+          name: _nameController.text,
+          exercises: _routineExercises,
+        );
+        workoutViewModel.addRoutine(newRoutine);
       }
       Navigator.of(context).pop();
     }
@@ -120,21 +114,16 @@ class _RoutineEditorScreenState extends State<RoutineEditorScreen> {
       appBar: AppBar(
         title: Text(_isEditing ? 'Edit Routine' : 'Create Routine'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
-            onPressed: _saveRoutine,
-            tooltip: 'Save Routine',
-          ),
+          IconButton(icon: const Icon(Icons.save), onPressed: _saveRoutine),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
+      body: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
                   labelText: 'Routine Name',
@@ -147,59 +136,58 @@ class _RoutineEditorScreenState extends State<RoutineEditorScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
-              OutlinedButton.icon(
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: OutlinedButton.icon(
                 onPressed: _addExercises,
                 icon: const Icon(Icons.add),
                 label: const Text('Add / Edit Exercises'),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 48),
+                ),
               ),
-              const SizedBox(height: 16),
-              const Divider(),
-              Text('Exercises', style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 8),
-              Expanded(
-                child:
-                    _routineExercises.isEmpty
-                        ? const Center(child: Text('No exercises added yet.'))
-                        : _buildExerciseList(),
-              ),
-            ],
-          ),
+            ),
+            const Divider(height: 32),
+            Expanded(
+              child:
+                  _routineExercises.isEmpty
+                      ? const Center(
+                        child: Text('Add exercises to get started.'),
+                      )
+                      : _buildExerciseList(),
+            ),
+            const SizedBox(height: 48),
+          ],
         ),
       ),
     );
   }
 
   Widget _buildExerciseList() {
-    final allExercisesMap = {
-      for (var ex in context.read<WorkoutViewModel>().exercises) ex.id: ex,
-    };
-
-    // **PERFORMANCE FIX 1: ReorderableListView**
-    // Allows for efficient drag-and-drop reordering of exercises.
     return ReorderableListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      buildDefaultDragHandles: false,
       itemCount: _routineExercises.length,
       itemBuilder: (context, index) {
         final routineExercise = _routineExercises[index];
-        final exerciseDetails = allExercisesMap[routineExercise.exerciseId];
-
-        if (exerciseDetails == null) {
-          // Return a container with a key to prevent errors
-          return Container(key: ValueKey('empty_$index'));
-        }
-
-        return _ExerciseCard(
-          // Use a unique, stable key for each item
-          key: ValueKey(routineExercise.hashCode),
+        return _ExerciseEditorCard(
+          // **FIX 1 of 2: Use a stable, unique key.**
+          // The exerciseId is guaranteed to be unique and won't change,
+          // which prevents Flutter from getting confused during rebuilds.
+          key: ValueKey(routineExercise.exerciseId),
           routineExercise: routineExercise,
-          exerciseDetails: exerciseDetails,
+          index: index,
+          onDelete: () {
+            setState(() {
+              _routineExercises.removeAt(index);
+            });
+          },
         );
       },
       onReorder: (oldIndex, newIndex) {
         setState(() {
-          if (newIndex > oldIndex) {
-            newIndex -= 1;
-          }
+          if (newIndex > oldIndex) newIndex -= 1;
           final item = _routineExercises.removeAt(oldIndex);
           _routineExercises.insert(newIndex, item);
         });
@@ -208,161 +196,160 @@ class _RoutineEditorScreenState extends State<RoutineEditorScreen> {
   }
 }
 
-// **PERFORMANCE FIX 2: State Isolation**
-// This widget now fully manages its own state, preventing the entire
-// screen from rebuilding when a single set is added, deleted, or changed.
-class _ExerciseCard extends StatefulWidget {
+class _ExerciseEditorCard extends StatefulWidget {
   final RoutineExercise routineExercise;
-  final Exercise exerciseDetails;
+  final VoidCallback onDelete;
+  final int index;
 
-  const _ExerciseCard({
+  const _ExerciseEditorCard({
     super.key,
     required this.routineExercise,
-    required this.exerciseDetails,
+    required this.onDelete,
+    required this.index,
   });
 
   @override
-  State<_ExerciseCard> createState() => _ExerciseCardState();
+  State<_ExerciseEditorCard> createState() => _ExerciseEditorCardState();
 }
 
-class _ExerciseCardState extends State<_ExerciseCard> {
+class _ExerciseEditorCardState extends State<_ExerciseEditorCard> {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+  late final Exercise _exerciseDetails;
   late WeightMode _currentWeightMode;
 
   @override
   void initState() {
     super.initState();
+    _exerciseDetails =
+        context.read<WorkoutViewModel>().getExerciseById(
+          widget.routineExercise.exerciseId,
+        )!;
     _initializeWeightMode();
   }
 
   void _initializeWeightMode() {
-    final exercise = widget.exerciseDetails;
-    if (exercise.supportsWeight) {
+    if (_exerciseDetails.supportsWeight) {
       _currentWeightMode = WeightMode.weighted;
-    } else if (exercise.supportsBodyweight) {
+    } else if (_exerciseDetails.supportsBodyweight) {
       _currentWeightMode = WeightMode.bodyweight;
-    } else if (exercise.supportsAssistance) {
+    } else if (_exerciseDetails.supportsAssistance) {
       _currentWeightMode = WeightMode.assisted;
     } else {
       _currentWeightMode = WeightMode.weighted;
     }
   }
 
-  void _addSet() {
-    // This setState call only rebuilds this specific _ExerciseCard
-    setState(() {
-      final newSetIndex = widget.routineExercise.plannedSets.length;
-      widget.routineExercise.plannedSets.add(PlannedSet());
-      _listKey.currentState?.insertItem(
-        newSetIndex,
-        duration: const Duration(milliseconds: 300),
-      );
-    });
-  }
-
-  void _deleteSet(int setIndex) {
-    // The data model is updated directly. The animation handles the UI removal.
-    final removedSet = widget.routineExercise.plannedSets.removeAt(setIndex);
-    _listKey.currentState?.removeItem(
-      setIndex,
-      (context, animation) => _buildRemovedSet(context, animation, removedSet),
-      duration: const Duration(milliseconds: 300),
-    );
-    // A setState is needed to update other widgets within the card if necessary,
-    // like set number labels.
-    setState(() {});
-  }
-
   void _cycleWeightMode() {
-    final exercise = widget.exerciseDetails;
     final modes = <WeightMode>[
-      if (exercise.supportsWeight) WeightMode.weighted,
-      if (exercise.supportsBodyweight) WeightMode.bodyweight,
-      if (exercise.supportsAssistance) WeightMode.assisted,
+      if (_exerciseDetails.supportsWeight) WeightMode.weighted,
+      if (_exerciseDetails.supportsBodyweight) WeightMode.bodyweight,
+      if (_exerciseDetails.supportsAssistance) WeightMode.assisted,
     ];
-
     if (modes.length < 2) return;
 
     final currentIndex = modes.indexOf(_currentWeightMode);
     final nextMode = modes[(currentIndex + 1) % modes.length];
 
-    // Local setState ensures only this card rebuilds
     setState(() {
       _currentWeightMode = nextMode;
-      for (int i = 0; i < widget.routineExercise.plannedSets.length; i++) {
-        final currentSet = widget.routineExercise.plannedSets[i];
-        final currentWeight = currentSet.targetWeight ?? 0;
-        double newWeight;
-        switch (nextMode) {
-          case WeightMode.weighted:
-            newWeight = currentWeight.abs();
-            break;
-          case WeightMode.bodyweight:
-            newWeight = 0;
-            break;
-          case WeightMode.assisted:
-            newWeight = currentWeight == 0 ? -20.0 : -currentWeight.abs();
-            break;
-        }
-        widget.routineExercise.plannedSets[i] = currentSet.copyWith(
-          targetWeight: newWeight,
-        );
-      }
     });
   }
 
-  Widget _buildRemovedSet(
-    BuildContext context,
-    Animation<double> animation,
-    PlannedSet removedSet,
-  ) {
-    return SizeTransition(
-      sizeFactor: animation,
-      child: Opacity(
-        opacity: animation.value,
-        child: PlannedSetEditorRow(
-          mode: EditorMode.planning, // Corrected from 'template'
-          plannedSet: removedSet,
-          exercise: widget.exerciseDetails,
-          setIndex: -1,
-          allSets: const [],
-          weightMode: _currentWeightMode,
-          isCompleted: false,
-          onChanged: (_) {},
-          onCompleted: () {},
-          onDelete: () {},
-        ),
-      ),
+  void _addSet() {
+    final newSetIndex = widget.routineExercise.plannedSets.length;
+    setState(() {
+      widget.routineExercise.plannedSets.add(PlannedSet());
+    });
+    _listKey.currentState?.insertItem(
+      newSetIndex,
+      duration: const Duration(milliseconds: 300),
+    );
+  }
+
+  // **NEW METHOD**: Shows the confirmation dialog.
+  Future<void> _showDeleteConfirmationDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // User must tap a button
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Delete Exercise?'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(
+                  'Are you sure you want to delete "${widget.routineExercise.exerciseName}" from this routine?',
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(); // Dismiss the dialog
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Delete'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(); // Dismiss the dialog
+                widget.onDelete(); // Execute the original delete function
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
+    // **FIX 2 of 2: Replaced Card with a decorated Container.**
+    // This gives us the same visual look but removes any built-in behaviors
+    // from the Card widget that might interfere with the ReorderableListView's drag visuals.
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(12.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            spreadRadius: 1,
+            blurRadius: 3,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // This handle is for the ReorderableListView
-            ReorderableDragStartListener(
-              index: Provider.of<int>(context), // Assumes index is provided
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      widget.routineExercise.exerciseName,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.routineExercise.exerciseName,
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
-                  const Icon(Icons.drag_handle, color: Colors.grey),
-                ],
-              ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline_rounded),
+                  onPressed: _showDeleteConfirmationDialog,
+                ),
+                ReorderableDragStartListener(
+                  index: widget.index,
+                  child: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Icon(Icons.drag_handle_rounded),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
-            _buildHeaderRow(widget.exerciseDetails),
             const Divider(),
+            _buildHeaderRow(context),
             AnimatedList(
               key: _listKey,
               initialItemCount: widget.routineExercise.plannedSets.length,
@@ -371,33 +358,24 @@ class _ExerciseCardState extends State<_ExerciseCard> {
               itemBuilder: (context, setIndex, animation) {
                 return SizeTransition(
                   sizeFactor: animation,
-                  child: PlannedSetEditorRow(
-                    mode: EditorMode.planning, // Corrected from 'template'
-                    plannedSet: widget.routineExercise.plannedSets[setIndex],
-                    exercise: widget.exerciseDetails,
+                  child: HevyStyleSetRow(
                     setIndex: setIndex,
-                    allSets: widget.routineExercise.plannedSets,
+                    plannedSet: widget.routineExercise.plannedSets[setIndex],
+                    exercise: _exerciseDetails,
+                    isCompleted: false,
                     weightMode: _currentWeightMode,
-                    // No need for a separate callback, changes are handled by the row's controllers
                     onChanged: (updatedSet) {
                       widget.routineExercise.plannedSets[setIndex] = updatedSet;
                     },
-                    onDelete: () => _deleteSet(setIndex),
-                    isCompleted: false,
                     onCompleted: () {},
                   ),
                 );
               },
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Center(
-                child: TextButton.icon(
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add Set'),
-                  onPressed: _addSet,
-                ),
-              ),
+            TextButton.icon(
+              onPressed: _addSet,
+              icon: const Icon(Icons.add),
+              label: const Text('Add Set'),
             ),
           ],
         ),
@@ -405,94 +383,72 @@ class _ExerciseCardState extends State<_ExerciseCard> {
     );
   }
 
-  Widget _buildHeaderRow(Exercise exercise) {
-    // ... This method's implementation remains the same
+  Widget _buildHeaderRow(BuildContext context) {
     final settings = context.watch<UserSettingsProvider>();
-    String primaryLabel = '';
-    Color? primaryColor;
-    VoidCallback? primaryOnTap;
+    String label;
+    Color color;
 
-    if (exercise.tracksDistance) {
-      primaryLabel = settings.distanceUnit.name.toUpperCase();
-    } else if (exercise.supportsWeight ||
-        exercise.supportsBodyweight ||
-        exercise.supportsAssistance) {
-      switch (_currentWeightMode) {
-        case WeightMode.weighted:
-          primaryLabel = settings.weightUnit.name.toUpperCase();
-          primaryColor = Colors.blue;
-          break;
-        case WeightMode.bodyweight:
-          primaryLabel = 'BW';
-          primaryColor = Colors.green;
-          break;
-        case WeightMode.assisted:
-          primaryLabel = '-${settings.weightUnit.name.toUpperCase()}';
-          primaryColor = Colors.orange;
-          break;
-      }
-      final modes = <WeightMode>[
-        if (exercise.supportsWeight) WeightMode.weighted,
-        if (exercise.supportsBodyweight) WeightMode.bodyweight,
-        if (exercise.supportsAssistance) WeightMode.assisted,
-      ];
-      if (modes.length > 1) {
-        primaryOnTap = _cycleWeightMode;
-      }
+    switch (_currentWeightMode) {
+      case WeightMode.weighted:
+        label = settings.weightUnit.name.toUpperCase();
+        color = Theme.of(context).colorScheme.primary;
+        break;
+      case WeightMode.bodyweight:
+        label = 'BW';
+        color = Colors.green;
+        break;
+      case WeightMode.assisted:
+        label = '-${settings.weightUnit.name.toUpperCase()}';
+        color = Colors.orange;
+        break;
     }
 
-    String secondaryLabel =
-        exercise.tracksDuration ? 'TIME' : (exercise.tracksReps ? 'REPS' : '');
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _buildLabel('SET', width: 50),
-          _buildLabel('PREV'),
-          _buildLabel(
-            primaryLabel,
-            color: primaryColor,
-            onTap: primaryOnTap,
-            isClickable: primaryOnTap != null,
-          ),
-          _buildLabel(secondaryLabel),
-          _buildLabel('', width: 50),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLabel(
-    String text, {
-    double width = 70.0,
-    Color? color,
-    VoidCallback? onTap,
-    bool isClickable = false,
-  }) {
-    Widget labelWidget = SizedBox(
-      width: width,
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: color ?? Colors.grey[600],
-          fontWeight: isClickable ? FontWeight.bold : null,
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: DefaultTextStyle(
+        style: Theme.of(context).textTheme.bodySmall!,
+        child: Row(
+          children: [
+            const SizedBox(
+              width: 40,
+              child: Text('SET', textAlign: TextAlign.center),
+            ),
+            const Expanded(child: Text("PREV", textAlign: TextAlign.center)),
+            if (_exerciseDetails.supportsWeight ||
+                _exerciseDetails.supportsBodyweight ||
+                _exerciseDetails.supportsAssistance)
+              SizedBox(
+                width: 80,
+                child: InkWell(
+                  onTap: _cycleWeightMode,
+                  borderRadius: BorderRadius.circular(4),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: Text(
+                      label,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            if ((_exerciseDetails.supportsWeight ||
+                    _exerciseDetails.supportsBodyweight ||
+                    _exerciseDetails.supportsAssistance) &&
+                _exerciseDetails.tracksReps)
+              const SizedBox(width: 8),
+            if (_exerciseDetails.tracksReps)
+              const SizedBox(
+                width: 80,
+                child: Text("REPS", textAlign: TextAlign.center),
+              ),
+            const SizedBox(width: 48),
+          ],
         ),
       ),
     );
-    if (onTap != null) {
-      return InkWell(
-        onTap: onTap,
-        customBorder: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-          child: labelWidget,
-        ),
-      );
-    }
-    return labelWidget;
   }
 }

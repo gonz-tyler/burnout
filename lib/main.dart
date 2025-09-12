@@ -1,6 +1,6 @@
 // lib/main.dart
 import 'dart:convert';
-
+import 'package:burnout/models/exercise.dart';
 import 'package:burnout/providers/app_preferences_provider.dart';
 import 'package:burnout/providers/language_provider.dart';
 import 'package:burnout/providers/theme_settings_provider.dart';
@@ -18,22 +18,15 @@ import 'package:json_theme/json_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-// Import model files to access classes and generated adapters
-import 'models/enums.dart';
-import 'models/exercise.dart';
-import 'models/routine.dart';
-import 'models/workout_plan.dart';
-import 'models/workout_session.dart';
-import 'models/planned_set.dart';
+import 'models/models.dart';
 
-// Define box names as constants for easy reuse
+// Box names
 const String exerciseBoxName = 'exercises';
 const String routineBoxName = 'routines';
 const String workoutSessionBoxName = 'workoutSessions';
 const String planBoxName = 'workoutPlans';
 
 Future<void> main() async {
-  // Initialize Flutter binding and Hive
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
 
@@ -54,7 +47,9 @@ Future<void> main() async {
   await Hive.openBox<WorkoutSession>(workoutSessionBoxName);
   await Hive.openBox<WorkoutPlan>(planBoxName);
 
-  // Run your application
+  // **THIS IS THE FIX**: Load initial data if it's the first launch
+  await _loadInitialData();
+
   final workoutRepository = WorkoutRepository();
   final streakService = StreakService();
 
@@ -78,6 +73,39 @@ Future<void> main() async {
   );
 }
 
+// **UPDATED FUNCTION**: Now checks if the exercise box is empty, which is more reliable.
+Future<void> _loadInitialData() async {
+  final exerciseBox = Hive.box<Exercise>(exerciseBoxName);
+
+  // Only load data if the box is empty.
+  if (exerciseBox.isEmpty) {
+    debugPrint("Exercise box is empty. Loading exercises from JSON...");
+    try {
+      final String jsonString = await rootBundle.loadString(
+        'assets/data/standardized_exercises.json',
+      );
+      final List<dynamic> jsonList = jsonDecode(jsonString);
+      final exercises =
+          jsonList.map((json) => Exercise.fromJson(json)).toList();
+
+      final Map<String, Exercise> exerciseMap = {
+        for (var e in exercises) e.id: e,
+      };
+      await exerciseBox.putAll(exerciseMap);
+
+      debugPrint(
+        "Successfully loaded ${exercises.length} exercises into Hive.",
+      );
+    } catch (e) {
+      debugPrint("Error loading initial exercises: $e");
+    }
+  } else {
+    debugPrint(
+      "Exercise box already has data (${exerciseBox.length} exercises). Skipping initial load.",
+    );
+  }
+}
+
 class WorkoutApp extends StatefulWidget {
   const WorkoutApp({Key? key}) : super(key: key);
 
@@ -86,7 +114,6 @@ class WorkoutApp extends StatefulWidget {
 }
 
 class _WorkoutAppState extends State<WorkoutApp> {
-  // Cache themes to avoid reloading from disk on every rebuild
   static final Map<String, ThemeData> _themeCache = {};
 
   Future<ThemeData> _loadTheme(String path) async {
@@ -101,7 +128,6 @@ class _WorkoutAppState extends State<WorkoutApp> {
       return theme;
     } catch (e) {
       debugPrint("Error loading theme from $path: $e");
-      // Fallback to default theme if file loading fails
       return ThemeData.light();
     }
   }
@@ -110,7 +136,6 @@ class _WorkoutAppState extends State<WorkoutApp> {
   Widget build(BuildContext context) {
     return Consumer2<ThemeSettingsProvider, LanguageProvider>(
       builder: (context, themeSettings, languageProvider, _) {
-        // Define theme paths based on provider state
         String seed = themeSettings.seedColor;
         String lightPath = 'assets/themes/appainter_${seed}_light.json';
         String darkPath = 'assets/themes/appainter_${seed}_dark.json';
@@ -119,8 +144,11 @@ class _WorkoutAppState extends State<WorkoutApp> {
           future: Future.wait([_loadTheme(lightPath), _loadTheme(darkPath)]),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
-              // Show a simple loading indicator while themes load
-              return const MaterialApp(home: CircularProgressIndicator());
+              return const MaterialApp(
+                home: Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                ),
+              );
             }
 
             final lightTheme = snapshot.data![0];
@@ -139,15 +167,14 @@ class _WorkoutAppState extends State<WorkoutApp> {
             }
 
             return MaterialApp(
-              title: 'ProjectOut Workout Tracker',
+              title: 'Burnout Workout Tracker',
               scrollBehavior: const MaterialScrollBehavior().copyWith(
                 scrollbars: false,
               ),
               theme: lightTheme,
               darkTheme: darkTheme,
               themeMode: mode,
-              // --- Dynamic Localization ---
-              locale: languageProvider.currentLocale, // Set locale dynamically
+              locale: languageProvider.currentLocale,
               localizationsDelegates: const [
                 AppLocalizations.delegate,
                 GlobalMaterialLocalizations.delegate,
@@ -155,7 +182,7 @@ class _WorkoutAppState extends State<WorkoutApp> {
                 GlobalCupertinoLocalizations.delegate,
               ],
               supportedLocales: LanguageProvider.supportedLocales,
-              home: const MainScreen(), // The screen with bottom navigation
+              home: const MainScreen(),
               debugShowCheckedModeBanner: false,
               routes: {'/settings': (context) => const SettingsScreen()},
             );

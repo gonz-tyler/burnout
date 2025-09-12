@@ -1,122 +1,129 @@
+// lib/screens/exercise_picker_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import '../models/models.dart';
+import '../models/exercise.dart';
 import '../viewmodels/workout_view_model.dart';
 
 class ExercisePickerScreen extends StatefulWidget {
   final Set<String> initiallySelectedIds;
 
-  const ExercisePickerScreen({
-    Key? key,
-    required this.initiallySelectedIds, // Make it required
-  }) : super(key: key);
+  const ExercisePickerScreen({super.key, this.initiallySelectedIds = const {}});
 
   @override
   State<ExercisePickerScreen> createState() => _ExercisePickerScreenState();
 }
 
 class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
-  // Holds the IDs of the exercises the user has ticked
   late final Set<String> _selectedExerciseIds;
-
-  // State for the search functionality
-  final _searchController = TextEditingController();
-  String _searchQuery = '';
+  List<Exercise> _filteredExercises = [];
+  final TextEditingController _searchController = TextEditingController();
+  late final List<Exercise> _allExercises;
 
   @override
   void initState() {
     super.initState();
-    _selectedExerciseIds = Set<String>.from(widget.initiallySelectedIds);
-    // Listen for changes in the search field
-    _searchController.addListener(() {
-      setState(() {
-        _searchQuery = _searchController.text;
-      });
-    });
+    _selectedExerciseIds = Set.from(widget.initiallySelectedIds);
+    _allExercises = context.read<WorkoutViewModel>().exercises;
+    _filteredExercises = _allExercises;
+
+    // --- DEBUGGING PRINT STATEMENT ---
+    // This will print the list of exercises to your debug console.
+    // If the list is empty, it confirms the data isn't being loaded from Hive correctly.
+    debugPrint("--- Exercise Picker Loaded ---");
+    debugPrint("Found ${_allExercises.length} total exercises.");
+    // Uncomment the line below to see every single exercise name
+    // _allExercises.forEach((ex) => debugPrint("- ${ex.name}"));
+    // ---------------------------------
+
+    _searchController.addListener(_filterExercises);
   }
 
   @override
   void dispose() {
+    _searchController.removeListener(_filterExercises);
     _searchController.dispose();
     super.dispose();
   }
 
+  void _filterExercises() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      if (query.isEmpty) {
+        _filteredExercises = _allExercises;
+      } else {
+        _filteredExercises =
+            _allExercises
+                .where((ex) => ex.name.toLowerCase().contains(query))
+                .toList();
+      }
+    });
+  }
+
+  void _toggleSelection(String exerciseId) {
+    setState(() {
+      if (_selectedExerciseIds.contains(exerciseId)) {
+        _selectedExerciseIds.remove(exerciseId);
+      } else {
+        _selectedExerciseIds.add(exerciseId);
+      }
+    });
+  }
+
+  void _saveSelection() {
+    final selectedExercises =
+        _allExercises
+            .where((ex) => _selectedExerciseIds.contains(ex.id))
+            .toList();
+    Navigator.of(context).pop(selectedExercises);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final workoutViewModel = context.read<WorkoutViewModel>();
-    final allExercises = workoutViewModel.exercises;
-
-    // Filter the exercises based on the search query
-    final filteredExercises =
-        allExercises.where((exercise) {
-          final exerciseName = exercise.name.toLowerCase();
-          final query = _searchQuery.toLowerCase();
-          return exerciseName.contains(query);
-        }).toList();
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Select Exercises'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.check),
-            onPressed: () {
-              final selectedExercises =
-                  allExercises
-                      .where((ex) => _selectedExerciseIds.contains(ex.id))
-                      .toList();
-              Navigator.of(context).pop(selectedExercises);
-            },
-            tooltip: 'Confirm Selection',
-          ),
+          TextButton(onPressed: _saveSelection, child: const Text('Done')),
         ],
       ),
       body: Column(
         children: [
-          // --- Search Bar UI ---
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                labelText: 'Search Exercises',
-                hintText: 'e.g., Bench Press',
+                hintText: 'Search exercises...',
                 prefixIcon: const Icon(Icons.search),
-                border: const OutlineInputBorder(),
-                // Add a clear button to the search bar
-                suffixIcon:
-                    _searchQuery.isNotEmpty
-                        ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            _searchController.clear();
-                          },
-                        )
-                        : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Theme.of(
+                  context,
+                ).colorScheme.surfaceVariant.withOpacity(0.5),
               ),
             ),
           ),
-          // --- List of Exercises ---
           Expanded(
             child: ListView.builder(
-              itemCount: filteredExercises.length,
+              itemCount: _filteredExercises.length,
               itemBuilder: (context, index) {
-                final exercise = filteredExercises[index];
+                final exercise = _filteredExercises[index];
                 final isSelected = _selectedExerciseIds.contains(exercise.id);
-
-                return CheckboxListTile(
+                return ListTile(
                   title: Text(exercise.name),
                   subtitle: Text(exercise.muscleGroup),
-                  value: isSelected,
-                  onChanged: (bool? value) {
-                    setState(() {
-                      if (value == true) {
-                        _selectedExerciseIds.add(exercise.id);
-                      } else {
-                        _selectedExerciseIds.remove(exercise.id);
-                      }
-                    });
+                  trailing: Checkbox(
+                    value: isSelected,
+                    onChanged: (bool? value) {
+                      _toggleSelection(exercise.id);
+                    },
+                  ),
+                  onTap: () {
+                    _toggleSelection(exercise.id);
                   },
                 );
               },
