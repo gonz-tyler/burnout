@@ -1,0 +1,36 @@
+<svg width="300" height="400" viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .muscle {
+      fill: #E0E0E0; /* Default color */
+      stroke: #616161;
+      stroke-width: 0.5;
+      transition: fill 0.3s ease;
+    }
+  </style>
+  
+  <g id="back-view" transform="translate(160, 0)">
+    <path d="M45,10 a15,15 0 1,1 30,0 v15 h-30 Z" fill="#F5F5F5" stroke="#BDBDBD"/>
+    <path id="Trapezius" class="muscle" d="M60,25 l-20,20 v20 l20,10 l20,-10 v-20 Z"/>
+    <path id="Deltoids_Posterior" class="muscle" d="M40,45 l-15,10 v20 l15,-5 Z M80,45 l15,10 v20 l-15,-5 Z"/>
+    <path id="Triceps" class="muscle" d="M25,65 v25 l10,5 v-25 Z M95,65 v25 l-10,5 v-25 Z"/>
+    <path id="Lats" class="muscle" d="M40,65 l-10,60 h60 l-10,-60 Z"/>
+    <path id="Forearms_Back" class="muscle" d="M25,95 v30 l10,-5 v-25 Z M95,95 v30 l-10,-5 v-25 Z"/>
+    <path id="Lower_Back" class="muscle" d="M50,125 h20 v25 h-20 Z"/>
+    <path id="Glutes" class="muscle" d="M40,150 a25,20 0 0,0 40,0 Z"/>
+    <path id="Hamstrings" class="muscle" d="M40,170 v60 l10,10 h20 l10,-10 v-60 Z"/>
+    <path id="Calves" class="muscle" d="M45,240 a15,25 0 0,1 30,0 Z"/>
+  </g>
+
+  <g id="front-view" transform="translate(20, 0)">
+    <path d="M45,10 a15,15 0 1,1 30,0 v15 h-30 Z" fill="#F5F5F5" stroke="#BDBDBD"/>
+    <path id="Deltoids" class="muscle" d="M40,45 l-15,10 v20 l15,-5 Z M80,45 l15,10 v20 l-15,-5 Z"/>
+    <path id="Chest" class="muscle" d="M40,45 h40 v40 a20,20 0 0,1 -40,0 Z"/>
+    <path id="Biceps" class="muscle" d="M25,75 v20 l10,5 v-20 Z M95,75 v20 l-10,5 v-20 Z"/>
+    <path id="Forearms" class="muscle" d="M25,100 v30 l10,-5 v-25 Z M95,100 v30 l-10,-5 v-25 Z"/>
+    <path id="Abs" class="muscle" d="M50,85 h20 v40 h-20 Z"/>
+    <path id="Obliques" class="muscle" d="M40,85 v40 l-10,-5 v-30 Z M80,85 v40 l10,-5 v-30 Z"/>
+    <path id="Adductors" class="muscle" d="M40,150 l10,60 h20 l10,-60 Z" />
+    <path id="Quads" class="muscle" d="M30,150 l10,80 h40 l10,-80 Z"/>
+    <path id="Tibialis" class="muscle" d="M45,240 v40 h30 v-40 Z" />
+  </g>
+</svg>

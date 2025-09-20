@@ -1,8 +1,10 @@
 // lib/viewmodels/workout_view_model.dart
 
+// Add this import at the top
+import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
 import '../repositories/workout_repository.dart';
 import '../services/streak_service.dart';
 import '../models/models.dart';
@@ -28,11 +30,16 @@ class WorkoutViewModel extends ChangeNotifier {
   List<Exercise> get exercises => _exercises;
   List<WorkoutSession> get workoutSessions => _workoutSessions;
 
+  // **NEW**: Method called by the dashboard
+  List<WorkoutSession> getAllWorkouts() {
+    return _workoutSessions;
+  }
+
   // Getters for streak data
   int get currentStreak => _streakService.calculateStreak(_workoutSessions);
   bool get didWorkoutToday => _streakService.didWorkoutToday(_workoutSessions);
 
-  // **NEW**: Getters for dashboard statistics
+  // Getters for dashboard statistics
   double get totalVolume {
     if (_workoutSessions.isEmpty) return 0;
     return _workoutSessions.fold(0, (total, session) {
@@ -66,6 +73,7 @@ class WorkoutViewModel extends ChangeNotifier {
     _routines = _workoutRepository.getRoutines();
     _exercises = _workoutRepository.getExercises();
     _workoutSessions = _workoutRepository.getWorkoutSessions();
+    notifyListeners(); // Notify listeners after initial load
   }
 
   // --- Helper Methods ---
@@ -115,39 +123,48 @@ class WorkoutViewModel extends ChangeNotifier {
   // Property: Best streak achieved
   int? get bestStreak {
     if (_workoutSessions.isEmpty) return 0;
-
-    // Get unique workout dates and sort them
     final workoutDates =
         _workoutSessions
-            .map(
-              (session) => DateTime(
-                session.dateCompleted.year,
-                session.dateCompleted.month,
-                session.dateCompleted.day,
-              ),
-            )
+            .map((session) => DateUtils.dateOnly(session.dateCompleted))
             .toSet()
             .toList()
           ..sort();
 
     if (workoutDates.isEmpty) return 0;
-
-    int maxStreak = 1;
-    int currentStreak = 1;
-
-    for (int i = 1; i < workoutDates.length; i++) {
-      final daysDifference =
-          workoutDates[i].difference(workoutDates[i - 1]).inDays;
-
-      if (daysDifference == 1) {
+    int maxStreak = 0;
+    int currentStreak = 0;
+    for (int i = 0; i < workoutDates.length; i++) {
+      if (i == 0 ||
+          workoutDates[i].difference(workoutDates[i - 1]).inDays == 1) {
         currentStreak++;
       } else {
-        maxStreak = maxStreak > currentStreak ? maxStreak : currentStreak;
+        maxStreak = max(maxStreak, currentStreak);
         currentStreak = 1;
       }
     }
+    return max(maxStreak, currentStreak);
+  }
 
-    return maxStreak > currentStreak ? maxStreak : currentStreak;
+  int getWorkoutsForDay(int dayIndex) {
+    if (_workoutSessions.isEmpty) return 0;
+
+    final now = DateTime.now();
+    final startOfWeek = now.subtract(Duration(days: now.weekday - 1)); // Monday
+    final targetDate = startOfWeek.add(Duration(days: dayIndex));
+    final targetDateOnly = DateTime(
+      targetDate.year,
+      targetDate.month,
+      targetDate.day,
+    );
+
+    return _workoutSessions.where((session) {
+      final sessionDateOnly = DateTime(
+        session.dateCompleted.year,
+        session.dateCompleted.month,
+        session.dateCompleted.day,
+      );
+      return sessionDateOnly.isAtSameMomentAs(targetDateOnly);
+    }).length;
   }
 
   // Property: Workouts completed this week
@@ -190,29 +207,6 @@ class WorkoutViewModel extends ChangeNotifier {
           session.dateCompleted.isBefore(
             endOfMonth.add(const Duration(seconds: 1)),
           );
-    }).length;
-  }
-
-  // Method: Get workout count for specific day of current week
-  int getWorkoutsForDay(int dayIndex) {
-    if (_workoutSessions.isEmpty) return 0;
-
-    final now = DateTime.now();
-    final startOfWeek = now.subtract(Duration(days: now.weekday - 1)); // Monday
-    final targetDate = startOfWeek.add(Duration(days: dayIndex));
-    final targetDateOnly = DateTime(
-      targetDate.year,
-      targetDate.month,
-      targetDate.day,
-    );
-
-    return _workoutSessions.where((session) {
-      final sessionDateOnly = DateTime(
-        session.dateCompleted.year,
-        session.dateCompleted.month,
-        session.dateCompleted.day,
-      );
-      return sessionDateOnly.isAtSameMomentAs(targetDateOnly);
     }).length;
   }
 }
