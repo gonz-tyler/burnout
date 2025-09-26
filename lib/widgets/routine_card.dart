@@ -38,6 +38,7 @@ class RoutineCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
       elevation: 2.0,
+      color: Theme.of(context).colorScheme.surfaceContainer,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -115,7 +116,12 @@ class RoutineCard extends StatelessWidget {
                 FilledButton.icon(
                   onPressed: onStart,
                   icon: const Icon(Icons.play_arrow_rounded),
-                  label: const Text('Start Routine'),
+                  label: Text(
+                    'Start Routine',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                  ),
                 ),
               ],
             ),

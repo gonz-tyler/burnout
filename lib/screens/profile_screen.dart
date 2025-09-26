@@ -75,6 +75,7 @@ class ProfileScreen extends StatelessWidget {
             //   child:
             Card(
               elevation: 2,
+              color: Theme.of(context).colorScheme.surfaceContainer,
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
@@ -82,9 +83,7 @@ class ProfileScreen extends StatelessWidget {
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withOpacity(0.08),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       padding: const EdgeInsets.all(12),
@@ -140,7 +139,7 @@ class ProfileScreen extends StatelessWidget {
                             context,
                             l10n.daysLeft,
                             // daysLeft.toString(),
-                            "placeholder",
+                            "X",
                             Icons.today,
                           ),
                         ),
@@ -216,6 +215,7 @@ class ProfileScreen extends StatelessWidget {
             //   description: l10n.supportTheCreatorTooltip,
             //   child:
             Card(
+              color: Theme.of(context).colorScheme.surfaceContainer,
               elevation: 2,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -371,6 +371,7 @@ class ProfileScreen extends StatelessWidget {
     VoidCallback onTap,
   ) {
     return Card(
+      color: Theme.of(context).colorScheme.surfaceContainer,
       elevation: 1,
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(

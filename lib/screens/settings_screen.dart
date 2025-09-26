@@ -33,8 +33,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final List<String> colors = [
     'red',
     'pink',
-    'violet',
     'purple',
+    'violet',
     'indigo',
     'blue',
     'lightBlue',
@@ -48,14 +48,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     'orange',
     'deepOrange',
     'brown',
-    'gruvbox',
+    'autumn',
   ];
 
   final Map<String, Color> colorSwatches = {
     'red': Colors.red,
     'pink': Colors.pink,
-    'violet': Colors.purple,
-    'purple': Colors.deepPurple,
+    'purple': Colors.purple,
+    'violet': Colors.deepPurple,
     'indigo': Colors.indigo,
     'blue': Colors.blue,
     'lightBlue': Colors.lightBlue,
@@ -69,7 +69,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     'orange': Colors.orange,
     'deepOrange': Colors.deepOrange,
     'brown': Colors.brown,
-    'gruvbox': Color(0xFF282828),
+    'autumn': Color(0xFF282828),
   };
 
   @override

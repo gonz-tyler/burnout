@@ -15,9 +15,9 @@ class MuscleAnalysisService {
     'Rhomboids': 'Trapezius',
     'Erector Spinae': 'Lower_Back',
     // Shoulders
-    'Deltoid (Anterior)': 'Deltoids',
-    'Deltoid (Lateral)': 'Deltoids',
-    'Deltoid (General)': 'Deltoids',
+    'Deltoid (Anterior)': 'Delts',
+    'Deltoid (Lateral)': 'Delts',
+    'Deltoid (General)': 'Delts',
     'Deltoid (Posterior)': 'Deltoids_Posterior',
     // Arms
     'Biceps Brachii': 'Biceps',
@@ -33,6 +33,7 @@ class MuscleAnalysisService {
     'Gastrocnemius': 'Calves',
     'Soleus': 'Calves',
     'Tibialis Anterior': 'Tibialis',
+    'Abductors': 'Abductors',
     // Glutes
     'Gluteus Maximus': 'Glutes',
     'Gluteus Medius': 'Glutes',

@@ -40,9 +40,6 @@ class _MuscleDiagramWidgetState extends State<MuscleDiagramWidget> {
     }
   }
 
-  /// Converts a muscle name from the JSON (e.g., "Pectoralis Major")
-  /// to a format that is likely to match an SVG path ID (e.g., "pectoralis_major").
-  /// This is an assumption and may need to be adjusted based on your SVG file's specific IDs.
   String _standardizeMuscleId(String muscleName) {
     return muscleName
         .replaceAllMapped(

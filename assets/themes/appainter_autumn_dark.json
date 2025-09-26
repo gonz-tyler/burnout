@@ -1,0 +1,22 @@
+{
+  "useMaterial3": true,
+  "brightness": "dark",
+  "scaffoldBackgroundColor": "#ff26191c",
+  "colorScheme": {
+    "brightness": "dark",
+    "primary": "#ffd92b6b",
+    "inversePrimary": "#ffd92b6b",
+    "onPrimary": "#ff630e2b",
+    "secondary": "#ffff8947",
+    "onSecondary": "#ff511300",
+    "tertiary": "#ffde5c95",
+    "onTertiary": "#ff522339",
+    "error": "#ffb3261e",
+    "onError": "#ffffffff",
+    "surface": "#ff26191c",
+    "onSurface": "#ffffb300",
+    "surfaceContainer": "#ff38282c",
+    "onSurfaceVariant": "#ffd3c2c6",
+    "outline": "#ff9d8c90"
+  }
+}

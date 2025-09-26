@@ -891,8 +891,7 @@
     "supportsAssistance": false,
     "targetedMuscles": {
       "Gluteus Medius": 0.6,
-      "Gluteus Maximus": 0.3,
-      "Quadriceps": 0.1
+      "Abductors": 0.4
     },
     "equipment": "Cable Machine"
   },
