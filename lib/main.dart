@@ -16,7 +16,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:json_theme/json_theme.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+//import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
 
 import 'models/models.dart';
 
@@ -123,7 +124,7 @@ class _WorkoutAppState extends State<WorkoutApp> {
     try {
       final themeStr = await rootBundle.loadString(path);
       final themeJson = jsonDecode(themeStr);
-      final theme = ThemeDecoder.decodeThemeData(themeJson)!;
+      final theme = ThemeDecoder().decodeThemeData(themeJson)!;
       _themeCache[path] = theme;
       return theme;
     } catch (e) {

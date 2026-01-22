@@ -8,7 +8,7 @@ import '../viewmodels/active_workout_view_model.dart';
 import '../viewmodels/workout_view_model.dart';
 import '../providers/user_settings_provider.dart';
 import '../widgets/hevy_style_set_row.dart';
-import 'exercise_picker_screen.dart';
+// import 'exercise_picker_screen.dart'; // Unused import removed
 
 class ActiveWorkoutScreen extends StatefulWidget {
   final Routine routine;
@@ -33,10 +33,12 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
     });
   }
 
-  void _finishWorkout(BuildContext context, ActiveWorkoutViewModel viewModel) {
+  void _finishWorkout(BuildContext context) {
+    // 🟢 OPTIMIZATION: Use 'read' here because this is a one-time action
+    final viewModel = context.read<ActiveWorkoutViewModel>();
     final workoutViewModel = context.read<WorkoutViewModel>();
-    final duration = DateTime.now().difference(_startTime).inMinutes;
 
+    final duration = DateTime.now().difference(_startTime).inMinutes;
     final performedExercises = viewModel.getPerformedExercises();
 
     if (performedExercises.isEmpty) {
@@ -63,66 +65,82 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = context.watch<ActiveWorkoutViewModel>();
+    // 🟢 OPTIMIZATION 1: Use Selector.
+    // This tells Flutter: "Only rebuild this part if 'isWorkoutStarted' changes."
+    // It ignores timer ticks, rep updates, etc.
+    return Selector<ActiveWorkoutViewModel, bool>(
+      selector: (_, vm) => vm.isWorkoutStarted,
+      builder: (context, isStarted, child) {
+        if (!isStarted) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-    if (!viewModel.isWorkoutStarted) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
+        // Once started, we show the real UI.
+        // We access data via 'read' or specific Selectors deeper down.
+        final viewModel = context.read<ActiveWorkoutViewModel>();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(viewModel.routine?.name ?? 'Workout'),
-        elevation: 0,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        foregroundColor: Theme.of(context).textTheme.bodyLarge?.color,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(4.0),
-          child: LinearProgressIndicator(
-            value: viewModel.workoutProgress,
-            backgroundColor: Colors.grey.shade300,
-          ),
-        ),
-      ),
-      body: CustomScrollView(
-        slivers: [
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 8.0,
-            ),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final routineExercise = viewModel.liveExercises[index];
-                return _ExerciseEntry(
-                  key: ValueKey(routineExercise.hashCode),
-                  routineExercise: routineExercise,
-                  exerciseIndex: index,
-                );
-              }, childCount: viewModel.liveExercises.length),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 32.0),
-              child: TextButton(
-                onPressed: () => _finishWorkout(context, viewModel),
-                style: TextButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Finish Workout',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(viewModel.routine?.name ?? 'Workout'),
+            elevation: 0,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            foregroundColor: Theme.of(context).textTheme.bodyLarge?.color,
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(4.0),
+              child: Consumer<ActiveWorkoutViewModel>(
+                // 🟢 OPTIMIZATION 2: Only the progress bar rebuilds on progress change
+                builder:
+                    (context, vm, _) => LinearProgressIndicator(
+                      value: vm.workoutProgress,
+                      backgroundColor: Colors.grey.shade300,
+                    ),
               ),
             ),
           ),
-        ],
-      ),
+          body: CustomScrollView(
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8.0,
+                ),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final routineExercise = viewModel.liveExercises[index];
+                    return _ExerciseEntry(
+                      key: ValueKey(routineExercise.hashCode), // Stable key
+                      routineExercise: routineExercise,
+                      exerciseIndex: index,
+                    );
+                  }, childCount: viewModel.liveExercises.length),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 32.0),
+                  child: TextButton(
+                    onPressed: () => _finishWorkout(context),
+                    style: TextButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Finish Workout',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -148,6 +166,7 @@ class _ExerciseEntryState extends State<_ExerciseEntry> {
   @override
   void initState() {
     super.initState();
+    // Getting this once is fine since exercise details (name, etc) don't change mid-workout
     _exerciseDetails =
         context.read<WorkoutViewModel>().getExerciseById(
           widget.routineExercise.exerciseId,
@@ -184,70 +203,83 @@ class _ExerciseEntryState extends State<_ExerciseEntry> {
 
   @override
   Widget build(BuildContext context) {
-    // Use `watch` here to rebuild the card when the weight mode changes
-    final viewModel = context.watch<ActiveWorkoutViewModel>();
-    final settings = context.watch<UserSettingsProvider>();
-    final currentWeightMode = viewModel.getWeightModeForExercise(
-      _exerciseDetails,
-    );
+    // 🟢 OPTIMIZATION 3: Massive Jank Fix
+    // Instead of watch(), we use read() for the viewModel interaction.
+    final viewModel = context.read<ActiveWorkoutViewModel>();
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 32.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            widget.routineExercise.exerciseName,
-            style: Theme.of(
-              context,
-            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          _buildHeaderRow(context, settings, viewModel, currentWeightMode),
-          const SizedBox(height: 4),
-          AnimatedList(
-            key: _listKey,
-            initialItemCount: widget.routineExercise.plannedSets.length,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemBuilder: (context, setIndex, animation) {
-              return SizeTransition(
-                sizeFactor: animation,
-                child: HevyStyleSetRow(
-                  setIndex: setIndex,
-                  plannedSet: widget.routineExercise.plannedSets[setIndex],
-                  exercise: _exerciseDetails,
-                  isCompleted: viewModel.isSetCompleted(
-                    widget.exerciseIndex,
-                    setIndex,
-                  ),
-                  weightMode: currentWeightMode, // <-- PASS THE MODE DOWN
-                  onChanged: (updatedSet) {
-                    viewModel.updateSetData(
-                      widget.exerciseIndex,
-                      setIndex,
-                      updatedSet,
-                    );
-                  },
-                  onCompleted: () {
-                    viewModel.toggleSetCompletion(
-                      widget.exerciseIndex,
-                      setIndex,
-                    );
-                  },
+    // We use Selector to listen ONLY to changes in the WeightMode for THIS exercise.
+    return Selector<ActiveWorkoutViewModel, WeightMode>(
+      selector: (_, vm) => vm.getWeightModeForExercise(_exerciseDetails),
+      builder: (context, currentWeightMode, child) {
+        // Settings are small, so watching them here is acceptable (rarely change)
+        final settings = context.watch<UserSettingsProvider>();
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 32.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.routineExercise.exerciseName,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
                 ),
-              );
-            },
+              ),
+              const SizedBox(height: 16),
+              _buildHeaderRow(context, settings, viewModel, currentWeightMode),
+              const SizedBox(height: 4),
+              AnimatedList(
+                key: _listKey,
+                initialItemCount: widget.routineExercise.plannedSets.length,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: (context, setIndex, animation) {
+                  return SizeTransition(
+                    sizeFactor: animation,
+                    child: HevyStyleSetRow(
+                      setIndex: setIndex,
+                      plannedSet: widget.routineExercise.plannedSets[setIndex],
+                      exercise: _exerciseDetails,
+                      // 🟢 OPTIMIZATION 4:
+                      // If 'isSetCompleted' causes rebuilds, consider wrapping the Checkbox
+                      // inside HevyStyleSetRow with its own Selector or ValueListenable.
+                      // For now, passing the value is okay if the whole list doesn't rebuild.
+                      isCompleted: viewModel.isSetCompleted(
+                        widget.exerciseIndex,
+                        setIndex,
+                      ),
+                      weightMode: currentWeightMode,
+                      onChanged: (updatedSet) {
+                        viewModel.updateSetData(
+                          widget.exerciseIndex,
+                          setIndex,
+                          updatedSet,
+                        );
+                      },
+                      onCompleted: () {
+                        viewModel.toggleSetCompletion(
+                          widget.exerciseIndex,
+                          setIndex,
+                        );
+                        // Trigger a local rebuild to update the checkbox
+                        // (Ideally, viewModel should notify, but setState is safer for immediate UI feedback)
+                        setState(() {});
+                      },
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
+              Center(
+                child: TextButton(
+                  onPressed: _addSet,
+                  child: const Text('+ Add Set'),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Center(
-            child: TextButton(
-              onPressed: _addSet,
-              child: const Text('+ Add Set'),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -291,7 +323,6 @@ class _ExerciseEntryState extends State<_ExerciseEntry> {
                 _exerciseDetails.supportsAssistance)
               SizedBox(
                 width: 80,
-                // **NEW**: Make the header tappable
                 child: InkWell(
                   onTap:
                       () => viewModel.cycleWeightModeForExercise(

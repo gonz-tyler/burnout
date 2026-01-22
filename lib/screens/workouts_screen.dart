@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/workout_view_model.dart';
 import '../models/routine.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../l10n/app_localizations.dart';
 import '../widgets/routine_card.dart';
 // import 'routine_editor_screen.dart'; // We will create this screen next
 
