@@ -1,5 +1,7 @@
 // lib/screens/profile_screen.dart
 
+import 'package:burnout/screens/campaign_screen.dart';
+import 'package:burnout/services/labors_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/workout_view_model.dart';
@@ -15,6 +17,9 @@ class ProfileScreen extends StatelessWidget {
     final workoutViewModel = context.watch<WorkoutViewModel>();
     final l10n = AppLocalizations.of(context)!;
 
+    final labors = LaborsService.checkLabors(workoutViewModel);
+    final laborsCompletedCount = labors.where((l) => l.isCompleted).length;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -27,6 +32,48 @@ class ProfileScreen extends StatelessWidget {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         actions: [
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CampaignScreen()),
+              );
+            },
+            borderRadius: BorderRadius.circular(20),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // The Shield Icon
+                  Icon(
+                    Icons
+                        .shield_outlined, // Filled shield looks better for background
+                    size: 28, // Slightly larger to fit text
+                    color:
+                        laborsCompletedCount == labors.length
+                            ? Colors.amber
+                            : Colors.grey[600], // Dark grey shield
+                  ),
+
+                  // The Count Number
+                  Text(
+                    "$laborsCompletedCount",
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color:
+                          laborsCompletedCount == labors.length
+                              ? Colors
+                                  .black // Black text on Gold shield
+                              : Colors.grey[600], // White text on Grey shield
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: Container(
@@ -75,7 +122,7 @@ class ProfileScreen extends StatelessWidget {
             //   child:
             Card(
               elevation: 2,
-              color: Theme.of(context).colorScheme.surfaceContainer,
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
@@ -83,7 +130,9 @@ class ProfileScreen extends StatelessWidget {
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       padding: const EdgeInsets.all(12),
@@ -112,8 +161,14 @@ class ProfileScreen extends StatelessWidget {
                                 ),
                                 Text(
                                   l10n.keepProgressing,
-                                  style: Theme.of(context).textTheme.bodyMedium
-                                      ?.copyWith(color: Colors.grey[600]),
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.bodyMedium?.copyWith(
+                                    color:
+                                        Theme.of(
+                                          context,
+                                        ).colorScheme.onPrimaryContainer,
+                                  ),
                                 ),
                               ],
                             ),
@@ -215,7 +270,7 @@ class ProfileScreen extends StatelessWidget {
             //   description: l10n.supportTheCreatorTooltip,
             //   child:
             Card(
-              color: Theme.of(context).colorScheme.surfaceContainer,
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
               elevation: 2,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -233,9 +288,9 @@ class ProfileScreen extends StatelessWidget {
                     Text(
                       l10n.supportMessage,
                       textAlign: TextAlign.center,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     Row(
@@ -342,20 +397,20 @@ class ProfileScreen extends StatelessWidget {
   ) {
     return Column(
       children: [
-        Icon(icon, color: Theme.of(context).colorScheme.primary, size: 24),
+        Icon(icon, color: Theme.of(context).colorScheme.onSurface, size: 24),
         const SizedBox(height: 8),
         Text(
           value,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.primary,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         Text(
           label,
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+          ),
           textAlign: TextAlign.center,
         ),
       ],
@@ -371,7 +426,7 @@ class ProfileScreen extends StatelessWidget {
     VoidCallback onTap,
   ) {
     return Card(
-      color: Theme.of(context).colorScheme.surfaceContainer,
+      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
       elevation: 1,
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
@@ -384,7 +439,12 @@ class ProfileScreen extends StatelessWidget {
           child: Icon(icon, color: iconColor, size: 24),
         ),
         title: Text(title, style: TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text(subtitle, style: TextStyle(color: Colors.grey[600])),
+        subtitle: Text(
+          subtitle,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+          ),
+        ),
         trailing: Icon(Icons.arrow_forward_ios, size: 16),
         onTap: onTap,
       ),

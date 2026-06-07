@@ -74,7 +74,13 @@ class _WorkoutHistoryCard extends StatelessWidget {
     // Find the routine name using the routineId stored in the session
     final routine = viewModel.routines.firstWhere(
       (r) => r.id == session.routineId,
-      orElse: () => Routine(id: '', name: 'Quick Workout', exercises: []),
+      orElse:
+          () => Routine(
+            id: '',
+            name: 'Quick Workout',
+            exercises: [],
+            sortOrder: 0,
+          ),
     );
 
     return Card(

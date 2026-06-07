@@ -1,6 +1,7 @@
 // lib/screens/routine_editor_screen.dart
 
 import 'package:burnout/models/models.dart';
+import 'package:burnout/models/enums.dart';
 import 'package:burnout/providers/user_settings_provider.dart';
 import 'package:burnout/viewmodels/workout_view_model.dart';
 import 'package:burnout/widgets/hevy_style_set_row.dart';
@@ -94,6 +95,7 @@ class _RoutineEditorScreenState extends State<RoutineEditorScreen> {
         final updatedRoutine = widget.initialRoutine!.copyWith(
           name: _nameController.text,
           exercises: _routineExercises,
+          sortOrder: widget.initialRoutine!.sortOrder,
         );
         workoutViewModel.updateRoutine(updatedRoutine);
       } else {
@@ -101,6 +103,7 @@ class _RoutineEditorScreenState extends State<RoutineEditorScreen> {
           id: const Uuid().v4(),
           name: _nameController.text,
           exercises: _routineExercises,
+          sortOrder: workoutViewModel.routines.length,
         );
         workoutViewModel.addRoutine(newRoutine);
       }
@@ -172,9 +175,6 @@ class _RoutineEditorScreenState extends State<RoutineEditorScreen> {
       itemBuilder: (context, index) {
         final routineExercise = _routineExercises[index];
         return _ExerciseEditorCard(
-          // **FIX 1 of 2: Use a stable, unique key.**
-          // The exerciseId is guaranteed to be unique and won't change,
-          // which prevents Flutter from getting confused during rebuilds.
           key: ValueKey(routineExercise.exerciseId),
           routineExercise: routineExercise,
           index: index,
@@ -216,6 +216,7 @@ class _ExerciseEditorCardState extends State<_ExerciseEditorCard> {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   late final Exercise _exerciseDetails;
   late WeightMode _currentWeightMode;
+  late List<UniqueKey> _setKeys;
 
   @override
   void initState() {
@@ -224,18 +225,30 @@ class _ExerciseEditorCardState extends State<_ExerciseEditorCard> {
         context.read<WorkoutViewModel>().getExerciseById(
           widget.routineExercise.exerciseId,
         )!;
+
+    // 🟢 Detect mode based on existing data
     _initializeWeightMode();
+
+    _setKeys = List.generate(
+      widget.routineExercise.plannedSets.length,
+      (_) => UniqueKey(),
+    );
   }
 
   void _initializeWeightMode() {
-    if (_exerciseDetails.supportsWeight) {
+    // If we find any negative weight, assume Assisted
+    bool hasNegative = widget.routineExercise.plannedSets.any(
+      (s) => (s.targetWeight ?? 0) < 0,
+    );
+
+    if (hasNegative) {
+      _currentWeightMode = WeightMode.assisted;
+    } else if (_exerciseDetails.supportsWeight) {
       _currentWeightMode = WeightMode.weighted;
     } else if (_exerciseDetails.supportsBodyweight) {
       _currentWeightMode = WeightMode.bodyweight;
-    } else if (_exerciseDetails.supportsAssistance) {
-      _currentWeightMode = WeightMode.assisted;
     } else {
-      _currentWeightMode = WeightMode.weighted;
+      _currentWeightMode = WeightMode.assisted;
     }
   }
 
@@ -252,25 +265,101 @@ class _ExerciseEditorCardState extends State<_ExerciseEditorCard> {
 
     setState(() {
       _currentWeightMode = nextMode;
+      // 🟢 FIX: Actually update the data values when cycling!
+      // This ensures 20 becomes -20 immediately so it saves correctly.
+      for (int i = 0; i < widget.routineExercise.plannedSets.length; i++) {
+        final currentSet = widget.routineExercise.plannedSets[i];
+        double currentVal = currentSet.targetWeight?.abs() ?? 0;
+        if (currentVal == 0) currentVal = 0; // Avoid -0 confusion
+
+        double newWeight;
+        switch (nextMode) {
+          case WeightMode.weighted:
+            newWeight = currentVal;
+            break;
+          case WeightMode.bodyweight:
+            newWeight = 0;
+            break;
+          case WeightMode.assisted:
+            newWeight = -currentVal;
+            break;
+        }
+        widget.routineExercise.plannedSets[i] = currentSet.copyWith(
+          targetWeight: newWeight,
+        );
+      }
     });
   }
 
   void _addSet() {
-    final newSetIndex = widget.routineExercise.plannedSets.length;
+    final sets = widget.routineExercise.plannedSets;
+    final newSetIndex = sets.length;
+
+    double? prevWeight;
+    String? prevReps;
+    int? prevDistance;
+    int? prevDuration;
+
+    if (newSetIndex > 0) {
+      final lastSet = sets[newSetIndex - 1];
+      prevWeight = lastSet.targetWeight;
+      prevReps = lastSet.targetReps;
+      prevDistance = lastSet.targetDistanceInMeters;
+      prevDuration = lastSet.targetDurationInSeconds;
+    }
+
+    final newSet = PlannedSet(
+      targetWeight: prevWeight,
+      targetReps: prevReps,
+      targetDistanceInMeters: prevDistance,
+      targetDurationInSeconds: prevDuration,
+      setType: SetType.normal,
+    );
+
+    _setKeys.add(UniqueKey());
+
     setState(() {
-      widget.routineExercise.plannedSets.add(PlannedSet());
+      widget.routineExercise.plannedSets.add(newSet);
     });
+
     _listKey.currentState?.insertItem(
       newSetIndex,
       duration: const Duration(milliseconds: 300),
     );
   }
 
-  // **NEW METHOD**: Shows the confirmation dialog.
+  void _removeSet(int index) {
+    if (index >= widget.routineExercise.plannedSets.length) return;
+
+    _listKey.currentState?.removeItem(
+      index,
+      (context, animation) =>
+          SizeTransition(sizeFactor: animation, child: const SizedBox.shrink()),
+      duration: const Duration(milliseconds: 300),
+    );
+
+    _setKeys.removeAt(index);
+
+    setState(() {
+      widget.routineExercise.plannedSets.removeAt(index);
+    });
+  }
+
+  int _calculateEffectiveDisplayIndex(int currentSetIndex) {
+    int count = 0;
+    for (int i = 0; i <= currentSetIndex; i++) {
+      final set = widget.routineExercise.plannedSets[i];
+      if (set.setType != SetType.warmup) {
+        count++;
+      }
+    }
+    return count;
+  }
+
   Future<void> _showDeleteConfirmationDialog() async {
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // User must tap a button
+      barrierDismissible: false,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Delete Exercise?'),
@@ -287,15 +376,15 @@ class _ExerciseEditorCardState extends State<_ExerciseEditorCard> {
             TextButton(
               child: const Text('Cancel'),
               onPressed: () {
-                Navigator.of(dialogContext).pop(); // Dismiss the dialog
+                Navigator.of(dialogContext).pop();
               },
             ),
             TextButton(
               style: TextButton.styleFrom(foregroundColor: Colors.red),
               child: const Text('Delete'),
               onPressed: () {
-                Navigator.of(dialogContext).pop(); // Dismiss the dialog
-                widget.onDelete(); // Execute the original delete function
+                Navigator.of(dialogContext).pop();
+                widget.onDelete();
               },
             ),
           ],
@@ -306,9 +395,6 @@ class _ExerciseEditorCardState extends State<_ExerciseEditorCard> {
 
   @override
   Widget build(BuildContext context) {
-    // **FIX 2 of 2: Replaced Card with a decorated Container.**
-    // This gives us the same visual look but removes any built-in behaviors
-    // from the Card widget that might interfere with the ReorderableListView's drag visuals.
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -358,16 +444,52 @@ class _ExerciseEditorCardState extends State<_ExerciseEditorCard> {
               itemBuilder: (context, setIndex, animation) {
                 return SizeTransition(
                   sizeFactor: animation,
-                  child: HevyStyleSetRow(
-                    setIndex: setIndex,
-                    plannedSet: widget.routineExercise.plannedSets[setIndex],
-                    exercise: _exerciseDetails,
-                    isCompleted: false,
-                    weightMode: _currentWeightMode,
-                    onChanged: (updatedSet) {
-                      widget.routineExercise.plannedSets[setIndex] = updatedSet;
-                    },
-                    onCompleted: () {},
+                  child: Dismissible(
+                    key: _setKeys[setIndex],
+                    direction: DismissDirection.endToStart,
+                    onDismissed: (_) => _removeSet(setIndex),
+                    background: Container(
+                      alignment: Alignment.centerRight,
+                      color: Colors.red,
+                      padding: const EdgeInsets.only(right: 20.0),
+                      child: const Icon(Icons.delete, color: Colors.white),
+                    ),
+                    child: HevyStyleSetRow(
+                      setIndex: setIndex,
+                      displayIndex: _calculateEffectiveDisplayIndex(setIndex),
+                      plannedSet: widget.routineExercise.plannedSets[setIndex],
+                      exercise: _exerciseDetails,
+                      isCompleted: false,
+                      weightMode: _currentWeightMode,
+
+                      // 🟢 FIX: Force Correct Sign on Input
+                      onChanged: (updatedSet) {
+                        setState(() {
+                          var finalSet = updatedSet;
+
+                          // If we are in Assisted mode, force weight to be negative
+                          if (_currentWeightMode == WeightMode.assisted &&
+                              updatedSet.targetWeight != null) {
+                            final absWeight = updatedSet.targetWeight!.abs();
+                            finalSet = updatedSet.copyWith(
+                              targetWeight: -absWeight,
+                            );
+                          }
+
+                          widget.routineExercise.plannedSets[setIndex] =
+                              finalSet;
+                        });
+                      },
+                      onTypeChanged: (newType) {
+                        setState(() {
+                          final current =
+                              widget.routineExercise.plannedSets[setIndex];
+                          widget.routineExercise.plannedSets[setIndex] = current
+                              .copyWith(setType: newType);
+                        });
+                      },
+                      onCompleted: () {},
+                    ),
                   ),
                 );
               },
@@ -444,6 +566,11 @@ class _ExerciseEditorCardState extends State<_ExerciseEditorCard> {
               const SizedBox(
                 width: 80,
                 child: Text("REPS", textAlign: TextAlign.center),
+              ),
+            if (_exerciseDetails.tracksDistance)
+              const SizedBox(
+                width: 80,
+                child: Text("DIST", textAlign: TextAlign.center),
               ),
             const SizedBox(width: 48),
           ],

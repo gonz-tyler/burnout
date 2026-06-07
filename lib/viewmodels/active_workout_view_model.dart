@@ -9,7 +9,7 @@ class ActiveWorkoutViewModel extends ChangeNotifier {
   final List<RoutineExercise> _liveExercises = [];
   final Map<String, bool> _setCompletionStatus = {};
 
-  // **NEW**: Map to track the weight mode for each exercise by its ID.
+  // Map to track the weight mode for each exercise by its ID.
   final Map<String, WeightMode> _exerciseWeightModes = {};
 
   // --- GETTERS ---
@@ -23,7 +23,24 @@ class ActiveWorkoutViewModel extends ChangeNotifier {
     _liveExercises.clear();
     _liveExercises.addAll(routine.exercises.map((e) => e.copyWith()).toList());
     _setCompletionStatus.clear();
-    _exerciseWeightModes.clear(); // Clear modes on new workout
+    _exerciseWeightModes.clear();
+
+    // 🟢 FIX 1: Smart Detect Mode
+    // Scan the exercises. If we find negative weight, force "Assisted" mode immediately.
+    for (var exercise in _liveExercises) {
+      // Check if any set has a negative weight (indicates Assisted)
+      bool hasNegativeWeight = exercise.plannedSets.any(
+        (s) => (s.targetWeight ?? 0) < 0,
+      );
+
+      if (hasNegativeWeight) {
+        _exerciseWeightModes[exercise.exerciseId] = WeightMode.assisted;
+      } else {
+        // Otherwise, leave it null (getWeightModeForExercise will handle the default)
+        // or specifically check for Bodyweight (0kg) if you want strict checking.
+      }
+    }
+
     _isWorkoutStarted = true;
     notifyListeners();
   }
@@ -33,10 +50,10 @@ class ActiveWorkoutViewModel extends ChangeNotifier {
     return 'e${exerciseId}s$setIndex';
   }
 
-  // **NEW**: Get the current weight mode for an exercise.
+  // Get the current weight mode for an exercise.
   WeightMode getWeightModeForExercise(Exercise exercise) {
-    // If no mode is set, determine a sensible default.
     if (!_exerciseWeightModes.containsKey(exercise.id)) {
+      // Default fallback if not set during startWorkout
       if (exercise.supportsWeight) {
         return WeightMode.weighted;
       } else if (exercise.supportsBodyweight) {
@@ -48,7 +65,7 @@ class ActiveWorkoutViewModel extends ChangeNotifier {
     return _exerciseWeightModes[exercise.id] ?? WeightMode.weighted;
   }
 
-  // **NEW**: The logic to cycle through available weight modes.
+  // The logic to cycle through available weight modes.
   void cycleWeightModeForExercise(int exerciseIndex, Exercise exerciseDetails) {
     final modes = <WeightMode>[
       if (exerciseDetails.supportsWeight) WeightMode.weighted,
@@ -56,7 +73,7 @@ class ActiveWorkoutViewModel extends ChangeNotifier {
       if (exerciseDetails.supportsAssistance) WeightMode.assisted,
     ];
 
-    if (modes.length < 2) return; // No need to cycle if only one mode
+    if (modes.length < 2) return;
 
     final currentMode = getWeightModeForExercise(exerciseDetails);
     final currentIndex = modes.indexOf(currentMode);
@@ -69,15 +86,25 @@ class ActiveWorkoutViewModel extends ChangeNotifier {
     for (int i = 0; i < routineExercise.plannedSets.length; i++) {
       final currentSet = routineExercise.plannedSets[i];
       double newWeight;
+
+      // 🟢 FIX 2: Better conversion logic to prevent data loss on 0s
+      double currentAbs = currentSet.targetWeight?.abs() ?? 0.0;
+      // If conversion is stuck at 0, default to a sensible number (e.g. 10 or 20)
+      // so the user doesn't have to type from scratch.
+      if (currentAbs == 0) currentAbs = 0;
+
       switch (nextMode) {
         case WeightMode.weighted:
-          newWeight = currentSet.targetWeight?.abs() ?? 0.0;
+          newWeight = currentAbs;
           break;
         case WeightMode.bodyweight:
           newWeight = 0;
           break;
         case WeightMode.assisted:
-          newWeight = -(currentSet.targetWeight?.abs() ?? 20.0);
+          // If we are switching TO assisted, ensure it is negative
+          // If current was 0, maybe default to -10 just to show it's working?
+          // For now, -0 is technically 0, but let's keep strict negation.
+          newWeight = -currentAbs;
           break;
       }
       _liveExercises[exerciseIndex].plannedSets[i] = currentSet.copyWith(
@@ -85,6 +112,18 @@ class ActiveWorkoutViewModel extends ChangeNotifier {
       );
     }
 
+    notifyListeners();
+  }
+
+  void removeSet(int exerciseIndex, int setIndex) {
+    if (exerciseIndex >= _liveExercises.length) return;
+
+    final exercise = _liveExercises[exerciseIndex];
+    if (setIndex >= exercise.plannedSets.length) return;
+
+    exercise.plannedSets.removeAt(setIndex);
+
+    // Note: We are relying on the UI to rebuild keys, so we just notify here.
     notifyListeners();
   }
 
@@ -103,6 +142,46 @@ class ActiveWorkoutViewModel extends ChangeNotifier {
         setIndex < _liveExercises[exerciseIndex].plannedSets.length) {
       _liveExercises[exerciseIndex].plannedSets[setIndex] = updatedSet;
     }
+  }
+
+  void addExercise(RoutineExercise newExercise) {
+    _liveExercises.add(newExercise);
+
+    // Auto-detect if it needs assisted mode (like we do in startWorkout)
+    bool hasNegativeWeight = newExercise.plannedSets.any(
+      (s) => (s.targetWeight ?? 0) < 0,
+    );
+    if (hasNegativeWeight) {
+      _exerciseWeightModes[newExercise.exerciseId] = WeightMode.assisted;
+    }
+
+    notifyListeners();
+  }
+
+  // 🟢 NEW: Remove an exercise entirely from the active workout
+  void deleteExercise(int index) {
+    if (index >= 0 && index < _liveExercises.length) {
+      _liveExercises.removeAt(index);
+      // 🟢 CRITICAL: Notify listeners so the UI rebuilds!
+      notifyListeners();
+    }
+  }
+
+  // 🟢 NEW: Check if the routine has changed compared to the original
+  // Used to show the "Update Routine?" dialog
+  bool hasRoutineChanged() {
+    if (_routine == null) return false;
+
+    // Check lengths
+    if (_liveExercises.length != _routine!.exercises.length) return true;
+
+    // Check IDs in order
+    for (int i = 0; i < _liveExercises.length; i++) {
+      if (_liveExercises[i].exerciseId != _routine!.exercises[i].exerciseId) {
+        return true;
+      }
+    }
+    return false;
   }
 
   double get workoutProgress {

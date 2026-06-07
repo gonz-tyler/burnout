@@ -15,22 +15,28 @@ class Routine {
   final String name;
   @HiveField(2)
   final List<RoutineExercise> exercises; // Hive handles lists automatically
+  @HiveField(3)
+  final int? sortOrder;
 
   const Routine({
     required this.id,
     required this.name,
     required this.exercises,
+    this.sortOrder,
   });
+
   Routine copyWith({
     String? id,
     String? name,
     List<RoutineExercise>? exercises,
+    int? sortOrder,
   }) {
     return Routine(
       id: id ?? this.id,
       name: name ?? this.name,
       // Create a deep copy of the exercises list
       exercises: exercises ?? this.exercises.map((e) => e.copyWith()).toList(),
+      sortOrder: sortOrder ?? this.sortOrder,
     );
   }
 }

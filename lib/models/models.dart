@@ -6,3 +6,4 @@ export 'routine.dart';
 export 'workout_plan.dart';
 export 'workout_session.dart';
 export 'planned_set.dart';
+export 'body_measurement.dart';

@@ -1,6 +1,7 @@
 // lib/widgets/routine_card.dart
 
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 import '../models/models.dart'; // Make sure this path is correct for your project
 
 class RoutineCard extends StatelessWidget {
@@ -36,41 +37,47 @@ class RoutineCard extends StatelessWidget {
         routine.exercises.length - displayedExercises.length;
 
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-      elevation: 2.0,
+      // 🟢 COMPACT: Reduced margins
+      margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
+      elevation: 1.0, // 🟢 COMPACT: Lower elevation for a flatter look
       color: Theme.of(context).colorScheme.surfaceContainer,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        // 🟢 COMPACT: Reduced internal padding from 16 to 12
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // --- Top Row: Routine Name & Menu ---
+            // --- Top Row: Name & Menu ---
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: Text(
-                    routine.name,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                    overflow: TextOverflow.ellipsis,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        routine.name,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      // 🟢 COMPACT: Moved "Total Sets" here to save vertical space
+                      Text(
+                        '$totalSets Sets • ${routine.exercises.length} Exercises',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                _buildPopupMenu(),
+                _buildPopupMenu(Theme.of(context).colorScheme.surface),
               ],
             ),
-            const SizedBox(height: 4),
 
-            // --- Subtitle: Total Sets ---
-            Text(
-              '$totalSets Total Sets',
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-            ),
-            const Divider(height: 24),
+            // 🟢 COMPACT: Removed Divider and large SizedBox
+            const SizedBox(height: 12),
 
             // --- Middle Section: Exercise List ---
             if (displayedExercises.isNotEmpty)
@@ -78,14 +85,26 @@ class RoutineCard extends StatelessWidget {
                 children:
                     displayedExercises.map((exercise) {
                       return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 3.0),
+                        // 🟢 COMPACT: Tighter list spacing (3.0 -> 1.0)
+                        padding: const EdgeInsets.symmetric(vertical: 1.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(exercise.exerciseName),
+                            Expanded(
+                              child: Text(
+                                exercise.exerciseName,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                             Text(
-                              '${exercise.plannedSets.length} sets',
-                              style: TextStyle(color: Colors.grey[700]),
+                              '${exercise.plannedSets.length}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant.withOpacity(0.7),
+                              ),
                             ),
                           ],
                         ),
@@ -93,34 +112,38 @@ class RoutineCard extends StatelessWidget {
                     }).toList(),
               )
             else
-              const Text('This routine has no exercises yet.'),
+              Text(
+                'Empty routine',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
-            // --- Bottom Row: "X more" & Start Button ---
+            // --- Bottom Row: Start Button ---
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 if (remainingExercisesCount > 0)
                   Text(
-                    'and $remainingExercisesCount more...',
+                    '+ $remainingExercisesCount more',
                     style: TextStyle(
-                      color: Colors.grey[600],
+                      fontSize: 11,
+                      color: Theme.of(context).colorScheme.outline,
                       fontStyle: FontStyle.italic,
                     ),
-                  )
-                else
-                  const Spacer(), // Use a Spacer if there's no "more" text
+                  ),
+                const Spacer(),
 
-                FilledButton.icon(
-                  onPressed: onStart,
-                  icon: const Icon(Icons.play_arrow_rounded),
-                  label: Text(
-                    'Start Routine',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary,
+                // 🟢 COMPACT: Smaller Button
+                SizedBox(
+                  height: 36,
+                  child: FilledButton.icon(
+                    onPressed: onStart,
+                    style: FilledButton.styleFrom(
+                      visualDensity: VisualDensity.compact,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                     ),
+                    icon: const Icon(Icons.play_arrow_rounded, size: 18),
+                    label: const Text('Start'),
                   ),
                 ),
               ],
@@ -132,8 +155,10 @@ class RoutineCard extends StatelessWidget {
   }
 
   // Helper widget for the three-dot menu
-  Widget _buildPopupMenu() {
+  Widget _buildPopupMenu(bgColor) {
     return PopupMenuButton<String>(
+      color: bgColor,
+      borderRadius: BorderRadius.circular(24.0),
       onSelected: (value) {
         switch (value) {
           case 'edit':

@@ -1,38 +1,56 @@
 // lib/screens/workouts_screen.dart
 
 import 'package:burnout/screens/active_workout_screen.dart';
+import 'package:burnout/screens/campaign_screen.dart';
 import 'package:burnout/screens/routine_editor_screen.dart';
+import 'package:burnout/services/labors_service.dart';
 import 'package:burnout/viewmodels/active_workout_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart'; // 🟢 IMPORT UUID
 import '../viewmodels/workout_view_model.dart';
 import '../models/routine.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/routine_card.dart';
-// import 'routine_editor_screen.dart'; // We will create this screen next
 
 class WorkoutsScreen extends StatelessWidget {
   const WorkoutsScreen({Key? key}) : super(key: key);
 
   void _createNewRoutine(BuildContext context) {
-    // Navigate to the screen where a user builds a new routine.
-    // Navigator.push(context, MaterialPageRoute(builder: (_) => RoutineEditorScreen()));
     Navigator.of(
       context,
     ).push(MaterialPageRoute(builder: (_) => const RoutineEditorScreen()));
   }
 
-  void _startWorkout(BuildContext context, Routine routine) {
-    // Navigate to the live workout screen, passing the selected routine.
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Starting workout: ${routine.name}')),
+  // 🟢 NEW: Logic to start an empty "Freestyle" workout
+  void _startEmptyWorkout(BuildContext context) {
+    // Create a temporary routine that isn't saved to the DB yet.
+    // We just use it to initialize the ActiveWorkoutScreen.
+    final freestyleRoutine = Routine(
+      id: const Uuid().v4(),
+      name: "Freestyle Workout",
+      exercises: [],
+      sortOrder: null,
+    );
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder:
+            (_) => ChangeNotifierProvider(
+              create: (_) => ActiveWorkoutViewModel(),
+              child: ActiveWorkoutScreen(routine: freestyleRoutine),
+            ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final workoutViewModel = context.watch<WorkoutViewModel>();
     final l10n = AppLocalizations.of(context)!;
+    final vm = context.watch<WorkoutViewModel>();
+    final labors = LaborsService.checkLabors(vm);
+    final laborsCompletedCount = labors.where((l) => l.isCompleted).length;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -45,140 +63,134 @@ class WorkoutsScreen extends StatelessWidget {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceVariant,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+          // ... (Existing Shield Icon Logic) ...
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CampaignScreen()),
+              );
+            },
+            borderRadius: BorderRadius.circular(20),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Stack(
+                alignment: Alignment.center,
                 children: [
                   Icon(
-                    Icons.local_fire_department,
+                    Icons.shield_outlined,
+                    size: 28,
                     color:
-                        workoutViewModel.didWorkoutToday
-                            ? Colors.orange
-                            : Colors.grey,
-                    size: 18,
+                        laborsCompletedCount == labors.length
+                            ? Colors.amber
+                            : Colors.grey[600],
                   ),
-                  const SizedBox(width: 6),
                   Text(
-                    '${workoutViewModel.currentStreak}',
+                    "$laborsCompletedCount",
                     style: TextStyle(
+                      fontSize: 10,
                       fontWeight: FontWeight.bold,
                       color:
-                          workoutViewModel.didWorkoutToday
-                              ? Colors.orange
-                              : Colors.grey,
+                          laborsCompletedCount == labors.length
+                              ? Colors.black
+                              : Colors.grey[600],
                     ),
                   ),
                 ],
               ),
             ),
           ),
+          const SizedBox(width: 8),
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Selector<WorkoutViewModel, (bool, int)>(
+                selector: (_, vm) => (vm.didWorkoutToday, vm.currentStreak),
+                builder: (context, data, _) {
+                  final didWorkoutToday = data.$1;
+                  final currentStreak = data.$2;
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.local_fire_department,
+                        color: didWorkoutToday ? Colors.orange : Colors.grey,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        '$currentStreak',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: didWorkoutToday ? Colors.orange : Colors.grey,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
         ],
       ),
-      body: Consumer<WorkoutViewModel>(
-        builder: (context, viewModel, child) {
-          if (viewModel.routines.isEmpty) {
+      body: Selector<WorkoutViewModel, List<Routine>>(
+        selector: (_, vm) => vm.routines,
+        shouldRebuild: (previous, next) => previous != next,
+        builder: (context, routines, child) {
+          if (routines.isEmpty) {
             return _buildEmptyState(context);
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16.0),
-            itemCount: viewModel.routines.length,
+          return ReorderableListView.builder(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+            // 🟢 NEW: Add the button as a scrolling header
+            header: Padding(
+              padding: const EdgeInsets.only(bottom: 16.0, top: 16.0),
+              child: _buildQuickStartButton(context),
+            ),
+            footer: _buildCampaignCard(context),
+            itemCount: routines.length,
+            onReorder: (oldIndex, newIndex) {
+              context.read<WorkoutViewModel>().reorderRoutines(
+                oldIndex,
+                newIndex,
+              );
+            },
             itemBuilder: (context, index) {
-              final routine = viewModel.routines[index];
-              // return Card(
-              //   elevation: 2.0,
-              //   margin: const EdgeInsets.symmetric(vertical: 8.0),
-              //   child: ListTile(
-              //     title: Text(
-              //       routine.name,
-              //       style: const TextStyle(fontWeight: FontWeight.bold),
-              //     ),
-              //     subtitle: Text('${routine.exercises.length} exercises'),
-              //     trailing: const Icon(Icons.arrow_forward_ios),
-              //     onTap: () => _startWorkout(context, routine),
-              //   ),
-              // );
-              return RoutineCard(
-                routine: routine,
-                onStart: () {
-                  print('Starting routine: ${routine.name}');
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      // We wrap the new screen in a ChangeNotifierProvider
-                      // so it and its children can access the ActiveWorkoutViewModel.
-                      builder:
-                          (_) => ChangeNotifierProvider(
-                            create: (_) => ActiveWorkoutViewModel(),
-                            child: ActiveWorkoutScreen(routine: routine),
-                          ),
-                    ),
-                  );
-                },
-                onEdit: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder:
-                          (_) => RoutineEditorScreen(initialRoutine: routine),
-                    ),
-                  );
-                },
-                onDelete: () {
-                  // Show a confirmation dialog before deleting
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext dialogContext) {
-                      return AlertDialog(
-                        title: const Text('Delete Routine?'),
-                        content: Text(
-                          'Are you sure you want to delete "${routine.name}"? This action cannot be undone.',
-                        ),
-                        actions: <Widget>[
-                          TextButton(
-                            child: const Text('Cancel'),
-                            onPressed: () {
-                              Navigator.of(
-                                dialogContext,
-                              ).pop(); // Close the dialog
-                            },
-                          ),
-                          TextButton(
-                            style: TextButton.styleFrom(
-                              foregroundColor: Colors.red,
+              final routine = routines[index];
+              return Container(
+                key: ValueKey(routine.id),
+                child: RoutineCard(
+                  routine: routine,
+                  onStart: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder:
+                            (_) => ChangeNotifierProvider(
+                              create: (_) => ActiveWorkoutViewModel(),
+                              child: ActiveWorkoutScreen(routine: routine),
                             ),
-                            child: const Text('Delete'),
-                            onPressed: () {
-                              // Use the ViewModel from the parent context
-                              // --- ADD THIS ---
-                              final viewModel =
-                                  context.read<WorkoutViewModel>();
-                              print(
-                                '❌ Attempting to delete. Using ViewModel with HashCode: ${viewModel.hashCode}',
-                              );
-                              // ---------------
-
-                              viewModel.deleteRoutine(
-                                routine.id,
-                              ); // Use the variable we just made
-                              Navigator.of(
-                                dialogContext,
-                              ).pop(); // Close the dialog
-                            },
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-                onDuplicate: () {
-                  context.read<WorkoutViewModel>().duplicateRoutine(routine.id);
-                },
+                      ),
+                    );
+                  },
+                  onEdit: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder:
+                            (_) => RoutineEditorScreen(initialRoutine: routine),
+                      ),
+                    );
+                  },
+                  onDelete: () => _showDeleteDialog(context, routine),
+                  onDuplicate:
+                      () => context.read<WorkoutViewModel>().duplicateRoutine(
+                        routine.id,
+                      ),
+                ),
               );
             },
           );
@@ -192,6 +204,156 @@ class WorkoutsScreen extends StatelessWidget {
     );
   }
 
+  // 🟢 NEW: Quick Start Button Widget
+  Widget _buildQuickStartButton(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: OutlinedButton.icon(
+        onPressed: () => _startEmptyWorkout(context),
+        icon: const Icon(Icons.add),
+        label: const Text(
+          "START EMPTY WORKOUT",
+          style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.0),
+        ),
+        style: OutlinedButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          side: BorderSide(color: Theme.of(context).colorScheme.primary),
+        ),
+      ),
+    );
+  }
+
+  // ... (Delete Dialog - Unchanged) ...
+  void _showDeleteDialog(BuildContext context, Routine routine) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Delete Routine?'),
+          content: Text('Are you sure you want to delete "${routine.name}"?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(dialogContext).pop(),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Delete'),
+              onPressed: () {
+                context.read<WorkoutViewModel>().deleteRoutine(routine.id);
+                Navigator.of(dialogContext).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // ... (Campaign Card - Unchanged) ...
+  Widget _buildCampaignCard(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 24, bottom: 100),
+      height: 140,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.4),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
+        image: const DecorationImage(
+          image: AssetImage('assets/data/images/hercules_cerberus.png'),
+          fit: BoxFit.cover,
+          alignment: Alignment.topCenter,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(24),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const CampaignScreen()),
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              gradient: LinearGradient(
+                colors: [Colors.black.withOpacity(0.9), Colors.transparent],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+            ),
+            child: Row(
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "CAMPAIGN MODE",
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.8),
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2.0,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      "THE 12 LABORS",
+                      style: TextStyle(
+                        color: Colors.amber,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.0,
+                        height: 1.0,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: const [
+                        Icon(Icons.shield, color: Colors.white70, size: 14),
+                        SizedBox(width: 4),
+                        Text(
+                          "Prove your strength",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.withOpacity(0.2),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.amber.withOpacity(0.5)),
+                  ),
+                  child: const Icon(Icons.arrow_forward, color: Colors.amber),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: Padding(
@@ -199,6 +361,10 @@ class WorkoutsScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // 🟢 NEW: Add Quick Start button here too so user isn't stuck
+            _buildQuickStartButton(context),
+            const SizedBox(height: 48),
+
             Icon(Icons.assignment_outlined, size: 80, color: Colors.grey[400]),
             const SizedBox(height: 16),
             const Text(
@@ -207,7 +373,7 @@ class WorkoutsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Create workout routines to track your progress and stay organized.',
+              'Create a routine or start an empty workout above.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),

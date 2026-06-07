@@ -1,6 +1,7 @@
 // lib/main.dart
 import 'dart:convert';
 import 'package:burnout/models/exercise.dart';
+import 'package:burnout/models/body_measurement.dart';
 import 'package:burnout/providers/app_preferences_provider.dart';
 import 'package:burnout/providers/language_provider.dart';
 import 'package:burnout/providers/theme_settings_provider.dart';
@@ -41,6 +42,7 @@ Future<void> main() async {
   Hive.registerAdapter(WorkoutSessionAdapter());
   Hive.registerAdapter(PerformedExerciseAdapter());
   Hive.registerAdapter(PerformedSetAdapter());
+  Hive.registerAdapter(BodyMeasurementAdapter());
 
   // Open Hive Boxes
   await Hive.openBox<Exercise>(exerciseBoxName);
@@ -52,6 +54,7 @@ Future<void> main() async {
   await _loadInitialData();
 
   final workoutRepository = WorkoutRepository();
+  await workoutRepository.init();
   final streakService = StreakService();
 
   runApp(

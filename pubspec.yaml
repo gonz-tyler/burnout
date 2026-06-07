@@ -65,3 +65,5 @@ flutter:
     - assets/data/standardized_exercises.json
     - assets/themes/
     - assets/data/images/
+    - assets/data/images/medals/
+    - assets/data/images/backgrounds/

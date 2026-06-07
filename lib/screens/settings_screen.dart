@@ -217,7 +217,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
 
-          _buildSectionHeader(context, l10n.notifications, Icons.notifications),
+          /*_buildSectionHeader(context, l10n.notifications, Icons.notifications),
 
           // Showcase(
           //   key: _notificationsKey,
@@ -381,6 +381,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
           ),
+          */
 
           // --- TODO: Feature Sections to Re-implement ---
           // The sections below depend on features from your habit app that don't exist yet in the workout app.
