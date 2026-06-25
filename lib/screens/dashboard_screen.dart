@@ -24,46 +24,46 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // Data for the Pantheon Scroll
   final List<Map<String, dynamic>> _pantheonGods = [
     {
-      "god": "ATLAS",
+      "god": "ZEUS",
       "lift": "Bench Press",
       "variations": ["Incline Bench", "Dumbbell Press", "Dips"],
-      "color": Colors.amber.shade700,
-      "asset": "assets/data/images/atlas.png",
+      "color": Colors.cyan.shade600,
+      "asset": "assets/data/images/zeus.jpg",
     },
     {
       "god": "HERCULES",
       "lift": "Squat",
       "variations": ["Front Squat", "Leg Press", "Goblet Squat"],
       "color": Colors.red.shade800,
-      "asset": "assets/data/images/hercules.png",
+      "asset": "assets/data/images/hercules.jpg",
     },
     {
       "god": "HADES",
       "lift": "Deadlift",
       "variations": ["Romanian Deadlift", "Sumo Deadlift", "Trap Bar"],
       "color": Colors.purple.shade900,
-      "asset": "assets/data/images/hades.png",
+      "asset": "assets/data/images/hades.jpg",
     },
     {
-      "god": "ZEUS",
+      "god": "ATLAS",
       "lift": "Overhead Press",
       "variations": ["Seated Press", "Arnold Press", "Lateral Raise"],
-      "color": Colors.cyan.shade600, // Lightning Blue
-      "asset": "assets/data/images/zeus.png",
+      "color": Colors.amber.shade700,
+      "asset": "assets/data/images/atlas.jpg",
     },
     {
       "god": "POSEIDON",
       "lift": "Barbell Row",
       "variations": ["Pull Up", "Cable Row", "Lat Pulldown"],
-      "color": Colors.blue.shade900, // Ocean Deep
-      "asset": "assets/data/images/poseidon.png",
+      "color": Colors.blue.shade900,
+      "asset": "assets/data/images/poseidon.jpg",
     },
     {
       "god": "ARES",
-      "lift": "Incline Bench", // You requested this specific highlight
+      "lift": "Incline Bench",
       "variations": ["Reverse Grip Bench", "Hammer Strength"],
       "color": Colors.deepOrange.shade900, // War Red
-      "asset": "assets/data/images/ares.png",
+      "asset": "assets/data/images/ares.jpg",
     },
   ];
 
@@ -236,7 +236,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withAlpha(13),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -429,7 +429,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: isLocked ? Colors.black12 : color.withOpacity(0.4),
+              color: isLocked ? Colors.black12 : color.withAlpha(102),
               blurRadius: 12,
               offset: const Offset(0, 6),
             ),
@@ -442,8 +442,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 isLocked
                     ? [Colors.grey.shade800, Colors.black]
                     : [
-                      color.withOpacity(0.9),
-                      color.withOpacity(0.5),
+                      color.withAlpha(230),
+                      color.withAlpha(129),
                     ], // Darker to Lighter
           ),
         ),
@@ -571,13 +571,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       rating = "MORTAL"; // Changed from "Developing"
       color = Colors.white70;
     } else if (ratio < 1.55) {
-      rating = "ATHLETE";
+      rating = "HERO";
       color = Colors.white;
     } else if (ratio < 1.65) {
       rating = "DEMIGOD"; // Changed from "Golden V-Taper"
       color = Colors.amberAccent;
     } else {
-      rating = "TITAN"; // Changed from "Superhero"
+      rating = "GOD"; // Changed from "Superhero"
       color = Colors.cyanAccent; // Glowing blue/energy look
     }
 
@@ -589,14 +589,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         color: Colors.black, // Fallback color
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withAlpha(77),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
         ],
         image: const DecorationImage(
           // 🟢 YOU NEED TO ADD THIS IMAGE TO YOUR ASSETS
-          image: AssetImage('assets/data/images/greek_statue.png'),
+          image: AssetImage('assets/data/images/greek_statue.jpg'),
           fit: BoxFit.cover,
           // Aligns the top of the image so the head/torso is visible
           alignment: Alignment.topCenter,
@@ -613,8 +613,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 end: Alignment.bottomCenter,
                 colors: [
                   Colors.transparent,
-                  Colors.black.withOpacity(0.2),
-                  Colors.black.withOpacity(0.9),
+                  Colors.black.withAlpha(51),
+                  Colors.black.withAlpha(229),
                 ],
                 stops: const [0.0, 0.5, 1.0],
               ),
@@ -636,7 +636,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Text(
                       "SHOULDER : WAIST RATIO",
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withAlpha(179),
                         fontSize: 12,
                         letterSpacing: 2.0, // "Movie poster" spacing
                         fontWeight: FontWeight.w600,
@@ -658,7 +658,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         color: Colors.white,
                         height: 1.0,
                         shadows: [
-                          Shadow(color: color.withOpacity(0.5), blurRadius: 20),
+                          Shadow(color: color.withAlpha(128), blurRadius: 20),
                         ],
                       ),
                     ),
@@ -671,9 +671,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          border: Border.all(color: color.withOpacity(0.5)),
+                          border: Border.all(color: color.withAlpha(128)),
                           borderRadius: BorderRadius.circular(8),
-                          color: color.withOpacity(0.1),
+                          color: color.withAlpha(26),
                         ),
                         child: Text(
                           rating,
@@ -694,7 +694,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Text(
                   "GOLDEN RATIO TARGET: 1.618",
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.white.withAlpha(128),
                     fontSize: 10,
                     letterSpacing: 1.0,
                   ),
@@ -739,7 +739,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(13),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -900,6 +900,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             _buildIdealRow(
               context,
+              "Shoulders",
+              current?.shoulders,
+              ideals['Shoulders'],
+              isMaximum: false,
+            ),
+            _buildIdealRow(
+              context,
               "Chest",
               current?.chest,
               ideals['Chest'],
@@ -928,6 +935,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
               current?.leftBicep,
               current?.rightBicep,
               ideals['Bicep'],
+            ),
+            _buildSymmetryRow(
+              context,
+              "Forearms",
+              current?.leftForearm,
+              current?.rightForearm,
+              ideals['Forearm'],
             ),
             _buildSymmetryRow(
               context,
@@ -1024,8 +1038,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             // 🟢 If Muscle (Chest): Overflow is GREEN (Good!)
                             color:
                                 isMaximum
-                                    ? Colors.red.withOpacity(0.8)
-                                    : Colors.green.withOpacity(0.2),
+                                    ? Colors.red.withAlpha(204)
+                                    : Colors.green.withAlpha(51),
                             borderRadius: BorderRadius.circular(3),
                           ),
                         ),
@@ -1407,7 +1421,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       decoration: BoxDecoration(
         color: Theme.of(
           context,
-        ).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+        ).colorScheme.surfaceContainerHighest.withAlpha(128),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -1454,10 +1468,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildWarningCard(BuildContext context, String warning) {
     return Card(
       elevation: 0,
-      color: Colors.amber.withOpacity(0.1),
+      color: Colors.amber.withAlpha(26),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.amber.withOpacity(0.5)),
+        side: BorderSide(color: Colors.amber.withAlpha(126)),
       ),
       margin: const EdgeInsets.only(bottom: 8),
       child: Padding(
@@ -1492,7 +1506,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             borderRadius: BorderRadius.circular(4),
             gradient: LinearGradient(
               colors: [
-                Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                Theme.of(context).colorScheme.primary.withAlpha(26),
                 Theme.of(context).colorScheme.primary,
               ],
             ),
@@ -1568,7 +1582,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withAlpha(26),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: color, size: 24),
@@ -1606,7 +1620,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withAlpha(26),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(

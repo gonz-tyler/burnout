@@ -42,3 +42,11 @@ android {
 flutter {
     source = "../.."
 }
+
+configurations.all {
+    resolutionStrategy {
+        // Forces home_widget to build using a stable version of Jetpack Glance
+        force("androidx.glance:glance:1.1.1")
+        force("androidx.glance:glance-appwidget:1.1.1")
+    }
+}

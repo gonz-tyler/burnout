@@ -283,14 +283,18 @@ class WorkoutViewModel extends ChangeNotifier {
 
   // 🟢 AESTHETICS: Calculate Ideals based on Wrist Size (Steve Reeves formula)
   Map<String, double> getIdealProportions(double wristSizeCm) {
+    var chestBase = wristSizeCm * 6.5;
     return {
-      'Chest': wristSizeCm * 6.5,
-      'Hips': (wristSizeCm * 6.5) * 0.85,
-      'Waist': (wristSizeCm * 6.5) * 0.70,
-      'Thigh': (wristSizeCm * 6.5) * 0.53,
-      'Neck': (wristSizeCm * 6.5) * 0.37,
-      'Bicep': (wristSizeCm * 6.5) * 0.36,
-      'Calf': (wristSizeCm * 6.5) * 0.34,
+      'Chest': chestBase,
+      'Shoulders':
+          chestBase * 1.1326, // Blended with the Golden Ratio (Waist * 1.618)
+      'Hips': chestBase * 0.85,
+      'Waist': chestBase * 0.70,
+      'Thigh': chestBase * 0.53,
+      'Neck': chestBase * 0.37,
+      'Bicep': chestBase * 0.36,
+      'Calf': chestBase * 0.34,
+      'Forearm': chestBase * 0.29,
     };
   }
 

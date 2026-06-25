@@ -36,12 +36,16 @@ class RoutineCard extends StatelessWidget {
     final int remainingExercisesCount =
         routine.exercises.length - displayedExercises.length;
 
-    return Card(
+    return Container(
       // 🟢 COMPACT: Reduced margins
-      margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
-      elevation: 1.0, // 🟢 COMPACT: Lower elevation for a flatter look
-      color: Theme.of(context).colorScheme.surfaceContainer,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+      // margin: const EdgeInsets.all(0),
+      // elevation: 1.0, // 🟢 COMPACT: Lower elevation for a flatter look
+      // color: Theme.of(context).colorScheme.surfaceContainer,
+      // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(24),
+      ),
       child: Padding(
         // 🟢 COMPACT: Reduced internal padding from 16 to 12
         padding: const EdgeInsets.all(12.0),

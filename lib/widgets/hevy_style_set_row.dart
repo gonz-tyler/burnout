@@ -211,17 +211,17 @@ class _HevyStyleSetRowState extends State<HevyStyleSetRow> {
 
   Color _getRowBackgroundColor(ThemeData theme) {
     if (widget.isCompleted)
-      return theme.colorScheme.primaryContainer.withOpacity(0.3);
+      return theme.colorScheme.primaryContainer.withAlpha(255);
 
     switch (widget.plannedSet.setType) {
       case SetType.warmup:
-        return Colors.orange.withOpacity(0.1);
+        return Colors.orange.withAlpha(79);
       case SetType.failure:
-        return Colors.red.withOpacity(0.1);
+        return Colors.red.withAlpha(79);
       case SetType.dropset:
-        return Colors.purple.withOpacity(0.1);
+        return Colors.purple.withAlpha(79);
       default:
-        return Colors.transparent;
+        return Colors.grey.withAlpha(79);
     }
   }
 
@@ -242,8 +242,12 @@ class _HevyStyleSetRowState extends State<HevyStyleSetRow> {
             : theme.colorScheme.primary;
 
     return Container(
-      color: _getRowBackgroundColor(theme),
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(40.0),
+        color: _getRowBackgroundColor(theme),
+      ),
+
+      padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 6.0),
       child: Row(
         children: [
           _buildSetNumber(context, activeColor),
@@ -354,12 +358,12 @@ class _HevyStyleSetRowState extends State<HevyStyleSetRow> {
           height: 40,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: widget.isCompleted ? activeColor : Colors.transparent,
+            color: widget.isCompleted ? activeColor : activeColor.withAlpha(26),
             border: Border.all(
               color:
                   widget.isCompleted
                       ? Colors.transparent
-                      : activeColor.withOpacity(0.5),
+                      : activeColor.withAlpha(127),
               width: 2,
             ),
           ),
@@ -397,8 +401,8 @@ class _HevyStyleSetRowState extends State<HevyStyleSetRow> {
           shape: BoxShape.circle,
           color:
               widget.isCompleted
-                  ? Theme.of(context).colorScheme.inversePrimary
-                  : Theme.of(context).colorScheme.surfaceVariant,
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.surfaceVariant.withAlpha(128),
         ),
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 200),

@@ -147,10 +147,15 @@ class WorkoutsScreen extends StatelessWidget {
 
           return ReorderableListView.builder(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
-            // 🟢 NEW: Add the button as a scrolling header
             header: Padding(
               padding: const EdgeInsets.only(bottom: 16.0, top: 16.0),
-              child: _buildQuickStartButton(context),
+              child: Column(
+                children: [
+                  _buildCreateButton(context),
+                  const SizedBox(height: 20),
+                  _buildQuickStartButton(context),
+                ],
+              ),
             ),
             footer: _buildCampaignCard(context),
             itemCount: routines.length,
@@ -160,10 +165,63 @@ class WorkoutsScreen extends StatelessWidget {
                 newIndex,
               );
             },
+            proxyDecorator: (
+              Widget child,
+              int index,
+              Animation<double> animation,
+            ) {
+              return AnimatedBuilder(
+                animation: animation,
+                builder: (BuildContext context, Widget? child) {
+                  // 1. Create a matching curve for a responsive spring animation feel
+                  final CurvedAnimation liftCurve = CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOutCubic,
+                  );
+
+                  // 2. Map the animation value to an elevation transition (0.0 to 8.0)
+                  final double elevationValue =
+                      Tween<double>(
+                        begin: 0.0,
+                        end: 8.0,
+                      ).animate(liftCurve).value;
+
+                  // 3. Map the animation value to a scale growth multiplier (1.0 to 1.03)
+                  // Adjust 1.03 higher (e.g., 1.05) if you want an even more pronounced scale up
+                  final double scaleValue =
+                      Tween<double>(
+                        begin: 1.0,
+                        end: 1.03,
+                      ).animate(liftCurve).value;
+
+                  return Transform.scale(
+                    scale:
+                        scaleValue, // 🟢 Scales up the card sizes smoothly during active reordering
+                    child: Material(
+                      elevation: elevationValue,
+                      color: Colors.transparent,
+                      shadowColor: Theme.of(
+                        context,
+                      ).colorScheme.shadow.withOpacity(0.3),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: child,
+                    ),
+                  );
+                },
+                child: child,
+              );
+            },
             itemBuilder: (context, index) {
               final routine = routines[index];
-              return Container(
+              return Padding(
                 key: ValueKey(routine.id),
+                // 🟢 Fix: Spacing is now handled here externally on a transparent layer
+                padding: const EdgeInsets.symmetric(
+                  vertical: 4.0,
+                  horizontal: 4.0,
+                ),
                 child: RoutineCard(
                   routine: routine,
                   onStart: () {
@@ -196,11 +254,6 @@ class WorkoutsScreen extends StatelessWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _createNewRoutine(context),
-        child: const Icon(Icons.add),
-        tooltip: 'Create Routine',
-      ),
     );
   }
 
@@ -211,14 +264,35 @@ class WorkoutsScreen extends StatelessWidget {
       height: 50,
       child: OutlinedButton.icon(
         onPressed: () => _startEmptyWorkout(context),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.play_arrow),
         label: const Text(
           "START EMPTY WORKOUT",
           style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.0),
         ),
         style: OutlinedButton.styleFrom(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(24),
+          ),
+          side: BorderSide(color: Theme.of(context).colorScheme.primary),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCreateButton(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: OutlinedButton.icon(
+        onPressed: () => _createNewRoutine(context),
+        icon: const Icon(Icons.add),
+        label: const Text(
+          "CREATE NEW WORKOUT",
+          style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.0),
+        ),
+        style: OutlinedButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
           ),
           side: BorderSide(color: Theme.of(context).colorScheme.primary),
         ),
