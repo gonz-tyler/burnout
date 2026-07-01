@@ -417,94 +417,109 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ActiveWorkoutViewModel>(
-      builder: (context, viewModel, child) {
-        if (!viewModel.isWorkoutStarted) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
+    // 1. Only listen to the "isStarted" flag at the root level.
+    // This prevents the whole screen from rebuilding when you tick a set.
+    final isStarted = context.select<ActiveWorkoutViewModel, bool>(
+      (vm) => vm.isWorkoutStarted,
+    );
 
-        return Scaffold(
-          resizeToAvoidBottomInset: false,
-          appBar: AppBar(
-            title: Text(viewModel.routine?.name ?? 'Workout'),
-            elevation: 0,
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            foregroundColor: Theme.of(context).textTheme.bodyLarge?.color,
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.add),
-                tooltip: 'Add Exercise',
-                onPressed: () => _showAddExercisePicker(context),
-              ),
-              TextButton(
-                onPressed: () => _finishWorkout(context),
-                style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.primary,
-                ),
-                child: const Text(
-                  'FINISH',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.0,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-            ],
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(4.0),
-              child: LinearProgressIndicator(
-                value: viewModel.workoutProgress,
+    if (!isStarted) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    // 2. The Scaffold is now built ONCE.
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        // 3. Target ONLY the Title to update if the routine changes
+        title: Selector<ActiveWorkoutViewModel, String>(
+          selector: (_, vm) => vm.routine?.name ?? 'Workout',
+          builder: (context, name, child) => Text(name),
+        ),
+        elevation: 0,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).textTheme.bodyLarge?.color,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            tooltip: 'Add Exercise',
+            onPressed: () => _showAddExercisePicker(context),
+          ),
+          TextButton(
+            onPressed: () => _finishWorkout(context),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.primary,
+            ),
+            child: const Text(
+              'FINISH',
+              style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.0),
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(4.0),
+          // 4. Target ONLY the Progress Bar to update when sets are checked
+          child: Selector<ActiveWorkoutViewModel, double>(
+            selector: (_, vm) => vm.workoutProgress,
+            builder: (context, progress, child) {
+              return LinearProgressIndicator(
+                value: progress,
                 backgroundColor: Colors.grey.shade300,
                 color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
+              );
+            },
           ),
-          body: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: _closeAllSlidables,
-            child: NotificationListener<ScrollNotification>(
-              onNotification: (notification) {
-                if (notification is ScrollStartNotification) {
-                  _closeAllSlidables();
-                }
-                return false;
-              },
-              child: CustomScrollView(
-                slivers: [
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 120.0),
-                    sliver: SliverAnimatedList(
-                      key: _exerciseListKey,
-                      initialItemCount: viewModel.liveExercises.length,
-                      itemBuilder: (context, index, animation) {
-                        final routineExercise = viewModel.liveExercises[index];
+        ),
+      ),
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: _closeAllSlidables,
+        child: NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            if (notification is ScrollStartNotification) {
+              _closeAllSlidables();
+            }
+            return false;
+          },
+          child: CustomScrollView(
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 120.0),
+                sliver: SliverAnimatedList(
+                  key: _exerciseListKey,
+                  // 5. Read the length ONCE. The AnimatedList manages its own UI state after this!
+                  initialItemCount:
+                      context
+                          .read<ActiveWorkoutViewModel>()
+                          .liveExercises
+                          .length,
+                  itemBuilder: (context, index, animation) {
+                    // 6. Use .read() instead of .watch() so scrolling doesn't trigger global rebuilds
+                    final viewModel = context.read<ActiveWorkoutViewModel>();
+                    final routineExercise = viewModel.liveExercises[index];
 
-                        return SizeTransition(
-                          sizeFactor: animation,
-                          child: FadeTransition(
-                            opacity: animation,
-                            child: _ExerciseEntry(
-                              key: ValueKey(routineExercise.exerciseId),
-                              routineExercise: routineExercise,
-                              exerciseIndex: index,
-                              onSlidableContext: _registerSlidableContext,
-                              closeAllSlidables: _closeAllSlidables,
-                              onDelete: () => _handleDeleteExercise(index),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
+                    return SizeTransition(
+                      sizeFactor: animation,
+                      child: FadeTransition(
+                        opacity: animation,
+                        child: _ExerciseEntry(
+                          key: ValueKey(routineExercise.exerciseId),
+                          routineExercise: routineExercise,
+                          exerciseIndex: index,
+                          onSlidableContext: _registerSlidableContext,
+                          closeAllSlidables: _closeAllSlidables,
+                          onDelete: () => _handleDeleteExercise(index),
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
@@ -711,6 +726,7 @@ class _ExerciseEntryState extends State<_ExerciseEntry> {
 
               AnimatedList(
                 key: _listKey,
+                padding: EdgeInsets.zero,
                 initialItemCount: widget.routineExercise.plannedSets.length,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
