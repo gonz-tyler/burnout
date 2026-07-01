@@ -829,6 +829,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Keep an eye on your daily streak here. It turns orange when all of today\'s habits are complete!'**
   String get streakInfo;
+
+  /// No description provided for @body.
+  ///
+  /// In en, this message translates to:
+  /// **'Body'**
+  String get body;
+
+  /// No description provided for @gender.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender'**
+  String get gender;
+
+  /// No description provided for @genderInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'This choice will affect the weight increase suggested by the app and change the muscle heatmap diagram.'**
+  String get genderInfo;
+
+  /// No description provided for @male.
+  ///
+  /// In en, this message translates to:
+  /// **'Male'**
+  String get male;
+
+  /// No description provided for @female.
+  ///
+  /// In en, this message translates to:
+  /// **'Female'**
+  String get female;
+
+  /// No description provided for @metric.
+  ///
+  /// In en, this message translates to:
+  /// **'Metric (kg, km)'**
+  String get metric;
+
+  /// No description provided for @imperial.
+  ///
+  /// In en, this message translates to:
+  /// **'Imperial (lbs, mi)'**
+  String get imperial;
 }
 
 class _AppLocalizationsDelegate

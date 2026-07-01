@@ -9,7 +9,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 // Import providers from new app structure
 import '../providers/theme_settings_provider.dart';
 import '../providers/language_provider.dart';
-import '../providers/app_preferences_provider.dart'; // The new provider stub
+import '../providers/app_preferences_provider.dart';
+import '../providers/gender_settings_provider.dart'; // Fixed missing semicolon
+import '../providers/unit_settings_provider.dart'; // Added Unit Provider
 
 // TODO: Import new notification service and data export/import logic when created
 
@@ -82,6 +84,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final themeSettings = context.watch<ThemeSettingsProvider>();
+    final genderSettings = context.watch<GenderSettingsProvider>();
+    final unitSettings = context.watch<UnitSettingsProvider>();
     final languageProvider = context.watch<LanguageProvider>();
     final appPrefs = context.watch<AppPreferencesProvider>();
     final l10n = AppLocalizations.of(context)!;
@@ -217,212 +221,74 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
 
-          /*_buildSectionHeader(context, l10n.notifications, Icons.notifications),
+          const SizedBox(height: 24),
 
-          // Showcase(
-          //   key: _notificationsKey,
-          //   description: l10n.notificationsTooltip,
-          //   child:
+          // --- Body Settings Section ---
+          _buildSectionHeader(context, l10n.body, Icons.accessibility_new),
           Card(
             elevation: 1,
             child: Padding(
               padding: const EdgeInsets.all(16),
-              // The 'children' property was missing here for the main Column.
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // --- Section 1: Daily Reminders ---
-                  _buildNotificationSetting(
-                    context,
-                    l10n.dailyReminders,
-                    l10n.dailyRemindersDescription,
-                    Icons.alarm,
-                    _dailyReminders,
-                    (value) {
-                      setState(() {
-                        _dailyReminders = value;
-                      });
-                      _saveNotificationSetting('daily_reminders', value);
-                    },
-                  ),
-                  // Use Visibility instead of 'if' to avoid list index errors on rebuild
-                  Visibility(
-                    visible: _dailyReminders,
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        left: 56.0,
-                        top: 4,
-                        bottom: 8,
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.schedule,
-                            size: 20,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            _dailyReminderTime.format(context),
-                            style: TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                          const SizedBox(width: 12),
-                          OutlinedButton(
-                            onPressed:
-                                () => _selectTimeForNotification(
-                                  'daily_reminders',
-                                ),
-                            child: Text(_dailyReminderTime.format(context)),
-                          ),
-                        ],
-                      ),
+                  // Units Selection
+                  Text(
+                    "Measurement System", // Consider moving this to AppLocalizations
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildUnitOption(
+                    context,
+                    l10n.metric,
+                    UnitSystem.metric,
+                    unitSettings,
+                  ),
+                  _buildUnitOption(
+                    context,
+                    l10n.imperial,
+                    UnitSystem.imperial,
+                    unitSettings,
                   ),
 
-                  // --- Section 2: Streak Notifications ---
-                  _buildNotificationSetting(
-                    context,
-                    l10n.streakNotifications,
-                    l10n.streakNotificationsDescription,
-                    Icons.local_fire_department,
-                    _streakNotifications,
-                    (value) {
-                      setState(() {
-                        _streakNotifications = value;
-                      });
-                      _saveNotificationSetting('streak_notifications', value);
-                    },
-                  ),
-                  // Use Visibility instead of 'if'
-                  Visibility(
-                    visible: _streakNotifications,
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        left: 56.0,
-                        top: 4,
-                        bottom: 8,
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.schedule,
-                            size: 20,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            _streakNotificationsTime.format(context),
-                            style: TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                          const SizedBox(width: 12),
-                          OutlinedButton(
-                            onPressed:
-                                () => _selectTimeForNotification(
-                                  'streak_notifications',
-                                ),
-                            child: Text(
-                              _streakNotificationsTime.format(context),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: Divider(height: 24),
                   ),
 
-                  // --- Section 3: Quote Notifications ---
-                  _buildNotificationSetting(
-                    context,
-                    l10n.quoteOfTheDay,
-                    l10n.quoteOfTheDayDescription,
-                    Icons.format_quote,
-                    _quoteNotifications,
-                    (value) {
-                      setState(() {
-                        _quoteNotifications = value;
-                      });
-                      _saveNotificationSetting('quote_notifications', value);
-                    },
-                  ),
-                  // Use Visibility instead of 'if'
-                  Visibility(
-                    visible: _quoteNotifications,
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        left: 56.0,
-                        top: 4,
-                        bottom: 8,
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.schedule,
-                            size: 20,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            _quoteNotificationsTime.format(context),
-                            style: TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                          const SizedBox(width: 12),
-                          OutlinedButton(
-                            onPressed:
-                                () => _selectTimeForNotification(
-                                  'quote_notifications',
-                                ),
-                            child: Text(
-                              _quoteNotificationsTime.format(context),
-                            ),
-                          ),
-                        ],
-                      ),
+                  // Gender Selection
+                  Text(
+                    l10n.gender,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
+                  ),
+                  Text(
+                    l10n.genderInfo,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildGenderOption(
+                    context,
+                    l10n.male,
+                    Gender.male,
+                    genderSettings,
+                  ),
+                  _buildGenderOption(
+                    context,
+                    l10n.female,
+                    Gender.female,
+                    genderSettings,
                   ),
                 ],
               ),
             ),
           ),
-          */
 
-          // --- TODO: Feature Sections to Re-implement ---
-          // The sections below depend on features from your habit app that don't exist yet in the workout app.
-          // They are commented out to allow the app to run. We can add them back one by one.
-
-          // const SizedBox(height: 24),
-          // _buildSectionHeader(context, l10n.features, Icons.toggle_on),
-          // Card(
-          //   elevation: 1,
-          //   child: Column(
-          //     children: [
-          //       // TODO: Implement Quote feature logic if desired for workout app
-          //       // SwitchListTile(
-          //       //   title: Text(l10n.showQuotes),
-          //       //   value: appPrefs.showQuotes,
-          //       //   onChanged: (value) => appPrefs.updateQuotesSetting(value),
-          //       // ),
-          //       // TODO: Implement Mood Quiz feature logic if desired for workout app
-          //       // SwitchListTile(
-          //       //   title: Text(l10n.dailyMoodQuiz),
-          //       //   value: appPrefs.showMoodQuiz,
-          //       //   onChanged: (value) => appPrefs.updateMoodQuizSetting(value),
-          //       // ),
-          //     ],
-          //   ),
-          // ),
-
-          // const SizedBox(height: 24),
-          // _buildSectionHeader(context, l10n.notifications, Icons.notifications),
-          // Card(
-          //   elevation: 1,
-          //   child: Padding(
-          //     padding: const EdgeInsets.all(16),
-          //     child: Column(
-          //       children: [
-          //         // TODO: Re-implement notification logic for workout streak reminders
-          //         Text("Notification settings will go here."),
-          //       ],
-          //     ),
-          //   ),
-          // ),
           const SizedBox(height: 24),
 
           // Data Import Export Section
@@ -431,7 +297,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             elevation: 1,
             child: Column(
               children: [
-                // TODO: Re-implement _exportData to export Hive boxes (routines, sessions)
                 _buildDataOption(
                   context,
                   l10n.exportData,
@@ -440,7 +305,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   () => _exportData(context),
                 ),
                 const Divider(height: 1),
-                // TODO: Re-implement _importData to import into Hive boxes
                 _buildDataOption(
                   context,
                   l10n.importData,
@@ -449,7 +313,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   () => _importData(context),
                 ),
                 const Divider(height: 1),
-                // TODO: Re-implement _clearAllData to clear Hive boxes
                 _buildDataOption(
                   context,
                   l10n.clearAllData,
@@ -484,7 +347,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _selectTimeForNotification(String notificationType) async {
     final l10n = AppLocalizations.of(context)!;
 
-    // 1. Determine which time to edit based on type
     TimeOfDay initialTime;
     String prefKey;
     switch (notificationType) {
@@ -497,13 +359,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       case 'quote_notifications':
         initialTime = _quoteNotificationsTime;
         prefKey = 'quote_notification_time';
-
-      // Add a case for 'streak_notifications' if you implement it
       default:
         return;
     }
 
-    // 2. Show time picker dialog (reusing your existing styled picker)
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: initialTime,
@@ -515,8 +374,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 foregroundColor: Theme.of(context).colorScheme.primary,
               ),
             ),
-            timePickerTheme: TimePickerThemeData(
-              hourMinuteTextStyle: const TextStyle(
+            timePickerTheme: const TimePickerThemeData(
+              hourMinuteTextStyle: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
@@ -530,7 +389,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       },
     );
 
-    // 3. Save new time and update state
     if (picked != null && picked != initialTime) {
       setState(() {
         if (notificationType == 'daily_reminders') {
@@ -548,10 +406,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}',
       );
 
-      // Reschedule notifications with new time
-      // await _notificationService.updateNotificationSettings();
-
-      // Show confirmation
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -565,15 +419,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // Load daily reminder time
     final dailyTimeString = prefs.getString('daily_reminder_time') ?? '09:00';
     final dailyParts = dailyTimeString.split(':');
     final dailyHour = int.parse(dailyParts[0]);
     final dailyMinute = int.parse(dailyParts[1]);
 
     final streakTimeString =
-        prefs.getString('streak_notification_time') ??
-        '12:00'; // Use correct key and different default
+        prefs.getString('streak_notification_time') ?? '12:00';
     final streakParts = streakTimeString.split(':');
     final streakHour = int.parse(streakParts[0]);
     final streakMinute = int.parse(streakParts[1]);
@@ -586,7 +438,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _streakNotificationsTime = TimeOfDay(
         hour: streakHour,
         minute: streakMinute,
-      ); // Use streakHour/streakMinute
+      );
     });
   }
 
@@ -686,6 +538,50 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  // Helper method for Gender Options
+  Widget _buildGenderOption(
+    BuildContext context,
+    String title,
+    Gender value,
+    GenderSettingsProvider provider,
+  ) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
+      trailing: Radio<Gender>(
+        value: value,
+        groupValue: provider.gender,
+        onChanged: (newValue) {
+          if (newValue != null) provider.setGender(newValue);
+        },
+        activeColor: Theme.of(context).colorScheme.primary,
+      ),
+      onTap: () => provider.setGender(value),
+    );
+  }
+
+  // Helper method for Unit Options
+  Widget _buildUnitOption(
+    BuildContext context,
+    String title,
+    UnitSystem value,
+    UnitSettingsProvider provider,
+  ) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
+      trailing: Radio<UnitSystem>(
+        value: value,
+        groupValue: provider.unitSystem,
+        onChanged: (newValue) {
+          if (newValue != null) provider.setUnitSystem(newValue);
+        },
+        activeColor: Theme.of(context).colorScheme.primary,
+      ),
+      onTap: () => provider.setUnitSystem(value),
+    );
+  }
+
   Widget _buildNotificationSetting(
     BuildContext context,
     String title,
@@ -697,7 +593,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
-      title: Text(title, style: TextStyle(fontWeight: FontWeight.w500)),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
       subtitle: Text(
         subtitle,
         style: TextStyle(fontSize: 12, color: Colors.grey[600]),
@@ -705,7 +601,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       trailing: Switch(
         value: value,
         onChanged: (newValue) async {
-          // Check permissions before enabling notifications
           if (newValue) {
             await _checkNotificationPermissions();
           }
@@ -741,26 +636,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         subtitle,
         style: TextStyle(fontSize: 12, color: Colors.grey[600]),
       ),
-      trailing: Icon(Icons.arrow_forward_ios, size: 16),
-      onTap: onTap,
-    );
-  }
-
-  Widget _buildAboutOption(
-    BuildContext context,
-    String title,
-    String subtitle,
-    IconData icon,
-    VoidCallback? onTap,
-  ) {
-    return ListTile(
-      leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
-      title: Text(title, style: TextStyle(fontWeight: FontWeight.w500)),
-      subtitle: Text(
-        subtitle,
-        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-      ),
-      trailing: onTap != null ? Icon(Icons.arrow_forward_ios, size: 16) : null,
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
       onTap: onTap,
     );
   }
@@ -781,64 +657,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
   IconData _getLanguageIcon(String languageCode) {
     switch (languageCode) {
       case 'en':
-        return Icons.language;
       case 'es':
-        return Icons.language;
       case 'fr':
-        return Icons.language;
       default:
         return Icons.language;
     }
   }
 
   Future<void> _checkNotificationPermissions() async {
-    // final hasPermission = await NotificationService().areNotificationsEnabled();
-
-    // if (!hasPermission) {
-    //   final l10n = AppLocalizations.of(context)!;
-    //   showDialog(
-    //     context: context,
-    //     builder:
-    //         (context) => AlertDialog(
-    //           title: Row(
-    //             children: [
-    //               Icon(Icons.notifications_off, color: Colors.orange),
-    //               SizedBox(width: 8),
-    //               Text(l10n.notificationPermission),
-    //             ],
-    //           ),
-    //           content: Text(l10n.notificationPermissionDescription),
-    //           actions: [
-    //             TextButton(
-    //               onPressed: () => Navigator.pop(context),
-    //               child: Text(l10n.ok),
-    //             ),
-    //           ],
-    //         ),
-    //   );
-    // }
+    // Permission logic goes here
   }
 
   Future<void> _saveNotificationSetting(String key, bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(key, value);
 
-    // Update notification schedules when settings change
-    // await NotificationService().updateNotificationSettings();
-
-    // Show status message
     final l10n = AppLocalizations.of(context)!;
     String message;
 
     switch (key) {
       case 'daily_reminders':
-        if (value) {
-          // await NotificationService().scheduleDailyHabitsNotification();
-          return;
-        } else {
-          // await NotificationService().cancelDailyReminderNotification();
-          return;
-        }
         message =
             value ? l10n.dailyRemindersEnabled : l10n.dailyRemindersDisabled;
         break;
@@ -855,8 +693,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             value ? l10n.notificationsEnabled : l10n.notificationsDisabled;
     }
 
+    if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), duration: Duration(seconds: 2)),
+      SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
     );
   }
 }

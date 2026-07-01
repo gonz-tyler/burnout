@@ -478,5 +478,12 @@
     }
   },
   "dailyQuoteNotificationTitle": "Quote of the Day",
-  "streakInfo": "Keep an eye on your daily streak here. It turns orange when all of today's habits are complete!"
+  "streakInfo": "Keep an eye on your daily streak here. It turns orange when all of today's habits are complete!",
+  "body": "Body",
+  "gender": "Gender",
+  "genderInfo": "This choice will affect the weight increase suggested by the app and change the muscle heatmap diagram.",
+  "male": "Male",
+  "female": "Female",
+  "metric": "Metric (kg, km)",
+  "imperial": "Imperial (lbs, mi)"
 }

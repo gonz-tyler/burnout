@@ -407,4 +407,26 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get streakInfo =>
       'Keep an eye on your daily streak here. It turns orange when all of today\'s habits are complete!';
+
+  @override
+  String get body => 'Body';
+
+  @override
+  String get gender => 'Gender';
+
+  @override
+  String get genderInfo =>
+      'This choice will affect the weight increase suggested by the app and change the muscle heatmap diagram.';
+
+  @override
+  String get male => 'Male';
+
+  @override
+  String get female => 'Female';
+
+  @override
+  String get metric => 'Metric (kg, km)';
+
+  @override
+  String get imperial => 'Imperial (lbs, mi)';
 }

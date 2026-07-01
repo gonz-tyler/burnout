@@ -6,6 +6,10 @@ import 'package:burnout/providers/app_preferences_provider.dart';
 import 'package:burnout/providers/language_provider.dart';
 import 'package:burnout/providers/theme_settings_provider.dart';
 import 'package:burnout/providers/user_settings_provider.dart';
+// 🟢 NEW PROVIDERS IMPORTED HERE
+import 'package:burnout/providers/gender_settings_provider.dart';
+import 'package:burnout/providers/unit_settings_provider.dart';
+
 import 'package:burnout/repositories/workout_repository.dart';
 import 'package:burnout/screens/main_screen.dart';
 import 'package:burnout/screens/settings_screen.dart';
@@ -64,6 +68,9 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => AppPreferencesProvider()),
         ChangeNotifierProvider(create: (_) => ThemeSettingsProvider()),
         ChangeNotifierProvider(create: (_) => LanguageProvider()),
+        // 🟢 NEW PROVIDERS REGISTERED HERE
+        ChangeNotifierProvider(create: (_) => GenderSettingsProvider()),
+        ChangeNotifierProvider(create: (_) => UnitSettingsProvider()),
         ChangeNotifierProvider(
           create:
               (_) => WorkoutViewModel(
