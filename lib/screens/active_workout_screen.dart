@@ -14,7 +14,8 @@ import '../models/battle_report_model.dart';
 // ViewModels & Providers
 import '../viewmodels/active_workout_view_model.dart';
 import '../viewmodels/workout_view_model.dart';
-import '../providers/user_settings_provider.dart';
+// 🟢 NEW: Swapped UserSettingsProvider for UnitSettingsProvider
+import '../providers/unit_settings_provider.dart';
 
 // Widgets & Screens
 import '../widgets/hevy_style_set_row.dart';
@@ -179,14 +180,12 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
     }
   }
 
-  // 🟢 Phase 1 of Finishing: Check for incomplete sets
   void _finishWorkout(BuildContext context) {
     _closeAllSlidables();
 
     final activeVM = context.read<ActiveWorkoutViewModel>();
     final workoutVM = context.read<WorkoutViewModel>();
 
-    // Scan for any uncompleted set
     bool hasIncompleteSets = false;
     for (int i = 0; i < activeVM.liveExercises.length; i++) {
       for (int j = 0; j < activeVM.liveExercises[i].plannedSets.length; j++) {
@@ -227,7 +226,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                   onPressed: () {
                     Navigator.pop(dialogContext);
 
-                    // Iteratively complete all unfinished sets
                     for (int i = 0; i < activeVM.liveExercises.length; i++) {
                       for (
                         int j = 0;
@@ -256,25 +254,19 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
     }
   }
 
-  // 🟢 NEW: Deep Check Function to detect ANY changes to sets, types, or exercises
   bool _hasRoutineChangedDeep(ActiveWorkoutViewModel activeVM) {
     final original = widget.routine.exercises;
     final current = activeVM.liveExercises;
 
-    // 1. Did the total number of exercises change?
     if (original.length != current.length) return true;
 
     for (int i = 0; i < original.length; i++) {
       final origEx = original[i];
       final currEx = current[i];
 
-      // 2. Were exercises re-ordered or swapped out?
       if (origEx.exerciseId != currEx.exerciseId) return true;
-
-      // 3. Were sets added or deleted from this exercise?
       if (origEx.plannedSets.length != currEx.plannedSets.length) return true;
 
-      // 4. Was the TYPE of any set altered (e.g. Normal to Drop Set)?
       for (int j = 0; j < origEx.plannedSets.length; j++) {
         if (origEx.plannedSets[j].setType != currEx.plannedSets[j].setType) {
           return true;
@@ -285,7 +277,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
     return false;
   }
 
-  // 🟢 Phase 2 of Finishing: Check for layout changes and save
   void _handleTacticalChangesAndFinish(
     BuildContext context,
     ActiveWorkoutViewModel activeVM,
@@ -302,7 +293,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       return;
     }
 
-    // Use our new deep check instead of relying on the VM's shallow check
     if (_hasRoutineChangedDeep(activeVM)) {
       showDialog(
         context: context,
@@ -345,7 +335,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
     }
   }
 
-  // 🟢 Phase 3 of Finishing: Navigation and routing
   void _proceedToFinish(
     BuildContext context,
     ActiveWorkoutViewModel activeVM,
@@ -366,7 +355,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       double maxWeight = 0.0;
       bool hasCompletedSet = false;
 
-      // 🟢 CHANGED: Fixed the logic loop so it registers completion independently of weight
       for (
         int setIndex = 0;
         setIndex < routineExercise.plannedSets.length;
@@ -665,14 +653,14 @@ class _ExerciseEntryState extends State<_ExerciseEntry> {
     return Selector<ActiveWorkoutViewModel, WeightMode>(
       selector: (_, vm) => vm.getWeightModeForExercise(_exerciseDetails),
       builder: (context, currentWeightMode, child) {
-        final settings = context.watch<UserSettingsProvider>();
+        // 🟢 CHANGED: Now listening to UnitSettingsProvider instead of UserSettingsProvider
+        final unitSettings = context.watch<UnitSettingsProvider>();
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 32.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Exercise Title
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -712,11 +700,15 @@ class _ExerciseEntryState extends State<_ExerciseEntry> {
               ),
               const SizedBox(height: 16),
 
-              // Column Headers (Set, Prev, Kg, Reps)
-              _buildHeaderRow(context, settings, viewModel, currentWeightMode),
+              // 🟢 CHANGED: Passed unitSettings down to the header row
+              _buildHeaderRow(
+                context,
+                unitSettings,
+                viewModel,
+                currentWeightMode,
+              ),
               const SizedBox(height: 4),
 
-              // The List of Sets
               AnimatedList(
                 key: _listKey,
                 initialItemCount: widget.routineExercise.plannedSets.length,
@@ -815,7 +807,6 @@ class _ExerciseEntryState extends State<_ExerciseEntry> {
 
               const SizedBox(height: 8),
 
-              // Add Set Button
               Center(
                 child: TextButton.icon(
                   onPressed: _addSet,
@@ -833,18 +824,23 @@ class _ExerciseEntryState extends State<_ExerciseEntry> {
     );
   }
 
+  // 🟢 CHANGED: Method signature updated to accept UnitSettingsProvider
   Widget _buildHeaderRow(
     BuildContext context,
-    UserSettingsProvider settings,
+    UnitSettingsProvider unitSettings,
     ActiveWorkoutViewModel viewModel,
     WeightMode currentMode,
   ) {
     String label;
     Color color;
 
+    // 🟢 NEW: Determine the correct string to display based on the enum
+    final unitString =
+        unitSettings.unitSystem == UnitSystem.metric ? 'KG' : 'LBS';
+
     switch (currentMode) {
       case WeightMode.weighted:
-        label = settings.weightUnit.name.toUpperCase();
+        label = unitString; // Will output KG or LBS
         color = Theme.of(context).colorScheme.primary;
         break;
       case WeightMode.bodyweight:
@@ -852,7 +848,7 @@ class _ExerciseEntryState extends State<_ExerciseEntry> {
         color = Colors.green;
         break;
       case WeightMode.assisted:
-        label = '-${settings.weightUnit.name.toUpperCase()}';
+        label = '-$unitString'; // Will output -KG or -LBS
         color = Colors.orange;
         break;
     }
