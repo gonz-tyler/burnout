@@ -2,13 +2,14 @@
 
 import 'package:burnout/screens/exercise_picker_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 // Models & Enums
 import '../models/models.dart';
 import '../models/enums.dart';
-import '../models/battle_report_model.dart'; // 🟢 NEW: For the result logic
+import '../models/battle_report_model.dart';
 
 // ViewModels & Providers
 import '../viewmodels/active_workout_view_model.dart';
@@ -17,7 +18,7 @@ import '../providers/user_settings_provider.dart';
 
 // Widgets & Screens
 import '../widgets/hevy_style_set_row.dart';
-import 'battle_report_screen.dart'; // 🟢 NEW: The destination screen
+import 'battle_report_screen.dart';
 
 class ActiveWorkoutScreen extends StatefulWidget {
   final Routine routine;
@@ -29,13 +30,28 @@ class ActiveWorkoutScreen extends StatefulWidget {
 
 class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
   late DateTime _startTime;
+  final Map<String, BuildContext> _openSlidables = {};
+
+  final GlobalKey<SliverAnimatedListState> _exerciseListKey =
+      GlobalKey<SliverAnimatedListState>();
+
+  void _registerSlidableContext(String key, BuildContext ctx) {
+    _openSlidables[key] = ctx;
+  }
+
+  void _closeAllSlidables() {
+    for (final ctx in _openSlidables.values.toList()) {
+      if (ctx.mounted) {
+        Slidable.of(ctx)?.close();
+      }
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _startTime = DateTime.now();
 
-    // Initialize the view model with the routine data once the frame is ready
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ActiveWorkoutViewModel>(
         context,
@@ -44,14 +60,64 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
     });
   }
 
+  Widget _buildRemovedExercise(
+    RoutineExercise exercise,
+    int index,
+    Animation<double> animation,
+  ) {
+    final slideAnimation = Tween<Offset>(
+      begin: const Offset(-1.5, 0.0),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: animation,
+        curve: const Interval(0.5, 1.0, curve: Curves.easeInCubic),
+      ),
+    );
+
+    final sizeAnimation = CurvedAnimation(
+      parent: animation,
+      curve: const Interval(0.0, 0.5, curve: Curves.easeOutCubic),
+    );
+
+    return SizeTransition(
+      sizeFactor: sizeAnimation,
+      child: SlideTransition(
+        position: slideAnimation,
+        child: _ExerciseEntry(
+          key: ValueKey('${exercise.exerciseId}_removed'),
+          routineExercise: exercise,
+          exerciseIndex: index,
+          onSlidableContext: (_, __) {},
+          closeAllSlidables: () {},
+          onDelete: () {},
+        ),
+      ),
+    );
+  }
+
+  void _handleDeleteExercise(int index) {
+    final viewModel = context.read<ActiveWorkoutViewModel>();
+    final removedExercise = viewModel.liveExercises[index];
+
+    _exerciseListKey.currentState?.removeItem(
+      index,
+      (context, animation) =>
+          _buildRemovedExercise(removedExercise, index, animation),
+      duration: const Duration(milliseconds: 600),
+    );
+
+    viewModel.deleteExercise(index);
+  }
+
   Future<void> _showAddExercisePicker(BuildContext context) async {
+    _closeAllSlidables();
+
     final viewModel = context.read<ActiveWorkoutViewModel>();
 
-    // 1. Get currently active exercise IDs to Pre-Select them
     final currentExerciseIds =
         viewModel.liveExercises.map((e) => e.exerciseId).toSet();
 
-    // 2. Open the Picker with current IDs passed in
     final selectedExercises = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -63,16 +129,11 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
 
     if (selectedExercises == null) return;
 
-    // 3. SYNC LOGIC: Add new ones, Remove unchecked ones
-
-    // A. Identify what to ADD (In selection, but NOT in current active workout)
     final newExercisesToAdd =
         selectedExercises
             .where((ex) => !currentExerciseIds.contains(ex.id))
             .toList();
 
-    // B. Identify what to REMOVE (In current active workout, but unchecked in picker)
-    // We collect indices first to avoid shifting issues during removal
     final selectedIdsSet = selectedExercises.map((e) => e.id).toSet();
     final indicesToRemove = <int>[];
 
@@ -82,14 +143,17 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       }
     }
 
-    // 4. Apply Changes
-
-    // Remove first (Iterate in reverse so indices don't shift)
     for (var i in indicesToRemove.reversed) {
+      final removedExercise = viewModel.liveExercises[i];
+      _exerciseListKey.currentState?.removeItem(
+        i,
+        (context, animation) =>
+            _buildRemovedExercise(removedExercise, i, animation),
+        duration: const Duration(milliseconds: 600),
+      );
       viewModel.deleteExercise(i);
     }
 
-    // Add new exercises
     for (var exercise in newExercisesToAdd) {
       final defaultSet = PlannedSet(
         targetWeight: null,
@@ -107,12 +171,17 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       );
 
       viewModel.addExercise(newRoutineExercise);
+
+      _exerciseListKey.currentState?.insertItem(
+        viewModel.liveExercises.length - 1,
+        duration: const Duration(milliseconds: 400),
+      );
     }
   }
 
   void _finishWorkout(BuildContext context) {
-    // 🟢 1. Capture ViewModels HERE, using the screen's context
-    // The dialog context won't be able to find ActiveWorkoutViewModel later
+    _closeAllSlidables();
+
     final activeVM = context.read<ActiveWorkoutViewModel>();
     final workoutVM = context.read<WorkoutViewModel>();
 
@@ -141,7 +210,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                 TextButton(
                   onPressed: () {
                     Navigator.pop(dialogContext);
-                    // 🟢 Pass the captured VMs
                     _proceedToFinish(
                       context,
                       activeVM,
@@ -154,7 +222,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                 FilledButton(
                   onPressed: () {
                     Navigator.pop(dialogContext);
-                    // 🟢 Pass the captured VMs
                     _proceedToFinish(
                       context,
                       activeVM,
@@ -168,21 +235,16 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
             ),
       );
     } else {
-      // 🟢 Pass the captured VMs
       _proceedToFinish(context, activeVM, workoutVM, updateRoutine: false);
     }
   }
 
   void _proceedToFinish(
     BuildContext context,
-    ActiveWorkoutViewModel activeVM, // 🟢 Added argument
-    WorkoutViewModel workoutVM, { // 🟢 Added argument
+    ActiveWorkoutViewModel activeVM,
+    WorkoutViewModel workoutVM, {
     required bool updateRoutine,
   }) {
-    // ❌ REMOVED: final activeVM = context.read<...>();
-    // We use the passed-in variables instead.
-
-    // 1. Update Routine if requested
     if (updateRoutine && activeVM.routine != null) {
       final updatedRoutine = activeVM.routine!.copyWith(
         exercises: activeVM.liveExercises,
@@ -190,7 +252,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       workoutVM.updateRoutine(updatedRoutine);
     }
 
-    // 2. Calculate Battle Results
     final battleResults = <ExerciseResult>[];
 
     for (var i = 0; i < activeVM.liveExercises.length; i++) {
@@ -204,7 +265,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
         setIndex++
       ) {
         final set = routineExercise.plannedSets[setIndex];
-        // Note: isSetCompleted needs the index, which is fine as activeVM is valid
         if (activeVM.isSetCompleted(i, setIndex) &&
             (set.targetWeight ?? 0) > 0) {
           hasCompletedSet = true;
@@ -232,7 +292,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       }
     }
 
-    // 3. Save Session
     final durationInMinutes = DateTime.now().difference(_startTime).inMinutes;
     final performedData = activeVM.getPerformedExercises();
 
@@ -246,7 +305,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
 
     workoutVM.addWorkoutSession(session);
 
-    // 4. Navigate
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -264,17 +322,14 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // 🟢 FIX: Use Consumer so the screen rebuilds whenever the list changes
     return Consumer<ActiveWorkoutViewModel>(
       builder: (context, viewModel, child) {
-        // 1. Check if loading
         if (!viewModel.isWorkoutStarted) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
-        // 2. Render the Workout UI
         return Scaffold(
           resizeToAvoidBottomInset: false,
           appBar: AppBar(
@@ -291,78 +346,103 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               ),
             ),
           ),
-          body: CustomScrollView(
-            slivers: [
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 300.0),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final routineExercise = viewModel.liveExercises[index];
-                      return _ExerciseEntry(
-                        // 🟢 Use exerciseId for Key to prevent UI bugs when deleting
-                        key: ValueKey(routineExercise.exerciseId),
-                        routineExercise: routineExercise,
-                        exerciseIndex: index,
-                      );
-                    },
-                    // 🟢 This will now correctly update when exercises are added/removed
-                    childCount: viewModel.liveExercises.length,
-                  ),
-                ),
-              ),
+          body: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: _closeAllSlidables,
+            child: NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                if (notification is ScrollStartNotification) {
+                  _closeAllSlidables();
+                }
+                return false;
+              },
+              child: CustomScrollView(
+                slivers: [
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 0.0),
+                    sliver: SliverAnimatedList(
+                      key: _exerciseListKey,
+                      initialItemCount: viewModel.liveExercises.length,
+                      itemBuilder: (context, index, animation) {
+                        final routineExercise = viewModel.liveExercises[index];
 
-              // --- ADD EXERCISE BUTTON ---
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
-                  child: OutlinedButton.icon(
-                    onPressed: () => _showAddExercisePicker(context),
-                    icon: const Icon(Icons.add),
-                    label: const Text("ADD EXERCISE"),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      side: BorderSide(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                        return SizeTransition(
+                          sizeFactor: animation,
+                          child: FadeTransition(
+                            opacity: animation,
+                            child: _ExerciseEntry(
+                              key: ValueKey(routineExercise.exerciseId),
+                              routineExercise: routineExercise,
+                              exerciseIndex: index,
+                              onSlidableContext: _registerSlidableContext,
+                              closeAllSlidables: _closeAllSlidables,
+                              onDelete: () => _handleDeleteExercise(index),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
-                ),
-              ),
 
-              // --- FINISH WORKOUT BUTTON ---
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 32.0),
-                  child: SizedBox(
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: () => _finishWorkout(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onPrimary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 4,
-                      ),
-                      child: const Text(
-                        'FINISH WORKOUT',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.5,
-                          fontSize: 16,
+                  // --- ADD EXERCISE BUTTON ---
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+                      child: OutlinedButton.icon(
+                        onPressed: () => _showAddExercisePicker(context),
+                        icon: const Icon(Icons.add),
+                        label: const Text("ADD EXERCISE"),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          side: BorderSide(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
+
+                  // --- FINISH WORKOUT BUTTON ---
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        16.0,
+                        16.0,
+                        16.0,
+                        300.0,
+                      ),
+                      child: SizedBox(
+                        height: 56,
+                        child: ElevatedButton(
+                          onPressed: () => _finishWorkout(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            foregroundColor:
+                                Theme.of(context).colorScheme.onPrimary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 4,
+                          ),
+                          child: const Text(
+                            'FINISH WORKOUT',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.5,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         );
       },
@@ -377,11 +457,17 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
 class _ExerciseEntry extends StatefulWidget {
   final RoutineExercise routineExercise;
   final int exerciseIndex;
+  final void Function(String key, BuildContext context) onSlidableContext;
+  final VoidCallback closeAllSlidables;
+  final VoidCallback onDelete;
 
   const _ExerciseEntry({
     super.key,
     required this.routineExercise,
     required this.exerciseIndex,
+    required this.onSlidableContext,
+    required this.closeAllSlidables,
+    required this.onDelete,
   });
 
   @override
@@ -396,13 +482,11 @@ class _ExerciseEntryState extends State<_ExerciseEntry> {
   @override
   void initState() {
     super.initState();
-    // Retrieve static details (like supportsWeight, tracksDistance) from main VM
     _exerciseDetails =
         context.read<WorkoutViewModel>().getExerciseById(
           widget.routineExercise.exerciseId,
         )!;
 
-    // Generate unique keys for sets to maintain focus/state during list updates
     _setKeys = List.generate(
       widget.routineExercise.plannedSets.length,
       (_) => UniqueKey(),
@@ -410,10 +494,11 @@ class _ExerciseEntryState extends State<_ExerciseEntry> {
   }
 
   void _addSet() {
+    widget.closeAllSlidables();
+
     final sets = widget.routineExercise.plannedSets;
     final newSetIndex = sets.length;
 
-    // Copy values from the previous set for convenience
     double? prevWeight;
     String? prevReps;
     int? prevDistance;
@@ -438,7 +523,6 @@ class _ExerciseEntryState extends State<_ExerciseEntry> {
     _setKeys.add(UniqueKey());
     widget.routineExercise.plannedSets.add(newSet);
 
-    // Animate insertion
     _listKey.currentState?.insertItem(
       newSetIndex,
       duration: const Duration(milliseconds: 300),
@@ -447,24 +531,56 @@ class _ExerciseEntryState extends State<_ExerciseEntry> {
     setState(() {});
   }
 
+  // 🟢 CHANGED: Rebuilt _removeSet to capture the UI and animate it properly
   void _removeSet(int setIndex) {
+    widget
+        .closeAllSlidables(); // Snap slidable shut so it doesn't float during animation
+
     final viewModel = context.read<ActiveWorkoutViewModel>();
 
-    // Animate removal
+    // 1. Capture the exact state of the row before we delete it
+    final removedSet = widget.routineExercise.plannedSets[setIndex];
+    final removedDisplayIndex = _calculateEffectiveDisplayIndex(setIndex);
+    final currentWeightMode = viewModel.getWeightModeForExercise(
+      _exerciseDetails,
+    );
+    final isCompleted = viewModel.isSetCompleted(
+      widget.exerciseIndex,
+      setIndex,
+    );
+
+    // 2. Play the removal animation (fade and shrink using the actual widget)
     _listKey.currentState?.removeItem(
       setIndex,
-      (context, animation) =>
-          SizeTransition(sizeFactor: animation, child: const SizedBox.shrink()),
+      (context, animation) => SizeTransition(
+        sizeFactor: animation,
+        child: FadeTransition(
+          opacity: animation,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 4.0),
+            child: HevyStyleSetRow(
+              setIndex: setIndex,
+              displayIndex: removedDisplayIndex,
+              plannedSet: removedSet,
+              exercise: _exerciseDetails,
+              isCompleted: isCompleted,
+              weightMode: currentWeightMode,
+              onChanged: (_) {},
+              onTypeChanged: (_) {},
+              onCompleted: () {},
+            ),
+          ),
+        ),
+      ),
       duration: const Duration(milliseconds: 300),
     );
 
+    // 3. Delete the underlying data
     _setKeys.removeAt(setIndex);
     viewModel.removeSet(widget.exerciseIndex, setIndex);
     setState(() {});
   }
 
-  // Calculate the visual index (e.g. "1", "2") ignoring warmups if you preferred,
-  // currently just returns 1-based index logic.
   int _calculateEffectiveDisplayIndex(int currentSetIndex) {
     int count = 0;
     for (int i = 0; i <= currentSetIndex; i++) {
@@ -501,15 +617,12 @@ class _ExerciseEntryState extends State<_ExerciseEntry> {
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ),
-                  // 🟢 NEW: Option Menu (Delete)
                   PopupMenuButton<String>(
+                    onOpened: widget.closeAllSlidables,
                     icon: const Icon(Icons.more_vert),
                     onSelected: (value) {
                       if (value == 'delete') {
-                        // Call delete on VM
-                        context.read<ActiveWorkoutViewModel>().deleteExercise(
-                          widget.exerciseIndex,
-                        );
+                        widget.onDelete();
                       }
                     },
                     itemBuilder:
@@ -546,60 +659,90 @@ class _ExerciseEntryState extends State<_ExerciseEntry> {
                 itemBuilder: (context, setIndex, animation) {
                   return SizeTransition(
                     sizeFactor: animation,
-                    child: Dismissible(
-                      key: _setKeys[setIndex],
-                      direction: DismissDirection.endToStart,
-                      onDismissed: (direction) => _removeSet(setIndex),
-                      background: Container(
-                        alignment: Alignment.centerRight,
-                        color: Colors.red,
-                        padding: const EdgeInsets.only(right: 20.0),
-                        child: const Icon(Icons.delete, color: Colors.white),
-                      ),
-                      child: HevyStyleSetRow(
-                        setIndex: setIndex,
-                        displayIndex: _calculateEffectiveDisplayIndex(setIndex),
-                        plannedSet:
-                            widget.routineExercise.plannedSets[setIndex],
-                        exercise: _exerciseDetails,
-                        isCompleted: viewModel.isSetCompleted(
-                          widget.exerciseIndex,
-                          setIndex,
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        bottom: 4.0,
+                      ), // 🟢 CHANGED: 4px padding added between rows
+                      child: Slidable(
+                        key: _setKeys[setIndex],
+                        groupTag: 'workout_sets',
+                        endActionPane: ActionPane(
+                          motion: const DrawerMotion(),
+                          extentRatio: 0.35,
+                          children: [
+                            SlidableAction(
+                              onPressed: (context) => _removeSet(setIndex),
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                              icon: Icons.delete,
+                              label: 'Delete',
+                            ),
+                          ],
                         ),
-                        weightMode: currentWeightMode,
-                        onChanged: (updatedSet) {
-                          var finalSet = updatedSet;
-                          // Force negative sign for assisted weight
-                          if (currentWeightMode == WeightMode.assisted &&
-                              updatedSet.targetWeight != null) {
-                            final absWeight = updatedSet.targetWeight!.abs();
-                            finalSet = updatedSet.copyWith(
-                              targetWeight: -absWeight,
-                            );
-                          }
-                          viewModel.updateSetData(
-                            widget.exerciseIndex,
-                            setIndex,
-                            finalSet,
-                          );
-                        },
-                        onTypeChanged: (newType) {
-                          final currentSet =
-                              widget.routineExercise.plannedSets[setIndex];
-                          viewModel.updateSetData(
-                            widget.exerciseIndex,
-                            setIndex,
-                            currentSet.copyWith(setType: newType),
-                          );
-                          setState(() {});
-                        },
-                        onCompleted: () {
-                          viewModel.toggleSetCompletion(
-                            widget.exerciseIndex,
-                            setIndex,
-                          );
-                          setState(() {});
-                        },
+                        child: Listener(
+                          behavior: HitTestBehavior.translucent,
+                          onPointerDown: (_) => widget.closeAllSlidables(),
+                          child: Builder(
+                            builder: (innerContext) {
+                              widget.onSlidableContext(
+                                '${widget.exerciseIndex}-$setIndex',
+                                innerContext,
+                              );
+                              return HevyStyleSetRow(
+                                setIndex: setIndex,
+                                displayIndex: _calculateEffectiveDisplayIndex(
+                                  setIndex,
+                                ),
+                                plannedSet:
+                                    widget
+                                        .routineExercise
+                                        .plannedSets[setIndex],
+                                exercise: _exerciseDetails,
+                                isCompleted: viewModel.isSetCompleted(
+                                  widget.exerciseIndex,
+                                  setIndex,
+                                ),
+                                weightMode: currentWeightMode,
+                                onChanged: (updatedSet) {
+                                  var finalSet = updatedSet;
+                                  if (currentWeightMode ==
+                                          WeightMode.assisted &&
+                                      updatedSet.targetWeight != null) {
+                                    final absWeight =
+                                        updatedSet.targetWeight!.abs();
+                                    finalSet = updatedSet.copyWith(
+                                      targetWeight: -absWeight,
+                                    );
+                                  }
+                                  viewModel.updateSetData(
+                                    widget.exerciseIndex,
+                                    setIndex,
+                                    finalSet,
+                                  );
+                                },
+                                onTypeChanged: (newType) {
+                                  final currentSet =
+                                      widget
+                                          .routineExercise
+                                          .plannedSets[setIndex];
+                                  viewModel.updateSetData(
+                                    widget.exerciseIndex,
+                                    setIndex,
+                                    currentSet.copyWith(setType: newType),
+                                  );
+                                  setState(() {});
+                                },
+                                onCompleted: () {
+                                  viewModel.toggleSetCompletion(
+                                    widget.exerciseIndex,
+                                    setIndex,
+                                  );
+                                  setState(() {});
+                                },
+                              );
+                            },
+                          ),
+                        ),
                       ),
                     ),
                   );
@@ -667,18 +810,19 @@ class _ExerciseEntryState extends State<_ExerciseEntry> {
               child: Text("PREVIOUS", textAlign: TextAlign.center),
             ),
 
-            // Weight Column Header (Clickable to cycle modes)
             if (_exerciseDetails.supportsWeight ||
                 _exerciseDetails.supportsBodyweight ||
                 _exerciseDetails.supportsAssistance)
               SizedBox(
                 width: 80,
                 child: InkWell(
-                  onTap:
-                      () => viewModel.cycleWeightModeForExercise(
-                        widget.exerciseIndex,
-                        _exerciseDetails,
-                      ),
+                  onTap: () {
+                    widget.closeAllSlidables();
+                    viewModel.cycleWeightModeForExercise(
+                      widget.exerciseIndex,
+                      _exerciseDetails,
+                    );
+                  },
                   borderRadius: BorderRadius.circular(4),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -709,7 +853,7 @@ class _ExerciseEntryState extends State<_ExerciseEntry> {
                 child: Text("DIST", textAlign: TextAlign.center),
               ),
 
-            const SizedBox(width: 48), // Spacing for Checkbox
+            const SizedBox(width: 48),
           ],
         ),
       ),
