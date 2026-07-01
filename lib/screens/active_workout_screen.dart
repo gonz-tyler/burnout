@@ -179,12 +179,118 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
     }
   }
 
+  // 🟢 Phase 1 of Finishing: Check for incomplete sets
   void _finishWorkout(BuildContext context) {
     _closeAllSlidables();
 
     final activeVM = context.read<ActiveWorkoutViewModel>();
     final workoutVM = context.read<WorkoutViewModel>();
 
+    // Scan for any uncompleted set
+    bool hasIncompleteSets = false;
+    for (int i = 0; i < activeVM.liveExercises.length; i++) {
+      for (int j = 0; j < activeVM.liveExercises[i].plannedSets.length; j++) {
+        if (!activeVM.isSetCompleted(i, j)) {
+          hasIncompleteSets = true;
+          break;
+        }
+      }
+      if (hasIncompleteSets) break;
+    }
+
+    if (hasIncompleteSets) {
+      showDialog(
+        context: context,
+        builder:
+            (dialogContext) => AlertDialog(
+              title: const Text("Unfinished Business"),
+              content: const Text(
+                "You still have sets that haven't been marked as complete. How do you want to proceed?",
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: const Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(dialogContext);
+                    _handleTacticalChangesAndFinish(
+                      context,
+                      activeVM,
+                      workoutVM,
+                    );
+                  },
+                  child: const Text("Finish Anyway"),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    Navigator.pop(dialogContext);
+
+                    // Iteratively complete all unfinished sets
+                    for (int i = 0; i < activeVM.liveExercises.length; i++) {
+                      for (
+                        int j = 0;
+                        j < activeVM.liveExercises[i].plannedSets.length;
+                        j++
+                      ) {
+                        if (!activeVM.isSetCompleted(i, j)) {
+                          activeVM.toggleSetCompletion(i, j);
+                        }
+                      }
+                    }
+
+                    _handleTacticalChangesAndFinish(
+                      context,
+                      activeVM,
+                      workoutVM,
+                    );
+                  },
+                  child: const Text("Mark All Complete"),
+                ),
+              ],
+            ),
+      );
+    } else {
+      _handleTacticalChangesAndFinish(context, activeVM, workoutVM);
+    }
+  }
+
+  // 🟢 NEW: Deep Check Function to detect ANY changes to sets, types, or exercises
+  bool _hasRoutineChangedDeep(ActiveWorkoutViewModel activeVM) {
+    final original = widget.routine.exercises;
+    final current = activeVM.liveExercises;
+
+    // 1. Did the total number of exercises change?
+    if (original.length != current.length) return true;
+
+    for (int i = 0; i < original.length; i++) {
+      final origEx = original[i];
+      final currEx = current[i];
+
+      // 2. Were exercises re-ordered or swapped out?
+      if (origEx.exerciseId != currEx.exerciseId) return true;
+
+      // 3. Were sets added or deleted from this exercise?
+      if (origEx.plannedSets.length != currEx.plannedSets.length) return true;
+
+      // 4. Was the TYPE of any set altered (e.g. Normal to Drop Set)?
+      for (int j = 0; j < origEx.plannedSets.length; j++) {
+        if (origEx.plannedSets[j].setType != currEx.plannedSets[j].setType) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  // 🟢 Phase 2 of Finishing: Check for layout changes and save
+  void _handleTacticalChangesAndFinish(
+    BuildContext context,
+    ActiveWorkoutViewModel activeVM,
+    WorkoutViewModel workoutVM,
+  ) {
     final performedExercises = activeVM.getPerformedExercises();
     if (performedExercises.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -193,18 +299,18 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
           backgroundColor: Colors.red,
         ),
       );
-      Navigator.of(context).pop();
       return;
     }
 
-    if (activeVM.hasRoutineChanged()) {
+    // Use our new deep check instead of relying on the VM's shallow check
+    if (_hasRoutineChangedDeep(activeVM)) {
       showDialog(
         context: context,
         builder:
             (dialogContext) => AlertDialog(
               title: const Text("Tactical Change Detected"),
               content: const Text(
-                "You altered the battle plan (added/removed exercises). Do you want to update the original routine to match this new layout?",
+                "You altered the battle plan (added/removed exercises or sets, changed set types). Do you want to update the original routine to match this new layout?",
               ),
               actions: [
                 TextButton(
@@ -239,6 +345,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
     }
   }
 
+  // 🟢 Phase 3 of Finishing: Navigation and routing
   void _proceedToFinish(
     BuildContext context,
     ActiveWorkoutViewModel activeVM,
@@ -259,16 +366,16 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       double maxWeight = 0.0;
       bool hasCompletedSet = false;
 
+      // 🟢 CHANGED: Fixed the logic loop so it registers completion independently of weight
       for (
         int setIndex = 0;
         setIndex < routineExercise.plannedSets.length;
         setIndex++
       ) {
-        final set = routineExercise.plannedSets[setIndex];
-        if (activeVM.isSetCompleted(i, setIndex) &&
-            (set.targetWeight ?? 0) > 0) {
+        if (activeVM.isSetCompleted(i, setIndex)) {
           hasCompletedSet = true;
-          if (set.targetWeight! > maxWeight) {
+          final set = routineExercise.plannedSets[setIndex];
+          if ((set.targetWeight ?? 0) > maxWeight) {
             maxWeight = set.targetWeight!;
           }
         }
@@ -337,6 +444,27 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
             elevation: 0,
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             foregroundColor: Theme.of(context).textTheme.bodyLarge?.color,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.add),
+                tooltip: 'Add Exercise',
+                onPressed: () => _showAddExercisePicker(context),
+              ),
+              TextButton(
+                onPressed: () => _finishWorkout(context),
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.primary,
+                ),
+                child: const Text(
+                  'FINISH',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.0,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(4.0),
               child: LinearProgressIndicator(
@@ -359,7 +487,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               child: CustomScrollView(
                 slivers: [
                   SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 0.0),
+                    padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 120.0),
                     sliver: SliverAnimatedList(
                       key: _exerciseListKey,
                       initialItemCount: viewModel.liveExercises.length,
@@ -381,63 +509,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                           ),
                         );
                       },
-                    ),
-                  ),
-
-                  // --- ADD EXERCISE BUTTON ---
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
-                      child: OutlinedButton.icon(
-                        onPressed: () => _showAddExercisePicker(context),
-                        icon: const Icon(Icons.add),
-                        label: const Text("ADD EXERCISE"),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          side: BorderSide(
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // --- FINISH WORKOUT BUTTON ---
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        16.0,
-                        16.0,
-                        16.0,
-                        300.0,
-                      ),
-                      child: SizedBox(
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed: () => _finishWorkout(context),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.primary,
-                            foregroundColor:
-                                Theme.of(context).colorScheme.onPrimary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            elevation: 4,
-                          ),
-                          child: const Text(
-                            'FINISH WORKOUT',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.5,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ),
                     ),
                   ),
                 ],
@@ -531,14 +602,11 @@ class _ExerciseEntryState extends State<_ExerciseEntry> {
     setState(() {});
   }
 
-  // 🟢 CHANGED: Rebuilt _removeSet to capture the UI and animate it properly
   void _removeSet(int setIndex) {
-    widget
-        .closeAllSlidables(); // Snap slidable shut so it doesn't float during animation
+    widget.closeAllSlidables();
 
     final viewModel = context.read<ActiveWorkoutViewModel>();
 
-    // 1. Capture the exact state of the row before we delete it
     final removedSet = widget.routineExercise.plannedSets[setIndex];
     final removedDisplayIndex = _calculateEffectiveDisplayIndex(setIndex);
     final currentWeightMode = viewModel.getWeightModeForExercise(
@@ -549,7 +617,6 @@ class _ExerciseEntryState extends State<_ExerciseEntry> {
       setIndex,
     );
 
-    // 2. Play the removal animation (fade and shrink using the actual widget)
     _listKey.currentState?.removeItem(
       setIndex,
       (context, animation) => SizeTransition(
@@ -575,7 +642,6 @@ class _ExerciseEntryState extends State<_ExerciseEntry> {
       duration: const Duration(milliseconds: 300),
     );
 
-    // 3. Delete the underlying data
     _setKeys.removeAt(setIndex);
     viewModel.removeSet(widget.exerciseIndex, setIndex);
     setState(() {});
@@ -660,9 +726,7 @@ class _ExerciseEntryState extends State<_ExerciseEntry> {
                   return SizeTransition(
                     sizeFactor: animation,
                     child: Padding(
-                      padding: const EdgeInsets.only(
-                        bottom: 4.0,
-                      ), // 🟢 CHANGED: 4px padding added between rows
+                      padding: const EdgeInsets.only(bottom: 4.0),
                       child: Slidable(
                         key: _setKeys[setIndex],
                         groupTag: 'workout_sets',
