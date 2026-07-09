@@ -71,6 +71,24 @@
     "equipment": "Free Weights"
   },
   {
+    "id": "push_up",
+    "name": "Push-up",
+    "muscleGroup": "Chest",
+    "instructions": "Start in a high plank position with your hands slightly wider than shoulder-width apart. Lower your body until your chest nearly touches the floor, keeping your core engaged and your back straight. Push your body back up to the starting position.",
+    "tracksReps": true,
+    "tracksduration": false,
+    "tracksDistance": false,
+    "supportsWeight": true,
+    "supportsBodyweight": true,
+    "supportsAssistance": true,
+    "targetedMuscles": {
+      "Pectoralis Major": 0.6,
+      "Triceps Brachii": 0.25,
+      "Deltoid (Anterior)": 0.15
+    },
+    "equipment": "Bodyweight"
+  },
+  {
     "id": "dumbbell_lateral_raise",
     "name": "Dumbbell Lateral Raise",
     "muscleGroup": "Shoulders",
@@ -1405,5 +1423,4 @@
     },
     "equipment": "Free Weights"
   }
-
 ]
