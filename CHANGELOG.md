@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2] - 2026-07-09
+
+### Maintenance
+
+- **android:** update agp to 8.11.1 and kotlin to 2.2.20 (b62934e)
+- **android:** update gradle wrapper to 8.14.0 (194f090)
+
 ## [0.2.1] - 2026-07-09
 
 ### Maintenance
