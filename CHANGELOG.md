@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1] - 2026-07-09
+
+### Maintenance
+
+- **core:** bump version to 0.2.1+2 (87ab1cc)
+- **core:** bump version to 0.2.0+1 (498246e)
+
 ## [0.2.0] - 2026-07-09
 
 ### Added
