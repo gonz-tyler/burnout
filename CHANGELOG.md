@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.0] - 2026-07-09
+
+### Added
+
+- **data:** add push-up to exercise list (9644f7a)
+
 All notable changes to this project will be documented in this file.
 
 ## [0.1.0] - 2026-07-09
