@@ -1,0 +1,225 @@
+<resources>
+    <string name="app_name">Burnout</string>
+
+    <!-- Navigation Titles -->
+    <string name="nav_dashboard">inicio.</string>
+    <string name="nav_workouts">rutinas.</string>
+    <string name="nav_profile">perfil.</string>
+
+    <!-- Workouts Screen -->
+    <string name="create_new_workout">CREAR NUEVOA RUTINA</string>
+    <string name="start_empty_workout">EMPEZAR SESIÓN VACÍA</string>
+    <string name="no_routines">Aún no hay rutinas</string>
+    <string name="empty_workout_screen_label">Crea una rutina personalizada o empieza una sesión vacía para comenzar.</string>
+    <string name="campaign_mode">MODO CAMPAÑA</string>
+    <string name="labors">Las 12 Labores</string>
+    <string name="prove_strength">Demuestra tu fuerza</string>
+    <string name="routine_summary">%1$d series • %2$d ejercicios</string>
+    <string name="action_edit">Editar</string>
+    <string name="action_duplicate">Duplicar</string>
+    <string name="action_delete">Eliminar</string>
+    <string name="action_start">Empezar</string>
+    <string name="options">Opciones</string>
+
+    <!-- Routine Editor -->
+    <string name="create_routine">Crear rutina</string>
+    <string name="edit_routine">Editar rutina</string>
+    <string name="back_description">Atrás</string>
+    <string name="save_routine_description">Guardar rutina</string>
+    <string name="add_exercise">Añadir ejercicio</string>
+    <string name="add_edit_exercises">Añadir/Editar ejercicios</string>
+    <string name="add_exercises_to_start">Añade ejercicios para empezar.</string>
+    <string name="rest_label">Descanso</string>
+    <string name="rest_value">%1$ds</string>
+    <string name="set_header">SERIE</string>
+    <string name="prev_header">ANT.</string>
+    <string name="reps_header">REPS</string>
+    <string name="weight_kg">KG</string>
+    <string name="weight_lbs">LBS</string>
+    <string name="weight_bw">PC</string>
+    <string name="add_set">Añadir serie</string>
+    <string name="routine_name_label">Nombre de la rutina</string>
+    <string name="routine_name_hint">p. ej., Hipertrofia de torso</string>
+    <string name="delete_exercise_description">Eliminar ejercicio</string>
+    <string name="type_label">Tipo</string>
+    <string name="reps_label">Reps</string>
+    <string name="weight_kg_label">Peso (kg)</string>
+    <string name="delete_set_description">Eliminar serie</string>
+
+    <!-- Exercise Picker -->
+    <string name="select_exercises">Seleccionar ejercicios</string>
+    <string name="search_exercises_hint">Buscar ejercicios…</string>
+    <string name="add_exercises_button">AÑADIR %1$d EJERCICIOS</string>
+    <string name="cancel">Cancelar</string>
+
+    <!-- Set Types -->
+    <string name="set_type">Tipo de serie</string>
+    <string name="set_type_normal">Normal</string>
+    <string name="set_type_warmup">Calentamiento</string>
+    <string name="set_type_dropset">Serie descendente</string>
+    <string name="set_type_failure">Fallo</string>
+
+    <!-- Routine List -->
+    <string name="my_routines">Mis rutinas</string>
+    <string name="exercises_count">%1$d ejercicios</string>
+    <string name="no_routines_found">No se han encontrado rutinas. Pulsa \'+\' para crear la primera.</string>
+
+    <!-- Accessibility & Labels -->
+    <string name="streak_description">Racha</string>
+    <string name="navigate_campaign_description">Ir al modo campaña</string>
+    <string name="placeholder_screen_content">Contenido de la pantalla %1$s</string>
+
+    <!-- Top Navigation & Actions -->
+    <string name="finish">Finalizar</string>
+
+    <!-- Dialogs -->
+    <string name="unfinished_business">Asuntos pendientes</string>
+    <string name="uncompleted_sets_warning">Tienes series sin completar en este entrenamiento. ¿Cómo deseas proceder?</string>
+    <string name="mark_all_complete">Marcar todo como completado</string>
+    <string name="finish_anyway">Finalizar de todos modos</string>
+
+    <string name="tactical_change">Cambio táctico</string>
+    <string name="altered_battle_plan_desc">Has modificado los ejercicios o las series durante esta sesión. ¿Quieres actualizar la plantilla de la rutina con estos cambios?</string>
+    <string name="update_routine">Actualizar rutina</string>
+    <string name="one_time_only">Solo esta vez</string>
+
+    <!-- Exercise Card & Set Headers -->
+    <string name="remove_exercise">Eliminar ejercicio</string>
+
+    <!-- Profile Screen -->
+    <string name="your_progress">Tu progreso</string>
+    <string name="keep_progressing">¡Sigue progresando y demuestra tu fuerza!</string>
+    <string name="total_workouts">Entrenamientos totales</string>
+    <string name="total_completions">Completados totales</string>
+    <string name="quick_actions">Acciones rápidas</string>
+    <string name="workout_history">Historial de entrenamientos</string>
+    <string name="view_completed_sessions">Consulta tus sesiones de entrenamiento anteriores</string>
+    <string name="settings">Ajustes</string>
+    <string name="customize_preferences">Personaliza las preferencias de la aplicación</string>
+    <string name="support_creator">Apoyar al creador</string>
+    <string name="enjoying_app">¿Te gusta la app?</string>
+    <string name="support_message">Si Burnout te resulta útil, ¡considera apoyar su desarrollo!</string>
+    <string name="rate_app">Valorar la app</string>
+    <string name="buy_coffee">Invitar a un café</string>
+    <string name="made_with_love">Hecho con amor</string>
+    <string name="app_description">Tu compañero para el seguimiento de la sobrecarga progresiva.</string>
+    <string name="coming_soon">Próximamente</string>
+    <string name="feature_available_in_future">La función %1$s estará disponible en una próxima actualización.</string>
+
+    <!-- Settings Screen -->
+    <string name="language">Idioma</string>
+    <string name="english">Inglés</string>
+    <string name="spanish">Español</string>
+    <string name="system_default">Sistema</string>
+    <string name="appearance">Apariencia</string>
+    <string name="light_mode">Modo claro</string>
+    <string name="dark_mode">Modo oscuro</string>
+    <string name="color_theme">Tema de color</string>
+    <string name="body">Cuerpo</string>
+    <string name="measurement_system">Sistema de medida</string>
+    <string name="metric">Métrico (kg, km)</string>
+    <string name="imperial">Imperial (lbs, millas)</string>
+    <string name="gender">Género</string>
+    <string name="gender_info">Esto nos ayuda a calcular resultados más precisos.</string>
+    <string name="male">Hombre</string>
+    <string name="female">Mujer</string>
+    <string name="weekly_goal">\"Objetivo semanal de entrenamiento</string>
+    <string name="day_goal">¿Cuántos días a la semana tienes pensado entrenar?</string>
+    <string name="data_and_privacy">Datos y privacidad</string>
+    <string name="export_data">Exportar datos</string>
+    <string name="export_data_description">Guarda tus datos de entrenamiento en un archivo</string>
+    <string name="import_data">Importar datos</string>
+    <string name="import_data_description">Restaura datos desde un archivo exportado previamente</string>
+    <string name="clear_all_data">Borrar todos los datos</string>
+    <string name="clear_all_data_description">Elimina permanentemente todas tus rutinas e historial</string>
+
+    <!-- Workout History & Details -->
+    <string name="no_history">No hay historial</string>
+    <string name="complete_first_workout">Completa tu primer entrenamiento para ver tu historial aquí.</string>
+    <string name="quick_workout">Entrenamiento rápido</string>
+    <string name="session_summary_history">%1$d ejercicios · %2$d min</string>
+    <string name="sets_label_history">Series</string>
+    <string name="reps_label_short">Reps</string>
+    <string name="unknown_exercise">Ejercicio desconocido</string>
+
+    <!-- Campaign & Quests -->
+    <string name="campaign">Campaña</string>
+    <string name="legends_forged">LEYENDAS FORJADAS</string>
+    <string name="requirement">REQUISITO</string>
+    <string name="forged">FORJADO</string>
+    <string name="close">CERRAR</string>
+    <string name="completed">COMPLETADO</string>
+    <string name="weekly_trials">PRUEBAS SEMANALES</string>
+    <string name="twelve_labors">LAS 12 LABORES</string>
+    <!-- Labor 1: The Nemean Lion -->
+    <string name="labor_nemean_lion_title">El león de Nemea</string>
+    <string name="labor_nemean_lion_desc">Mata a la bestia con pura fuerza de empuje.</string>
+    <string name="labor_nemean_lion_req">Press de banca con 1,25x peso corporal</string>
+
+    <!-- Labor 2: The Lernean Hydra -->
+    <string name="labor_lernean_hydra_title">La hidra de Lerna</string>
+    <string name="labor_lernean_hydra_desc">Corta una cabeza y aparecerán dos más. Sobrevive al volumen.</string>
+    <string name="labor_hydra_req_metric">Levanta 100.000 kg de volumen total (acumulado)</string>
+    <string name="labor_hydra_req_imperial">Levanta 220.000 lbs de volumen total (acumulado)</string>
+
+    <!-- Labor 3: The Ceryneian Hind -->
+    <string name="labor_ceryneian_hind_title">La cierva de Cerinea</string>
+    <string name="labor_ceryneian_hind_desc">Captura a la cierva dorada con velocidad explosiva.</string>
+    <string name="labor_ceryneian_hind_req">Sentadilla con 1,5x peso corporal</string>
+
+    <!-- Labor 4: The Erymanthian Boar -->
+    <string name="labor_erymanthian_boar_title">El jabalí de Erimanto</string>
+    <string name="labor_erymanthian_boar_desc">Somete a la bestia gigante en una lucha cuerpo a cuerpo.</string>
+    <string name="labor_erymanthian_boar_req">Peso muerto con 2,0x peso corporal</string>
+
+    <!-- Labor 5: The Augean Stables -->
+    <string name="labor_augean_stables_title">Los establos de Augías</string>
+    <string name="labor_augean_stables_desc">Limpia la suciedad en un solo día.</string>
+    <string name="labor_augean_stables_req">Completa 50 entrenamientos</string>
+
+    <!-- Labor 6: The Stymphalian Birds -->
+    <string name="labor_stymphalian_birds_title">Las aves del Estínfalo</string>
+    <string name="labor_stymphalian_birds_desc">Derríbalas desde el cielo.</string>
+    <string name="labor_stymphalian_birds_req">Press militar con 0,75x peso corporal</string>
+
+    <!-- Labor 7: Cretan Bull -->
+    <string name="labor_cretan_bull_title">El toro de Creta</string>
+    <string name="labor_cretan_bull_desc">Levanta al toro con press inclinado.</string>
+    <string name="labor_cretan_bull_req">Press inclinado con 1,25x peso corporal</string>
+
+    <!-- Labor 8: Mares of Diomedes -->
+    <string name="labor_mares_diomedes_title">Las yeguas de Diomedes</string>
+    <string name="labor_mares_diomedes_desc">Doma a las yeguas salvajes con la fuerza de tus piernas.</string>
+    <string name="labor_mares_diomedes_req">Prensa de piernas con 3,0x peso corporal</string>
+
+    <!-- Labor 9: Belt of Hippolyta -->
+    <string name="labor_belt_hippolyta_title">El cinturón de Hipólita</string>
+    <string name="labor_belt_hippolyta_desc">Gánate el favor de la reina amazona.</string>
+    <string name="labor_belt_hippolyta_req">Fondos con lastre con 0,5x peso corporal</string>
+
+    <!-- Labor 10: Cattle of Geryon -->
+    <string name="labor_cattle_geryon_title">El ganado de Gerión</string>
+    <string name="labor_cattle_geryon_desc">Guía al ganado con pura fuerza de voluntad.</string>
+    <string name="labor_cattle_req_metric">Levanta 1.000.000 kg de volumen total (acumulado)</string>
+    <string name="labor_cattle_req_imperial">Levanta 2.200.000 lbs de volumen total (acumulado)</string>
+
+    <!-- Labor 11: Apples of Hesperides -->
+    <string name="labor_apples_hesperides_title">Las manzanas de las Hespérides</string>
+    <string name="labor_apples_hesperides_desc">Mantén la dedicación y la constancia.</string>
+    <string name="labor_apples_hesperides_req">Racha de entrenamientos de 30 días</string>
+
+    <!-- Labor 12: Cerberus -->
+    <string name="labor_cerberus_title">Cérbero</string>
+    <string name="labor_cerberus_desc">El guardián final. Domina las tres cabezas de la fuerza.</string>
+    <string name="labor_cerberus_req_metric">Total de los 3 grandes (S+B+P) > 450 kg</string>
+    <string name="labor_cerberus_req_imperial">Total de los 3 grandes (S+B+P) > 1.000 lbs</string>
+
+    <!-- Notifications -->
+    <string name="notifications">Notificaciones</string>
+    <string name="daily_reminder">Recordatorio diario</string>
+    <string name="current_time_format">Hora actual: %1$s</string>
+    <string name="streak_at_risk_title">¡Racha en peligro!</string>
+    <string name="streak_at_risk_message">Si no entrenas hoy, físicamente no podrás completar tu racha esta semana y la perderás.</string>
+    <string name="daily_reminder_title">Burnout</string>
+    <string name="daily_reminder_message">¡Hora de entrenar! No dejes que tu racha se escape.</string>
+</resources>
