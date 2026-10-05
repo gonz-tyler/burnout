@@ -394,4 +394,6 @@
     <string name="q3_title">Madrugador</string>
     <string name="q3_description">Haz un entrenamiento antes de las 10:00.</string>
     <string name="q3_requirement">1 entrenamiento antes de las 10:00</string>
+    <string name="streak_at_risk_title_soft">Mantén el impulso</string>
+    <string name="streak_at_risk_message_soft">Un estiramiento rápido o un paseo corto es suficiente para mantener tu ritmo activo hoy</string>
 </resources>

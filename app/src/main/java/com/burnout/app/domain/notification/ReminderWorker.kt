@@ -84,10 +84,11 @@ class ReminderWorker @AssistedInject constructor(
         android.util.Log.d("ReminderWorker", "Check results: WeeklyGoal=$weeklyGoal, DaysWorkedThisWeek=$daysWorkedThisWeek, DaysRemainingInclToday=$daysRemainingInclToday, HasWorkedToday=$hasWorkedToday")
 
         val streakAtRisk = !hasWorkedToday && (daysWorkedThisWeek + daysRemainingInclToday == weeklyGoal)
+        val streakEnabled = settingsDataStore.streakEnabled.first()
 
-        if (streakAtRisk) {
+        if (streakAtRisk && streakEnabled) {
             android.util.Log.d("ReminderWorker", "Sending streak warning")
-            NotificationHelper.showStreakWarningNotification(applicationContext)
+            NotificationHelper.showStreakWarningNotificationHard(applicationContext)
         } else {
             android.util.Log.d("ReminderWorker", "No streak warning needed")
         }

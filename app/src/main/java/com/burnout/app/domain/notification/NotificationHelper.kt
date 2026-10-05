@@ -86,12 +86,21 @@ object NotificationHelper {
     }
 
     /** Sent only when today is the last day the user can still hit their weekly goal. */
-    fun showStreakWarningNotification(context: Context) {
+    fun showStreakWarningNotificationHard(context: Context) {
         showNotification(
             context,
             STREAK_WARNING_ID,
             context.getString(R.string.streak_at_risk_title),
             context.getString(R.string.streak_at_risk_message)
+        )
+    }
+
+    fun showStreakWarningNotificationSoft(context: Context) {
+        showNotification(
+            context,
+            STREAK_WARNING_ID,
+            context.getString(R.string.streak_at_risk_title_soft),
+            context.getString(R.string.streak_at_risk_message_soft)
         )
     }
 

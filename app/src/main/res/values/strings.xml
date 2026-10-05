@@ -396,4 +396,6 @@
     <string name="q3_description">Get a workout in before 10 AM.</string>
     <string name="q3_requirement">1 workout before 10:00</string>
     <string name="q2_requirement">Lift %1$d %2$s total this week</string>
+    <string name="streak_at_risk_title_soft">Keep your momentum going</string>
+    <string name="streak_at_risk_message_soft">A quick stretch or short walk is all it takes to keep your rhythm active today</string>
 </resources>
