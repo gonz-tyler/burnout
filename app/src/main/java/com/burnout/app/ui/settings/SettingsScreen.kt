@@ -106,7 +106,7 @@ fun SettingsScreen(
                                 onClick = {
                                     coroutineScope.launch {
                                         settingsDataStore.setLanguage("system")
-                                        AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("system"))
+                                        AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
                                     }
                                 }
                             )

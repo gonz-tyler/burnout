@@ -1,14 +1,16 @@
 package com.burnout.app
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -46,6 +48,7 @@ import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.os.LocaleListCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -71,7 +74,6 @@ import com.burnout.app.ui.workout.WorkoutHistoryScreen
 import com.burnout.app.ui.workout.WorkoutsScreen
 import com.materialkolor.PaletteStyle
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.Locale
 import javax.inject.Inject
 
 private object AppRoutes {
@@ -86,7 +88,7 @@ private object AppRoutes {
 }
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     private val workoutViewModel: WorkoutViewModel by viewModels()
     private val activeWorkoutViewModel: ActiveWorkoutViewModel by viewModels()
     @Inject lateinit var settingsDataStore: SettingsDataStore
@@ -111,6 +113,7 @@ class MainActivity : ComponentActivity() {
         )
     }
 
+    @SuppressLint("LocalContextConfigurationRead")
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()
         splash.setKeepOnScreenCondition { !settingsLoaded }
@@ -148,20 +151,14 @@ class MainActivity : ComponentActivity() {
                     com.burnout.app.domain.notification.WorkManagerScheduler.scheduleDailyReminder(context, it)
                 }
             }
-            val localizedContext = remember(ui.language) {
-                if (ui.language == SettingsDataStore.LANGUAGE_SYSTEM) {
-                    // Real device locales, unaffected by any previous Locale.setDefault()
-                    val systemLocales = Resources.getSystem().configuration.locales
-                    Locale.setDefault(systemLocales[0])
-                    val config = Configuration(context.resources.configuration)
-                    config.setLocales(systemLocales)
-                    context.createConfigurationContext(config)
+            LaunchedEffect(ui.language) {
+                val targetLocales = if (ui.language == SettingsDataStore.LANGUAGE_SYSTEM) {
+                    LocaleListCompat.getEmptyLocaleList()
                 } else {
-                    val locale = Locale.forLanguageTag(ui.language)
-                    Locale.setDefault(locale)
-                    val config = Configuration(context.resources.configuration)
-                    config.setLocale(locale)
-                    context.createConfigurationContext(config)
+                    LocaleListCompat.forLanguageTags(ui.language)
+                }
+                if (AppCompatDelegate.getApplicationLocales() != targetLocales) {
+                    AppCompatDelegate.setApplicationLocales(targetLocales)
                 }
             }
 
@@ -192,26 +189,21 @@ class MainActivity : ComponentActivity() {
                 runCatching { PaletteStyle.valueOf(ui.paletteStyle) }.getOrDefault(PaletteStyle.TonalSpot)
             }
 
-            CompositionLocalProvider(
-                LocalContext provides localizedContext,
-                LocalConfiguration provides localizedContext.resources.configuration
+            BurnoutTheme(
+                seedColorInt = ui.seedColor,
+                darkTheme = useDarkTheme,
+                dynamicColor = ui.dynamicColor,
+                paletteStyle = paletteStyle
             ) {
-                BurnoutTheme(
-                    seedColorInt = ui.seedColor,
-                    darkTheme = useDarkTheme,
-                    dynamicColor = ui.dynamicColor,
-                    paletteStyle = paletteStyle
-                ) {
-                    MainNavigation(
-                        workoutViewModel = workoutViewModel,
-                        activeWorkoutViewModel = activeWorkoutViewModel,
-                        settingsDataStore = settingsDataStore,
-                        features = features,
-                        sex = sex,
-                        style = style,
-                        activityContext = this@MainActivity
-                    )
-                }
+                MainNavigation(
+                    workoutViewModel = workoutViewModel,
+                    activeWorkoutViewModel = activeWorkoutViewModel,
+                    settingsDataStore = settingsDataStore,
+                    features = features,
+                    sex = sex,
+                    style = style,
+                    activityContext = this@MainActivity
+                )
             }
         }
     }
