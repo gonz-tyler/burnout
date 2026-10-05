@@ -191,7 +191,7 @@ fun ActiveWorkoutScreen(
                         }
                         Spacer(Modifier.width(8.dp))
                         FilledTonalButton(onClick = { attemptFinish() }) {
-                            Text("FINISH", fontWeight = FontWeight.Black, letterSpacing = 1.sp)
+                            Text(stringResource(R.string.finish).uppercase(), fontWeight = FontWeight.Black, letterSpacing = 1.sp)
                         }
                         Spacer(Modifier.width(8.dp))
                     }
