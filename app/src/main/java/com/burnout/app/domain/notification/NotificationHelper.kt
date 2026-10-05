@@ -90,8 +90,8 @@ object NotificationHelper {
         showNotification(
             context,
             STREAK_WARNING_ID,
-            "Streak at Risk!",
-            "If you don't workout today, you physically won't be able to complete your streak this week and will lose it!"
+            context.getString(R.string.streak_at_risk_title),
+            context.getString(R.string.streak_at_risk_message)
         )
     }
 
