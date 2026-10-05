@@ -11,10 +11,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.burnout.app.ui.theme.AppTheme
+import com.burnout.app.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,7 +53,7 @@ fun ModernTimePickerDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 20.dp),
-                    text = "SELECT TIME",
+                    text = stringResource(R.string.select_time).uppercase(),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -77,16 +79,16 @@ fun ModernTimePickerDialog(
                     IconButton(onClick = { showDial = !showDial }) {
                         Icon(
                             imageVector = if (showDial) Icons.Default.EditCalendar else Icons.Default.AccessTime,
-                            contentDescription = "Toggle picker mode",
+                            contentDescription = stringResource(R.string.toggle_picker_mode),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
                     Spacer(modifier = Modifier.weight(1f))
                     TextButton(onClick = onDismiss) {
-                        Text("CANCEL", color = MaterialTheme.colorScheme.outline)
+                        Text(stringResource(R.string.cancel).uppercase(), color = MaterialTheme.colorScheme.outline)
                     }
                     TextButton(onClick = { onConfirm(timePickerState.hour, timePickerState.minute) }) {
-                        Text("OK", fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                        Text(stringResource(R.string.okay).uppercase(), fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
                     }
                 }
             }
@@ -109,12 +111,12 @@ fun ModernDatePickerDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(onClick = { onConfirm(datePickerState.selectedDateMillis) }) {
-                Text("OK", fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                Text(stringResource(R.string.okay).uppercase(), fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("CANCEL", color = MaterialTheme.colorScheme.outline)
+                Text(stringResource(R.string.cancel).uppercase(), color = MaterialTheme.colorScheme.outline)
             }
         },
         shape = RoundedCornerShape(AppTheme.radiusXL),

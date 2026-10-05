@@ -54,8 +54,10 @@ import com.burnout.app.data.local.entity.Exercise
 import com.burnout.app.data.local.entity.PlannedSet
 import com.burnout.app.data.local.entity.RoutineExercise
 import com.burnout.app.data.local.entity.SetType
+import com.burnout.app.data.local.entity.abbreviationRes
 import com.burnout.app.util.UnitSystem
 import com.burnout.app.util.WeightConverter
+import kotlin.math.abs
 
 private enum class LocalWeightMode { WEIGHTED, BODYWEIGHT, ASSISTED }
 
@@ -105,13 +107,7 @@ private fun TypeOptionItem(
                     .background(if (type == SetType.NORMAL) MaterialTheme.colorScheme.onSurfaceVariant else color, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                val abbr = when (type) {
-                    SetType.WARMUP -> "W"
-                    SetType.NORMAL -> "N"
-                    SetType.FAILURE -> "F"
-                    SetType.DROPSET -> "D"
-                }
-                Text(abbr, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                Text(stringResource(type.abbreviationRes), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 12.sp)
             }
         },
         trailingContent = {
@@ -172,7 +168,7 @@ fun RoutineExerciseCard(
                 // Draggable handle
                 Icon(
                     imageVector = Icons.Default.Menu,
-                    contentDescription = "Reorder",
+                    contentDescription = stringResource(R.string.reorder),
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .size(24.dp)
@@ -271,7 +267,7 @@ fun RoutineExerciseCard(
                         activeMode = nextMode
 
                         val newSets = exercise.plannedSets.map { s ->
-                            val currentAbs = if (s.targetWeight != null) Math.abs(s.targetWeight) else null
+                            val currentAbs = if (s.targetWeight != null) abs(s.targetWeight) else null
                             val nextWeight = when (nextMode) {
                                 LocalWeightMode.WEIGHTED -> currentAbs
                                 LocalWeightMode.BODYWEIGHT -> 0.0
@@ -302,14 +298,14 @@ fun RoutineExerciseCard(
         var normalSetCounter = 0
         exercise.plannedSets.forEachIndexed { setIndex, currentSet ->
             val label = when (currentSet.setType) {
-                SetType.WARMUP -> "W"
+                SetType.WARMUP -> stringResource(R.string.set_type_warmup_abbr)
                 SetType.DROPSET -> {
                     normalSetCounter++
-                    "D"
+                    stringResource(R.string.set_type_dropset_abbr)
                 }
                 SetType.FAILURE -> {
                     normalSetCounter++
-                    "F"
+                    stringResource(R.string.set_type_failure_abbr)
                 }
                 SetType.NORMAL -> {
                     normalSetCounter++
@@ -438,7 +434,7 @@ fun HevySetRow(
                 val sys = if (unitSystem == "imperial") UnitSystem.IMPERIAL else UnitSystem.METRIC
                 val displayWeight = when {
                     plannedSet.targetWeight == null -> ""
-                    else -> WeightConverter.displayWeight(Math.abs(plannedSet.targetWeight), sys).toString().replace(".0", "")
+                    else -> WeightConverter.displayWeight(abs(plannedSet.targetWeight), sys).toString().replace(".0", "")
                 }
 
                 BasicTextField(
@@ -511,7 +507,7 @@ fun HevySetRow(
             ) {
                 Icon(
                     imageVector = Icons.Default.Check,
-                    contentDescription = "Complete Set",
+                    contentDescription = stringResource(R.string.complete_set),
                     tint = if (isCompleted) Color.White else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
                     modifier = Modifier.size(20.dp)
                 )

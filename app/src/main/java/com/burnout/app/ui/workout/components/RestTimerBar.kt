@@ -29,9 +29,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.burnout.app.R
 import com.burnout.app.ui.components.AnimatedLinearProgressIndicator
 import com.burnout.app.ui.viewmodel.RestTimerState
 
@@ -105,7 +107,7 @@ fun RestTimerBar(
                             val secs = timerState.remainingSeconds % 60
                             val formattedTime = String.format("%02d:%02d", mins, secs)
                             Text(
-                                text = "Rest: $formattedTime",
+                                text = stringResource(R.string.rest_time_label, formattedTime),
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 15.sp
@@ -147,7 +149,7 @@ fun RestTimerBar(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Skip Timer",
+                                contentDescription = stringResource(R.string.skip_timer),
                                 tint = Color.Gray,
                                 modifier = Modifier.size(18.dp)
                             )

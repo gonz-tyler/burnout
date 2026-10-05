@@ -51,7 +51,8 @@ fun CampaignScreen(
 
     val quests = QuestsService.checkWeeklyQuests(
         sessions = uiState.workoutSessions,
-        weeklyGoal = uiState.weeklyGoal
+        weeklyGoal = uiState.weeklyGoal,
+        uiState = uiState,
     )
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
@@ -344,14 +345,14 @@ private fun QuestCard(quest: Quest) {
             Spacer(Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = quest.title.uppercase(),
+                    text = quest.title.asString().uppercase(),
                     color = textColor,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                     letterSpacing = 1.sp
                 )
                 Text(
-                    text = quest.description,
+                    text = quest.description.asString(),
                     color = Color.Gray,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium
@@ -373,7 +374,7 @@ private fun QuestCard(quest: Quest) {
                         )
                         Spacer(Modifier.height(6.dp))
                         Text(
-                            text = quest.requirement,
+                            text = quest.requirement.asString(),
                             color = Color.Gray,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold

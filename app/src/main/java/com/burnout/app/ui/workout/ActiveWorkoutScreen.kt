@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,6 +30,7 @@ import com.burnout.app.ui.viewmodel.ActiveWorkoutViewModel
 import com.burnout.app.ui.viewmodel.RestTimerViewModel
 import com.burnout.app.ui.viewmodel.WorkoutViewModel
 import com.burnout.app.ui.workout.components.RestTimerBar
+import com.burnout.app.R
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -173,23 +175,23 @@ fun ActiveWorkoutScreen(
                 TopAppBar(
                     title = {
                         Text(
-                            (activeState.routine?.name ?: "Workout").uppercase(),
+                            (activeState.routine?.name ?: stringResource(R.string.workout_name)).uppercase(),
                             fontWeight = FontWeight.Black,
                             letterSpacing = 1.sp
                         )
                     },
                     navigationIcon = {
                         IconButton(onClick = { showCancelDialog = true }) {
-                            Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Cancel Workout")
+                            Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.cancel_workout))
                         }
                     },
                     actions = {
                         IconButton(onClick = { showExercisePicker = true }) {
-                            Icon(Icons.Rounded.Add, contentDescription = "Add exercise")
+                            Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.add_exercise))
                         }
                         Spacer(Modifier.width(8.dp))
                         FilledTonalButton(onClick = { attemptFinish() }) {
-                            Text("FINISH", fontWeight = FontWeight.Black, letterSpacing = 1.sp)
+                            Text(stringResource(R.string.finish).uppercase(), fontWeight = FontWeight.Black, letterSpacing = 1.sp)
                         }
                         Spacer(Modifier.width(8.dp))
                     }
@@ -266,16 +268,16 @@ fun ActiveWorkoutScreen(
     if (showCancelDialog) {
         AlertDialog(
             onDismissRequest = { showCancelDialog = false },
-            title = { Text("Cancel Workout", fontWeight = FontWeight.Bold) },
-            text = { Text("Are you sure you want to end this workout? Your progress will not be saved.") },
+            title = { Text(stringResource(R.string.cancel_workout), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.cancel_workout_confirmation)) },
             confirmButton = {
                 TextButton(onClick = {
                     showCancelDialog = false
                     onNavigateBack()
-                }) { Text("End Workout", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold) }
+                }) { Text(stringResource(R.string.end_workout), color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold) }
             },
             dismissButton = {
-                TextButton(onClick = { showCancelDialog = false }) { Text("Resume") }
+                TextButton(onClick = { showCancelDialog = false }) { Text(stringResource(R.string.resume)) }
             }
         )
     }
@@ -313,8 +315,8 @@ fun ActiveWorkoutScreen(
     if (showIncompleteDialog) {
         AlertDialog(
             onDismissRequest = { showIncompleteDialog = false },
-            title = { Text("Unfinished Business", fontWeight = FontWeight.Black, letterSpacing = 1.sp) },
-            text = { Text("You have uncompleted sets. Finish anyway, or mark everything complete first?") },
+            title = { Text(stringResource(R.string.unfinished_business), fontWeight = FontWeight.Black, letterSpacing = 1.sp) },
+            text = { Text(stringResource(R.string.uncompleted_sets_warning)) },
             confirmButton = {
                 TextButton(onClick = {
                     activeState.liveExercises.forEachIndexed { i, ex ->
@@ -324,15 +326,15 @@ fun ActiveWorkoutScreen(
                     }
                     showIncompleteDialog = false
                     handleTacticalChangesAndFinish()
-                }) { Text("Mark All Complete", fontWeight = FontWeight.Bold) }
+                }) { Text(stringResource(R.string.mark_all_complete), fontWeight = FontWeight.Bold) }
             },
             dismissButton = {
                 Row {
-                    TextButton(onClick = { showIncompleteDialog = false }) { Text("Cancel") }
+                    TextButton(onClick = { showIncompleteDialog = false }) { Text(stringResource(R.string.cancel)) }
                     TextButton(onClick = {
                         showIncompleteDialog = false
                         handleTacticalChangesAndFinish()
-                    }) { Text("Finish Anyway", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold) }
+                    }) { Text(stringResource(R.string.finish_anyway), color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold) }
                 }
             }
         )
@@ -341,19 +343,19 @@ fun ActiveWorkoutScreen(
     if (showTacticalDialog) {
         AlertDialog(
             onDismissRequest = { showTacticalDialog = false },
-            title = { Text("Tactical Change", fontWeight = FontWeight.Black, letterSpacing = 1.sp) },
-            text = { Text("You added or removed exercises mid-workout. Update the routine for next time, or keep this as a one-off?") },
+            title = { Text(stringResource(R.string.tactical_change), fontWeight = FontWeight.Black, letterSpacing = 1.sp) },
+            text = { Text(stringResource(R.string.modified_workout_warning)) },
             confirmButton = {
                 TextButton(onClick = {
                     showTacticalDialog = false
                     proceedToFinish(updateRoutine = true)
-                }) { Text("Update Routine", fontWeight = FontWeight.Bold) }
+                }) { Text(stringResource(R.string.update_routine), fontWeight = FontWeight.Bold) }
             },
             dismissButton = {
                 TextButton(onClick = {
                     showTacticalDialog = false
                     proceedToFinish(updateRoutine = false)
-                }) { Text("One-Time Only") }
+                }) { Text(stringResource(R.string.one_time_only)) }
             }
         )
     }
