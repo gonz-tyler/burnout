@@ -1,5 +1,6 @@
 package com.burnout.app.ui.dashboard.components
 
+import com.burnout.app.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -25,6 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -45,8 +47,8 @@ fun GodCard(
     icon: ImageVector,
     index: Int,
     onTap: () -> Unit,
-    lockedLabel: String = "LOCKED",
-    maxLabel: String = "MAX",
+    lockedLabel: String = stringResource(R.string.locked).uppercase(),
+    maxLabel: String = stringResource(R.string.max).uppercase(),
 ) {
     val isLocked = weight == 0.0
     val bgColor = if (isLocked) MaterialTheme.colorScheme.surfaceContainerHighest else color

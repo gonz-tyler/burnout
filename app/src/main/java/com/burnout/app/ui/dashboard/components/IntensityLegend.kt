@@ -15,8 +15,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.burnout.app.R
 
 /**
  * Gradient bar + labels explaining the muscle-diagram intensity coloring.
@@ -24,8 +26,8 @@ import androidx.compose.ui.unit.sp
  */
 @Composable
 fun IntensityLegend(
-    lowLabel: String = "Low volume",
-    highLabel: String = "High volume",
+    lowLabel: String = stringResource(R.string.low_volume),
+    highLabel: String = stringResource(R.string.high_volume),
 ) {
     val primary = MaterialTheme.colorScheme.primary
     Column {

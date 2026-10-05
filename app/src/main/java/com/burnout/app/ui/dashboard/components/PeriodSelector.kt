@@ -22,17 +22,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.burnout.app.R
+import com.burnout.app.domain.model.StatsPeriod
 import com.burnout.app.ui.theme.AppTheme
 import kotlinx.coroutines.delay
 
 /** Row of WEEK / MONTH / ALL TIME pills controlling the muscle-focus period. */
 @Composable
 fun PeriodSelector(
-    selectedPeriod: String,
-    onPeriodSelected: (String) -> Unit,
-    periods: List<String> = listOf("WEEK", "MONTH", "ALL TIME"),
+    selectedPeriod: StatsPeriod,
+    onPeriodSelected: (StatsPeriod) -> Unit,
+    periods: List<StatsPeriod> = StatsPeriod.entries,
 ) {
     Row(
         modifier = Modifier
@@ -42,7 +45,7 @@ fun PeriodSelector(
     ) {
         periods.forEach { period ->
             PeriodPill(
-                title = period,
+                title = stringResource(period.labelRes).uppercase(),
                 isSelected = selectedPeriod == period,
                 onTap = { onPeriodSelected(period) },
                 modifier = Modifier.weight(1f),

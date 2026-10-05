@@ -97,7 +97,7 @@ fun ProfileScreen(
                         if (features.labors) {
                             StatItem(
                                 modifier = Modifier.weight(1f),
-                                label = "Labors",
+                                label = stringResource(R.string.labors_label),
                                 value = "${uiState.completedLaborCount}/${LaborsService.TOTAL_LABOR_COUNT}",
                                 icon = Icons.Rounded.Shield
                             )

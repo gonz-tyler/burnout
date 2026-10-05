@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -24,6 +25,7 @@ import com.burnout.app.ui.components.ModernDatePickerDialog
 import com.burnout.app.util.LengthConverter
 import com.burnout.app.util.UnitSystem
 import com.burnout.app.util.WeightConverter
+import com.burnout.app.R
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -80,9 +82,10 @@ fun MeasurementSheet(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Log Measurements", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.log_measurement), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.Rounded.Close, contentDescription = "Close")
+                    Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.close))
                 }
             }
             HorizontalDivider()
@@ -104,63 +107,63 @@ fun MeasurementSheet(
                         Icon(Icons.Rounded.CalendarToday, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                         Spacer(Modifier.width(12.dp))
                         Column {
-                            Text("Date", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.date), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                             Text(DateFormat.format("MMM d, yyyy", selectedDateMillis).toString(), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
                         }
                     }
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                 }
 
-                item { SectionTitle("Body Composition") }
+                item { SectionTitle(stringResource(R.string.body_composition)) }
                 item {
                     Row {
-                        DialogInput(weight, { weight = it }, "Weight ($weightUnitString)", Modifier.weight(1f))
+                        DialogInput(weight, { weight = it }, stringResource(R.string.weight_unit_label, weightUnitString), Modifier.weight(1f))
                         Spacer(Modifier.width(12.dp))
-                        DialogInput(fat, { fat = it }, "Body Fat %", Modifier.weight(1f))
+                        DialogInput(fat, { fat = it }, stringResource(R.string.body_fat_percent), Modifier.weight(1f))
 
                     }
                 }
                 if (goalsEnabled) {
-                    item { SectionTitle("Goal Body Fat") }
-                    item { DialogInput(goalFat, { goalFat = it}, "Goal Body Fat %", Modifier.weight(1f)) }
+                    item { SectionTitle(stringResource(R.string.goal_bf)) }
+                    item { DialogInput(goalFat, { goalFat = it}, stringResource(R.string.goal_bf_percent), Modifier.weight(1f)) }
                 }
-                item { SectionTitle("Reference") }
-                item { DialogInput(wrist, { wrist = it }, "Wrist ($lengthUnitString) - anchor") }
-                item { SectionTitle("Torso") }
-                item { DialogInput(neck, { neck = it }, "Neck ($lengthUnitString)") }
-                item { DialogInput(shoulders, { shoulders = it }, "Shoulders ($lengthUnitString)") }
-                item { DialogInput(chest, { chest = it }, "Chest ($lengthUnitString)") }
-                item { DialogInput(waist, { waist = it }, "Waist ($lengthUnitString)") }
-                item { DialogInput(hips, { hips = it }, "Hips ($lengthUnitString)") }
-                item { DialogInput(glutes, { glutes = it }, "Glutes ($lengthUnitString) - fullest point") }
-                item { SectionTitle("Arms (L/R)") }
+                item { SectionTitle(stringResource(R.string.reference)) }
+                item { DialogInput(wrist, { wrist = it }, stringResource(R.string.anchor_wrist_label, lengthUnitString)) }
+                item { SectionTitle(stringResource(R.string.torso)) }
+                item { DialogInput(neck, { neck = it }, stringResource(R.string.neck_unit, lengthUnitString)) }
+                item { DialogInput(shoulders, { shoulders = it }, stringResource(R.string.shoulders_unit, lengthUnitString)) }
+                item { DialogInput(chest, { chest = it }, stringResource(R.string.chest_unit, lengthUnitString)) }
+                item { DialogInput(waist, { waist = it }, stringResource(R.string.waist_unit, lengthUnitString)) }
+                item { DialogInput(hips, { hips = it }, stringResource(R.string.hips_unit, lengthUnitString)) }
+                item { DialogInput(glutes, { glutes = it }, stringResource(R.string.glutes_unit, lengthUnitString)) }
+                item { SectionTitle(stringResource(R.string.arms_lr)) }
                 item {
                     Row {
-                        DialogInput(lBicep, { lBicep = it }, "L Bicep", Modifier.weight(1f))
+                        DialogInput(lBicep, { lBicep = it }, stringResource(R.string.l_bicep), Modifier.weight(1f))
                         Spacer(Modifier.width(8.dp))
-                        DialogInput(rBicep, { rBicep = it }, "R Bicep", Modifier.weight(1f))
+                        DialogInput(rBicep, { rBicep = it }, stringResource(R.string.r_bicep), Modifier.weight(1f))
                     }
                 }
                 item {
                     Row {
-                        DialogInput(lForearm, { lForearm = it }, "L Forearm", Modifier.weight(1f))
+                        DialogInput(lForearm, { lForearm = it }, stringResource(R.string.l_forearm), Modifier.weight(1f))
                         Spacer(Modifier.width(8.dp))
-                        DialogInput(rForearm, { rForearm = it }, "R Forearm", Modifier.weight(1f))
+                        DialogInput(rForearm, { rForearm = it }, stringResource(R.string.r_forearm), Modifier.weight(1f))
                     }
                 }
-                item { SectionTitle("Legs (L/R)") }
+                item { SectionTitle(stringResource(R.string.legs_lr)) }
                 item {
                     Row {
-                        DialogInput(lThigh, { lThigh = it }, "L Thigh", Modifier.weight(1f))
+                        DialogInput(lThigh, { lThigh = it }, stringResource(R.string.l_thigh), Modifier.weight(1f))
                         Spacer(Modifier.width(8.dp))
-                        DialogInput(rThigh, { rThigh = it }, "R Thigh", Modifier.weight(1f))
+                        DialogInput(rThigh, { rThigh = it }, stringResource(R.string.r_thigh), Modifier.weight(1f))
                     }
                 }
                 item {
                     Row {
-                        DialogInput(lCalf, { lCalf = it }, "L Calf", Modifier.weight(1f))
+                        DialogInput(lCalf, { lCalf = it }, stringResource(R.string.l_calf), Modifier.weight(1f))
                         Spacer(Modifier.width(8.dp))
-                        DialogInput(rCalf, { rCalf = it }, "R Calf", Modifier.weight(1f))
+                        DialogInput(rCalf, { rCalf = it }, stringResource(R.string.r_calf), Modifier.weight(1f))
                     }
                 }
             }
@@ -203,7 +206,7 @@ fun MeasurementSheet(
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text("SAVE MEASUREMENTS", fontWeight = FontWeight.Black, letterSpacing = 1.sp)
+                    Text(stringResource(R.string.save_measurements).uppercase(), fontWeight = FontWeight.Black, letterSpacing = 1.sp)
                 }
             }
         }

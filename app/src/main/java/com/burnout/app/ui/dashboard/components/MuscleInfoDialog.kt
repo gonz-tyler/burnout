@@ -4,6 +4,8 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.burnout.app.R
 
 /**
  * "About Muscle Analysis" explainer dialog. Port of muscle_info_dialog.dart.
@@ -13,10 +15,9 @@ import androidx.compose.runtime.Composable
 @Composable
 fun MuscleInfoDialog(
     onDismiss: () -> Unit,
-    title: String = "About Muscle Analysis",
-    body: String = "Intensity is calculated from your logged training volume " +
-        "(weight × reps) per muscle group, normalized against your hardest-worked muscle.",
-    okLabel: String = "OK",
+    title: String = stringResource(R.string.about_muscle_analysis),
+    body: String = stringResource(R.string.muscle_analysis_body),
+    okLabel: String = stringResource(R.string.okay),
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,

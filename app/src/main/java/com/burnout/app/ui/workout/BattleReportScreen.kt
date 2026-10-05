@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -79,7 +80,7 @@ fun BattleReportScreen(
                     shape = RoundedCornerShape(AppRadius.L),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text("ETCH IN STONE", fontWeight = FontWeight.Black, fontSize = 16.sp, letterSpacing = 2.sp)
+                    Text(stringResource(R.string.etch_in_stone).uppercase(), fontWeight = FontWeight.Black, fontSize = 16.sp, letterSpacing = 2.sp)
                 }
             }
         }
@@ -150,7 +151,7 @@ private fun VictoryHeader(durationMinutes: Int, prCount: Int) {
         }
         Spacer(Modifier.height(24.dp))
         Text(
-            "VICTORY",
+            stringResource(R.string.victory).uppercase(),
             style = MaterialTheme.typography.displaySmall.copy(
                 fontWeight = FontWeight.Black,
                 letterSpacing = 12.sp,
@@ -201,7 +202,7 @@ private fun AdjustmentCard(
         Column(modifier = Modifier.padding(24.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (isPr) {
-                    Icon(Icons.Rounded.Star, contentDescription = "Personal record", tint = Color(0xFFFFC107), modifier = Modifier.size(22.dp))
+                    Icon(Icons.Rounded.Star, contentDescription = stringResource(R.string.personal_record), tint = Color(0xFFFFC107), modifier = Modifier.size(22.dp))
                     Spacer(Modifier.width(8.dp))
                 }
                 Text(
@@ -223,7 +224,7 @@ private fun AdjustmentCard(
 
             Spacer(Modifier.height(24.dp))
             Text(
-                "BATTLE RATING",
+                stringResource(R.string.battle_rating).uppercase(),
                 color = Color.Gray,
                 style = MaterialTheme.typography.labelSmall.copy(
                     fontWeight = FontWeight.Bold,
@@ -233,10 +234,10 @@ private fun AdjustmentCard(
             Spacer(Modifier.height(16.dp))
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                RatingButton(modifier = Modifier.weight(1f), result, 1, "EASY", Color(0xFF4CAF50), onRate)
-                RatingButton(modifier = Modifier.weight(1f), result, 3, "GOOD", theme.primary, onRate)
-                RatingButton(modifier = Modifier.weight(1f), result, 4, "HARD", Color(0xFFFF9800), onRate)
-                RatingButton(modifier = Modifier.weight(1f), result, 5, "FAIL", Color(0xFFF44336), onRate)
+                RatingButton(modifier = Modifier.weight(1f), result, 1, stringResource(R.string.easy).uppercase(), Color(0xFF4CAF50), onRate)
+                RatingButton(modifier = Modifier.weight(1f), result, 3, stringResource(R.string.good).uppercase(), theme.primary, onRate)
+                RatingButton(modifier = Modifier.weight(1f), result, 4, stringResource(R.string.hard).uppercase(), Color(0xFFFF9800), onRate)
+                RatingButton(modifier = Modifier.weight(1f), result, 5, stringResource(R.string.fail).uppercase(), Color(0xFFF44336), onRate)
             }
 
             Spacer(Modifier.height(24.dp))
@@ -249,7 +250,7 @@ private fun AdjustmentCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    if (result.nextTargetReps != null) "NEXT TARGET REPS" else "NEXT TARGET WEIGHT",
+                    if (result.nextTargetReps != null) stringResource(R.string.next_target_reps).uppercase() else stringResource(R.string.next_target_weight).uppercase(),
                     color = Color.Gray,
                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
                 )
@@ -260,7 +261,7 @@ private fun AdjustmentCard(
                         DirectionIndicator(diff.toDouble())
                         Spacer(Modifier.width(6.dp))
                         Text(
-                            "${result.nextTargetReps} REPS",
+                            stringResource(R.string.next_target_reps_label, result.nextTargetReps.toString()).uppercase(),
                             color = if (diff > 0) Color(0xFF4CAF50) else if (diff < 0) Color(0xFFF44336) else Color.White,
                             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Black)
                         )
@@ -329,7 +330,7 @@ private fun CardioSummaryCard(result: ExerciseResult) {
         Column(modifier = Modifier.padding(24.dp)) {
             Text(result.exerciseName.uppercase(), color = Color.White, style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Black, letterSpacing = 1.5.sp))
             Spacer(Modifier.height(4.dp))
-            Text("Logged — no weight target to adjust.", color = Color.Gray, fontSize = 13.sp)
+            Text(stringResource(R.string.cardio_logged_message), color = Color.Gray, fontSize = 13.sp)
         }
     }
 }
@@ -344,7 +345,7 @@ private fun MissingExerciseCard(result: ExerciseResult) {
         Column(modifier = Modifier.padding(24.dp)) {
             Text(result.exerciseName.uppercase(), color = Color.White, style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Black, letterSpacing = 1.5.sp))
             Spacer(Modifier.height(4.dp))
-            Text("This exercise was removed from your library.", color = Color.Gray, fontSize = 13.sp)
+            Text(stringResource(R.string.exercise_removed_from_library), color = Color.Gray, fontSize = 13.sp)
         }
     }
 }

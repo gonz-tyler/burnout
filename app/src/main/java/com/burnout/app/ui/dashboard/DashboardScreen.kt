@@ -32,6 +32,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,6 +54,7 @@ import com.burnout.app.ui.theme.AppTheme
 import com.burnout.app.util.UnitSystem
 import com.burnout.app.util.WeightConverter
 import com.burnout.app.ui.viewmodel.WorkoutViewModel
+import com.burnout.app.domain.model.StatsPeriod
 
 /**
  * Port of dashboard_screen.dart. Composes the whole "Home" tab: the floating
@@ -73,24 +75,25 @@ fun DashboardScreen(
     onOpenStrengthLevel: (godName: String, exerciseName: String, variations: List<String>) -> Unit,
     bottomPadding: Dp = 0.dp,
 ) {
-    var selectedPeriod by remember { mutableStateOf("WEEK") }
+    var selectedPeriod by remember { mutableStateOf(StatsPeriod.WEEK) }
     var showMuscleInfo by remember { mutableStateOf(false) }
     var showMeasurementSheet by remember { mutableStateOf(false) }
     val uiState by viewModel.uiState.collectAsState()
 
     val weightUnitString = if (unitSystem == UnitSystem.METRIC) "kg" else "lbs"
 
-    val allWorkouts = uiState.workoutSessions
-    val allExercises = uiState.exercises
+    val sessions = uiState.workoutSessions
+    val exercises = uiState.exercises
 
     // The ideals calculator still takes the old string; derive it from sex (single source of truth)
     val genderString = if (sex == Sex.FEMALE) "female" else "male"
 
-    val muscleIntensity = when (selectedPeriod) {
-        "WEEK" -> MuscleAnalysisService.getWeeklyMuscleIntensity(allWorkouts, allExercises)
-        "MONTH" -> MuscleAnalysisService.getMonthlyMuscleIntensity(allWorkouts, allExercises)
-        "ALL TIME" -> MuscleAnalysisService.getAllTimeMuscleIntensity(allWorkouts, allExercises)
-        else -> emptyMap()
+    val muscleIntensity = remember(sessions, exercises, selectedPeriod) {
+        when (selectedPeriod) {
+            StatsPeriod.WEEK -> MuscleAnalysisService.getWeeklyMuscleIntensity(sessions, exercises)
+            StatsPeriod.MONTH -> MuscleAnalysisService.getMonthlyMuscleIntensity(sessions, exercises)
+            StatsPeriod.ALL_TIME -> MuscleAnalysisService.getAllTimeMuscleIntensity(sessions, exercises)
+        }
     }
     val warnings = MuscleAnalysisService.getMuscleImbalanceWarnings(muscleIntensity)
 

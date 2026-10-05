@@ -221,8 +221,8 @@ fun SettingsScreen(
                                 title = stringResource(R.string.standards),
                                 description = stringResource(R.string.standards_description),
                                 options = listOf(
-                                    ChoiceOption(Sex.MALE, "Male"),
-                                    ChoiceOption(Sex.FEMALE, "Female")
+                                    ChoiceOption(Sex.MALE, stringResource(R.string.male)),
+                                    ChoiceOption(Sex.FEMALE, stringResource(R.string.female))
                                 ),
                                 selected = sex,
                                 onSelect = { newSex ->
@@ -410,7 +410,7 @@ fun SettingsScreen(
                                 Text(stringResource(R.string.daily_reminder), fontWeight = FontWeight.SemiBold)
                             },
                             supportingContent = {
-                                Text(if (notificationsEnabled) "At $reminderTime" else stringResource(R.string.reminder_is_off))
+                                Text(if (notificationsEnabled) stringResource(R.string.at_reminder_time, reminderTime) else stringResource(R.string.reminder_is_off))
                             },
                             trailingContent = {
                                 Switch(
