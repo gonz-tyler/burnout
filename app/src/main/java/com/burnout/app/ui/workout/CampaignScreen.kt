@@ -30,9 +30,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.burnout.app.R
-import com.burnout.app.domain.service.Labor
+import com.burnout.app.domain.service.LaborId
+import com.burnout.app.ui.labors.Labor
+import com.burnout.app.ui.labors.rememberLabors
+import com.burnout.app.ui.labors.toLaborStats
+import com.burnout.app.ui.labors.toUnitSystem
 import com.burnout.app.domain.service.LaborsService
-import com.burnout.app.domain.service.Quest
+import com.burnout.app.ui.quests.Quest
+import com.burnout.app.ui.quests.toQuests
 import com.burnout.app.domain.service.QuestsService
 import com.burnout.app.ui.viewmodel.WorkoutViewModel
 
@@ -44,15 +49,20 @@ fun CampaignScreen(
 ) {
     val uiState by workoutViewModel.uiState.collectAsState()
 
-    val labors = LaborsService.checkLabors(
-        uiState = uiState,
-        getPersonalRecord = workoutViewModel::getPersonalRecord
-    )
+    val progress = remember(uiState) {
+        LaborsService.evaluate(uiState.toLaborStats(workoutViewModel::getPersonalRecord))
+    }
+    val labors = rememberLabors(progress, uiState.unitSystem.toUnitSystem())
 
-    val quests = QuestsService.checkWeeklyQuests(
-        sessions = uiState.workoutSessions,
+    val questProgress = remember(uiState) {
+        QuestsService.evaluate(
+            sessions = uiState.workoutSessions,
+            weeklyGoal = uiState.weeklyGoal,
+        )
+    }
+    val quests = questProgress.toQuests(
         weeklyGoal = uiState.weeklyGoal,
-        uiState = uiState,
+        unit = uiState.unitSystem.toUnitSystem(),
     )
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
@@ -158,7 +168,7 @@ private fun LaborsView(labors: List<Labor>) {
             verticalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(bottom = 32.dp)
         ) {
-            itemsIndexed(labors, key = { _, labor -> labor.id }) { index, labor ->
+            itemsIndexed(labors, key = { _, labor -> labor.id.name }) { index, labor ->
                 LaborMedallion(labor, index)
             }
         }
@@ -190,7 +200,7 @@ private fun LaborMedallion(labor: Labor, index: Int) {
         Box(modifier = Modifier.fillMaxSize()) {
             // Watermark (simplified)
             Icon(
-                imageVector = getFallbackIcon(labor.title),
+                imageVector = labor.id.icon(),
                 contentDescription = null,
                 modifier = Modifier
                     .size(120.dp)
@@ -208,7 +218,7 @@ private fun LaborMedallion(labor: Labor, index: Int) {
             ) {
                 Column {
                     Icon(
-                        imageVector = getFallbackIcon(labor.title),
+                        imageVector = labor.id.icon(),
                         contentDescription = null,
                         modifier = Modifier.size(28.dp),
                         tint = if (isLaborLocked) Color.Gray else MaterialTheme.colorScheme.primary
@@ -400,21 +410,17 @@ private fun QuestCard(quest: Quest) {
     }
 }
 
-private fun getFallbackIcon(title: String): ImageVector {
-    val t = title.lowercase()
-    return when {
-        t.contains("lion") -> Icons.Rounded.LocalFireDepartment
-        t.contains("hydra") -> Icons.Rounded.WaterDrop
-        t.contains("boar") -> Icons.Rounded.Pets
-        t.contains("hind") || t.contains("deer") -> Icons.Rounded.Nature
-        t.contains("birds") -> Icons.Rounded.Flight
-        t.contains("bull") -> Icons.Rounded.Agriculture
-        t.contains("stables") -> Icons.Rounded.CleanHands
-        t.contains("belt") -> Icons.Rounded.Shield
-        t.contains("apples") -> Icons.Rounded.Eco
-        t.contains("cerberus") -> Icons.Rounded.Security
-        t.contains("mares") -> Icons.AutoMirrored.Rounded.DirectionsRun
-        t.contains("cattle") -> Icons.Rounded.Grass
-        else -> Icons.Rounded.Star
-    }
+private fun LaborId.icon(): ImageVector = when (this) {
+    LaborId.NEMEAN_LION -> Icons.Rounded.LocalFireDepartment
+    LaborId.LERNEAN_HYDRA -> Icons.Rounded.WaterDrop
+    LaborId.CERYNEIAN_HIND -> Icons.Rounded.Nature
+    LaborId.ERYMANTHIAN_BOAR -> Icons.Rounded.Pets
+    LaborId.AUGEAN_STABLES -> Icons.Rounded.CleanHands
+    LaborId.STYMPHALIAN_BIRDS -> Icons.Rounded.Flight
+    LaborId.CRETAN_BULL -> Icons.Rounded.Agriculture
+    LaborId.MARES_OF_DIOMEDES -> Icons.AutoMirrored.Rounded.DirectionsRun
+    LaborId.BELT_OF_HIPPOLYTA -> Icons.Rounded.Shield
+    LaborId.CATTLE_OF_GERYON -> Icons.Rounded.Grass
+    LaborId.APPLES_OF_HESPERIDES -> Icons.Rounded.Eco
+    LaborId.CERBERUS -> Icons.Rounded.Security
 }
