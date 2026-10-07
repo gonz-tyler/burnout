@@ -54,9 +54,6 @@ object MuscleAnalysisService {
         "Obliques" to "Obliques",
         "Hip Flexors" to "Abs",
     )
-
-    private const val DEFAULT_FULL_INTENSITY_SETS = 8.0
-
     /** Weighted sets (sets × muscle share) per week that count as "fully worked" for each diagram group. */
     private val fullIntensitySets = mapOf(
         // Chest
@@ -87,9 +84,6 @@ object MuscleAnalysisService {
         "Abs" to 8.0,                // rectus abdominis + hip flexors
         "Obliques" to 5.0,
     )
-
-    private const val FULL_INTENSITY_SETS = 12.0 // sets of work that count as "fully worked"
-
     private fun calculateIntensity(
         sessions: List<WorkoutSession>,
         allExercises: List<Exercise>,
@@ -101,7 +95,6 @@ object MuscleAnalysisService {
         for (session in sessions) {
             for (pExercise in session.performedExercises) {
                 val exercise = exerciseMap[pExercise.exerciseId] ?: continue
-//                val setCount = pExercise.sets.size.toDouble()
                 val setCount = pExercise.sets.count { it.setType != SetType.WARMUP }.toDouble()
 
                 exercise.targetedMuscles.forEach { (muscleName, percentage) ->
@@ -112,9 +105,8 @@ object MuscleAnalysisService {
             }
         }
 
-//        return setsByMuscle.mapValues { (it.value / FULL_INTENSITY_SETS).coerceIn(0.0, 1.0) }
         return setsByMuscle.mapValues { (group, sets) ->
-            val target = (fullIntensitySets[group] ?: DEFAULT_FULL_INTENSITY_SETS) * windowWeeks
+            val target = fullIntensitySets.getValue(group) * windowWeeks
             (sets / target).coerceIn(0.0, 1.0)
         }
     }
