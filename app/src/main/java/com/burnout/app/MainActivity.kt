@@ -61,6 +61,7 @@ import com.burnout.app.domain.model.Style
 import com.burnout.app.data.datastore.SettingsDataStore
 import com.burnout.app.data.local.entity.Routine
 import com.burnout.app.domain.service.LaborsService
+import com.burnout.app.ui.labors.toLaborStats
 import com.burnout.app.ui.profile.ProfileScreen
 import com.burnout.app.ui.routine.CreateEditRoutineScreen
 import com.burnout.app.ui.settings.SettingsScreen
@@ -353,9 +354,15 @@ fun BurnoutApp(
     onNavigateToHistory: () -> Unit,
     onNavigateToCampaign: () -> Unit
 ) {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    val scrollBehavior =
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val uiState by workoutViewModel.uiState.collectAsState()
-    val laborCount = LaborsService.countCompletedLabors(uiState, workoutViewModel::getPersonalRecord)
+//    val laborCount = LaborsService.countCompleted(uiState, workoutViewModel::getPersonalRecord)
+    val laborCount = remember (uiState) {
+        LaborsService.countCompleted(
+            uiState.toLaborStats(workoutViewModel::getPersonalRecord)
+        )
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),

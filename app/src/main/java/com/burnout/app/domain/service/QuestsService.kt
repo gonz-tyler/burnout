@@ -1,86 +1,68 @@
 package com.burnout.app.domain.service
 
-import com.burnout.app.R
 import com.burnout.app.data.local.entity.WorkoutSession
-import com.burnout.app.ui.viewmodel.WorkoutUiState
-import com.burnout.app.util.UiText
-import com.burnout.app.util.UnitSystem
-import com.burnout.app.util.WeightConverter
-import java.util.*
+import java.time.DayOfWeek
+import java.time.Instant
+import java.time.ZonedDateTime
+import java.time.temporal.TemporalAdjusters
 
-data class Quest(
-    val id: String,
-    val title: UiText,
-    val description: UiText,
-    val requirement: UiText,
-    val rewardAsset: String,
+/** Pure domain logic: no R, no UiText, no WorkoutUiState. */
+
+enum class QuestId { WEEKLY_GOAL, WEEKLY_VOLUME, EARLY_BIRD }
+
+data class QuestProgress(
+    val id: QuestId,
     val isCompleted: Boolean,
-    val progress: Float
+    val progress: Float, // 0.0f to 1.0f
 )
 
 object QuestsService {
 
-    fun checkWeeklyQuests(
-        uiState: WorkoutUiState,
+    /** In the stored weight unit (kg). The UI converts it for display. */
+    const val WEEKLY_VOLUME_TARGET = 5000.0
+    const val EARLY_BIRD_BEFORE_HOUR = 10
+
+    fun evaluate(
         sessions: List<WorkoutSession>,
-        weeklyGoal: Int
-    ): List<Quest> {
-        val unitSystem = if (uiState.unitSystem == "imperial") UnitSystem.IMPERIAL else UnitSystem.METRIC
-        val unitString = if (uiState.unitSystem == "metric") "kg" else "lbs"
-        val now = Calendar.getInstance()
-        val currentWeekSessions = sessions.filter { session ->
-            val cal = Calendar.getInstance().apply {
-                timeInMillis = session.dateCompleted
-                firstDayOfWeek = Calendar.MONDAY
-            }
-            cal.get(Calendar.YEAR) == now.get(Calendar.YEAR) &&
-                    cal.get(Calendar.WEEK_OF_YEAR) == now.get(Calendar.WEEK_OF_YEAR)
-        }
+        weeklyGoal: Int,
+        now: ZonedDateTime = ZonedDateTime.now(),
+    ): List<QuestProgress> {
+        val weekStart = now.toLocalDate().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        val nextWeekStart = weekStart.plusWeeks(1)
 
-        val daysWorkedOut = currentWeekSessions.map { s ->
-            Calendar.getInstance().apply { timeInMillis = s.dateCompleted }.get(Calendar.DAY_OF_YEAR)
-        }.distinct().size
-
-        val weekVolume = currentWeekSessions.sumOf { session ->
-            session.performedExercises.sumOf { exercise ->
-                exercise.sets.sumOf { set ->
-                    (set.weight ?: 0.0) * (set.reps ?: 0)
-                }
+        val thisWeek = sessions
+            .map { it to Instant.ofEpochMilli(it.dateCompleted).atZone(now.zone) }
+            .filter { (_, time) ->
+                val day = time.toLocalDate()
+                !day.isBefore(weekStart) && day.isBefore(nextWeekStart)
             }
-        }
+
+        val daysWorkedOut = thisWeek.map { (_, time) -> time.toLocalDate() }.distinct().size
+        val weekVolume = thisWeek.sumOf { (session, _) -> session.volume() }
+        val workedOutEarly = thisWeek.any { (_, time) -> time.hour < EARLY_BIRD_BEFORE_HOUR }
 
         return listOf(
-            Quest(
-                id = "q1",
-                title = UiText.StringResource(R.string.q1_title),
-                description = UiText.StringResource(R.string.q1_description),
-                requirement = UiText.StringResource(R.string.q1_requirement, weeklyGoal),
-                rewardAsset = "crown_reward.png",
+            QuestProgress(
+                id = QuestId.WEEKLY_GOAL,
                 isCompleted = daysWorkedOut >= weeklyGoal,
-                progress = if (weeklyGoal > 0) (daysWorkedOut.toFloat() / weeklyGoal).coerceIn(0f, 1f) else 1f
+                progress = if (weeklyGoal > 0) (daysWorkedOut.toFloat() / weeklyGoal).coerceIn(0f, 1f) else 1f,
             ),
-            Quest(
-                id = "q2",
-                title = UiText.StringResource(R.string.q2_title),
-                description = UiText.StringResource(R.string.q2_description),
-                requirement = UiText.StringResource(R.string.q2_requirement, WeightConverter.displayWeight(5000.0, unitSystem), unitString),
-                rewardAsset = "weight_reward.png",
-                isCompleted = weekVolume >= 5000.0,
-                progress = (weekVolume.toFloat() / 5000f).coerceIn(0f, 1f)
+            QuestProgress(
+                id = QuestId.WEEKLY_VOLUME,
+                isCompleted = weekVolume >= WEEKLY_VOLUME_TARGET,
+                progress = (weekVolume / WEEKLY_VOLUME_TARGET).toFloat().coerceIn(0f, 1f),
             ),
-            Quest(
-                id = "q3",
-                title = UiText.StringResource(R.string.q3_title),
-                description = UiText.StringResource(R.string.q3_description),
-                requirement = UiText.StringResource(R.string.q3_requirement),
-                rewardAsset = "sun_reward.png",
-                isCompleted = currentWeekSessions.any { s ->
-                    Calendar.getInstance().apply { timeInMillis = s.dateCompleted }.get(Calendar.HOUR_OF_DAY) < 10
-                },
-                progress = if (currentWeekSessions.any { s ->
-                        Calendar.getInstance().apply { timeInMillis = s.dateCompleted }.get(Calendar.HOUR_OF_DAY) < 10
-                    }) 1f else 0f
-            )
+            QuestProgress(
+                id = QuestId.EARLY_BIRD,
+                isCompleted = workedOutEarly,
+                progress = if (workedOutEarly) 1f else 0f,
+            ),
         )
     }
 }
+
+/** Shared by quests, labors and WorkoutUiState.totalVolume so the formula lives in one place. */
+fun WorkoutSession.volume(): Double =
+    performedExercises.sumOf { exercise ->
+        exercise.sets.sumOf { set -> (set.weight ?: 0.0) * (set.reps ?: 0) }
+    }

@@ -3,8 +3,6 @@ package com.burnout.app.util
 import kotlin.math.round
 
 enum class UnitSystem { METRIC, IMPERIAL }
-enum class WeightUnit { KG, LBS }
-enum class DistanceUnit { KM, MILES }
 
 object WeightConverter {
     private const val LBS_PER_KG = 2.20462262
