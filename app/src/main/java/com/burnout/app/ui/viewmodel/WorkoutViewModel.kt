@@ -6,7 +6,9 @@ import com.burnout.app.data.datastore.SettingsDataStore
 import com.burnout.app.data.local.entity.*
 import com.burnout.app.data.repository.WorkoutRepository
 import com.burnout.app.domain.model.ExerciseResult
+import com.burnout.app.domain.service.LaborsService
 import com.burnout.app.domain.service.StreakService
+import com.burnout.app.ui.labors.toLaborStats
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -96,27 +98,7 @@ class WorkoutViewModel @Inject constructor(
                 val sortedRoutines = routines.sortedBy { it.sortOrder ?: 999999 }
                 val measurements = workoutRepository.getBodyMeasurements().sortedBy { it.date }
 
-                val benchPr = getPrFor(exercises, sessions, "Bench Press")
-                val squatPr = getPrFor(exercises, sessions, "Squat")
-                val deadliftPr = getPrFor(exercises, sessions, "Deadlift")
-                val ohpPr = getPrFor(exercises, sessions, "Overhead Press")
-
-                val laborCount = com.burnout.app.domain.service.LaborsService.countCompletedLabors(
-                    latestBodyWeightKg = measurements.lastOrNull()?.weightKg,
-                    benchPr = benchPr,
-                    squatPr = squatPr,
-                    deadliftPr = deadliftPr,
-                    ohpPr = ohpPr,
-                    totalVolume = sessions.sumOf { s ->
-                        s.performedExercises.sumOf { e ->
-                            e.sets.sumOf { (it.weight ?: 0.0) * (it.reps ?: 0) }
-                        }
-                    },
-                    workoutCount = sessions.size,
-                    currentStreak = streak
-                )
-
-                WorkoutUiState(
+                val state = WorkoutUiState(
                     routines = sortedRoutines,
                     exercises = exercises,
                     workoutSessions = sessions,
@@ -124,9 +106,12 @@ class WorkoutViewModel @Inject constructor(
                     unitSystem = unitSystem,
                     gender = gender,
                     weeklyGoal = weeklyGoal,
-                    currentStreak = streak,
-                    completedLaborCount = laborCount
+                    currentStreak = streak
                 )
+                val laborCount = LaborsService.countCompleted(
+                    state.toLaborStats { name -> getPrFor(exercises, sessions, name) }
+                )
+                state.copy(completedLaborCount = laborCount)
             }.collect { updatedState ->
                 _uiState.value = updatedState
             }
