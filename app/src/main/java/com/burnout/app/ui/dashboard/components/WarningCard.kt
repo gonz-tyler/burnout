@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.burnout.app.ui.theme.AppTheme
+import com.core.designsystem.theme.AppTheme
 
 private val AmberFill = Color(0x26FFC107) // rgba(255,193,7,0.15)
 private val AmberBorder = Color(0x4DFFC107) // rgba(255,193,7,0.3)

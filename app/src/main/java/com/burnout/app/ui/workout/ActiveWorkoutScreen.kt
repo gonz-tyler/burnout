@@ -23,7 +23,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.burnout.app.data.local.entity.*
 import com.burnout.app.domain.model.ExerciseResult
 import com.burnout.app.domain.model.WeightMode
-import com.burnout.app.ui.components.AnimatedLinearProgressIndicator
+import com.core.designsystem.components.AnimatedLinearProgressIndicator
 import com.burnout.app.ui.routine.ExercisePickerDialog
 import com.burnout.app.ui.routine.components.SetTypeSelectionContent
 import com.burnout.app.ui.viewmodel.ActiveWorkoutViewModel

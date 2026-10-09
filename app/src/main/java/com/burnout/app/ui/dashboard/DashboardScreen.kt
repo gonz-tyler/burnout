@@ -50,7 +50,7 @@ import com.burnout.app.domain.model.Sex
 import com.burnout.app.domain.model.Style
 import com.burnout.app.domain.service.MuscleAnalysisService
 import com.burnout.app.ui.dashboard.components.*
-import com.burnout.app.ui.theme.AppTheme
+import com.core.designsystem.theme.AppTheme
 import com.burnout.app.util.UnitSystem
 import com.burnout.app.util.WeightConverter
 import com.burnout.app.ui.viewmodel.WorkoutViewModel
