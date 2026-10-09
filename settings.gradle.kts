@@ -24,4 +24,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "burnout"
 include(":app")
- 
+include(":designsystem")
+project(":designsystem").projectDir = file("../core/designsystem")

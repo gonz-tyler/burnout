@@ -21,11 +21,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.burnout.app.data.local.entity.BodyMeasurement
 import com.burnout.app.domain.model.Style
-import com.burnout.app.ui.components.ModernDatePickerDialog
 import com.burnout.app.util.LengthConverter
 import com.burnout.app.util.UnitSystem
 import com.burnout.app.util.WeightConverter
 import com.burnout.app.R
+import com.core.designsystem.components.ModernDatePickerDialog
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)

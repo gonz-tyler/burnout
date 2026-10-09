@@ -27,7 +27,7 @@ import com.burnout.app.R
 import com.burnout.app.data.local.entity.BodyMeasurement
 import com.burnout.app.domain.model.Sex
 import com.burnout.app.domain.model.Style
-import com.burnout.app.ui.theme.AppTheme
+import com.core.designsystem.theme.AppTheme
 import com.burnout.app.util.LengthConverter
 import com.burnout.app.util.UnitSystem
 import kotlin.math.abs

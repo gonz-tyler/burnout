@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.burnout.app.R
 import com.burnout.app.data.local.entity.BodyMeasurement
-import com.burnout.app.ui.theme.AppTheme
+import com.core.designsystem.theme.AppTheme
 
 /**
  * The big focal "V-Taper ratio" bubble in the dashboard's hero section.

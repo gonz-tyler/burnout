@@ -34,7 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.burnout.app.R
-import com.burnout.app.ui.components.AnimatedLinearProgressIndicator
+import com.core.designsystem.components.AnimatedLinearProgressIndicator
 import com.burnout.app.ui.viewmodel.RestTimerState
 
 @Composable

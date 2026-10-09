@@ -27,7 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.burnout.app.R
 import com.burnout.app.domain.model.StatsPeriod
-import com.burnout.app.ui.theme.AppTheme
+import com.core.designsystem.theme.AppTheme
 import kotlinx.coroutines.delay
 
 /** Row of WEEK / MONTH / ALL TIME pills controlling the muscle-focus period. */

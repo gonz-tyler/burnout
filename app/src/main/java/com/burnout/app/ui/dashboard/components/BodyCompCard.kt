@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.sp
 import com.burnout.app.R
 import com.burnout.app.data.local.entity.BodyMeasurement
 import com.burnout.app.domain.model.Style
-import com.burnout.app.ui.theme.AppTheme
+import com.core.designsystem.theme.AppTheme
 import com.burnout.app.util.UnitSystem
 import com.burnout.app.util.WeightConverter
 

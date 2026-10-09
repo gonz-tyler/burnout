@@ -34,7 +34,7 @@ import com.burnout.app.domain.model.Persona
 import com.burnout.app.domain.model.Sex
 import com.burnout.app.domain.model.Style
 import com.burnout.app.domain.notification.WorkManagerScheduler
-import com.burnout.app.ui.components.ModernTimePickerDialog
+import com.core.designsystem.components.ModernTimePickerDialog
 import kotlinx.coroutines.launch
 
 data class ChoiceOption<T>(val value: T, val label: String)
