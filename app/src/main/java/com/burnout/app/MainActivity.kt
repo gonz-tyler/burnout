@@ -13,13 +13,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.LocalFireDepartment
@@ -32,17 +27,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -50,11 +39,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.LocaleListCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import androidx.navigation.toRoute
 import com.burnout.app.data.datastore.FeatureToggles
 import com.burnout.app.domain.model.Sex
 import com.burnout.app.domain.model.Style
@@ -65,7 +53,10 @@ import com.burnout.app.ui.labors.toLaborStats
 import com.burnout.app.ui.profile.ProfileScreen
 import com.burnout.app.ui.routine.CreateEditRoutineScreen
 import com.burnout.app.ui.settings.SettingsScreen
-import com.burnout.app.ui.theme.BurnoutTheme
+import com.core.designsystem.components.CustomCollapsibleTopAppBar
+import com.core.designsystem.components.FloatingBottomNavigationBar
+import com.core.designsystem.components.NavigationItem
+import com.core.designsystem.theme.CoreTheme
 import com.burnout.app.ui.viewmodel.ActiveWorkoutViewModel
 import com.burnout.app.ui.viewmodel.WorkoutViewModel
 import com.burnout.app.ui.workout.ActiveWorkoutScreen
@@ -75,18 +66,18 @@ import com.burnout.app.ui.workout.WorkoutHistoryScreen
 import com.burnout.app.ui.workout.WorkoutsScreen
 import com.materialkolor.PaletteStyle
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.serialization.Serializable
 import javax.inject.Inject
 
-private object AppRoutes {
-    const val HOME = "home"
-    const val ROUTINE_EDITOR = "routine_editor?routineId={routineId}"
-    const val ACTIVE_WORKOUT = "active_workout"
-    const val BATTLE_REPORT = "battle_report"
-    const val SETTINGS = "settings"
-    const val CAMPAIGN = "campaign"
-    const val WORKOUT_HISTORY = "workout_history"
-    const val WORKOUT_DETAILS = "workout_details/{sessionId}"
-}
+@Serializable data object Home
+@Serializable data class RoutineEditor(val routineId: String? = null)
+@Serializable data object ActiveWorkout
+@Serializable data object BattleReport
+@Serializable data object Settings
+@Serializable data object Campaign
+@Serializable data object WorkoutHistory
+@Serializable data class WorkoutDetails(val sessionId: String)
+
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -190,7 +181,7 @@ class MainActivity : AppCompatActivity() {
                 runCatching { PaletteStyle.valueOf(ui.paletteStyle) }.getOrDefault(PaletteStyle.TonalSpot)
             }
 
-            BurnoutTheme(
+            CoreTheme(
                 seedColorInt = ui.seedColor,
                 darkTheme = useDarkTheme,
                 dynamicColor = ui.dynamicColor,
@@ -227,13 +218,13 @@ fun MainNavigation(
 
     NavHost(
         navController = navController,
-        startDestination = AppRoutes.HOME,
+        startDestination = Home,
         enterTransition = { slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(400)) },
         exitTransition = { slideOutHorizontally(targetOffsetX = { -it }, animationSpec = tween(400)) },
         popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }, animationSpec = tween(400)) },
         popExitTransition = { slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(400)) }
     ) {
-        composable(AppRoutes.HOME) {
+        composable<Home> {
             BurnoutApp(
                 workoutViewModel = workoutViewModel,
                 features = features,
@@ -242,23 +233,20 @@ fun MainNavigation(
                 selectedDestination = selectedDestination,
                 onDestinationSelected = { selectedDestination = it },
                 onNavigateToEditor = { routineId ->
-                    navController.navigate("routine_editor?routineId=$routineId")
+                    navController.navigate(RoutineEditor(routineId))
                 },
                 onStartWorkout = { routine ->
                     activeWorkoutViewModel.startWorkout(routine)
-                    navController.navigate(AppRoutes.ACTIVE_WORKOUT)
+                    navController.navigate(ActiveWorkout)
                 },
-                onNavigateToSettings = { navController.navigate(AppRoutes.SETTINGS) },
-                onNavigateToHistory = { navController.navigate(AppRoutes.WORKOUT_HISTORY) },
-                onNavigateToCampaign = { navController.navigate(AppRoutes.CAMPAIGN) }
+                onNavigateToSettings = { navController.navigate(Settings) },
+                onNavigateToHistory = { navController.navigate(WorkoutHistory) },
+                onNavigateToCampaign = { navController.navigate(Campaign) }
             )
         }
 
-        composable(
-            route = AppRoutes.ROUTINE_EDITOR,
-            arguments = listOf(navArgument("routineId") { nullable = true })
-        ) { backStackEntry ->
-            val routineId = backStackEntry.arguments?.getString("routineId")
+        composable<RoutineEditor> { backStackEntry ->
+            val routineId = backStackEntry.toRoute<RoutineEditor>().routineId
             val routine = workoutState.routines.find { it.id == routineId }
 
             CreateEditRoutineScreen(
@@ -273,7 +261,7 @@ fun MainNavigation(
             )
         }
 
-        composable(AppRoutes.ACTIVE_WORKOUT) {
+        composable<ActiveWorkout> {
             val activeState by activeWorkoutViewModel.uiState.collectAsState()
             ActiveWorkoutScreen(
                 routine = activeState.routine,
@@ -281,25 +269,25 @@ fun MainNavigation(
                 activeViewModel = activeWorkoutViewModel,
                 onNavigateBack = { navController.popBackStack() },
                 onFinished = { results, routineId, durationMinutes ->
-                    navController.navigate(AppRoutes.BATTLE_REPORT) {
-                        popUpTo(AppRoutes.HOME)
+                    navController.navigate(BattleReport) {
+                        popUpTo(Home)
                     }
                 }
             )
         }
 
-        composable(AppRoutes.BATTLE_REPORT) {
+        composable<BattleReport> {
             BattleReportScreen(
                 activeWorkoutViewModel = activeWorkoutViewModel,
                 workoutViewModel = workoutViewModel,
                 onSaveComplete = {
                     activeWorkoutViewModel.clearSession()
-                    navController.popBackStack(AppRoutes.HOME, inclusive = false)
+                    navController.popBackStack(Home, inclusive = false)
                 }
             )
         }
 
-        composable(AppRoutes.SETTINGS) {
+        composable<Settings> {
             SettingsScreen(
                 settingsDataStore = settingsDataStore,
                 activityContext = activityContext,
@@ -308,28 +296,25 @@ fun MainNavigation(
             )
         }
 
-        composable(AppRoutes.WORKOUT_HISTORY) {
+        composable<WorkoutHistory> {
             WorkoutHistoryScreen(
                 workoutViewModel = workoutViewModel,
                 onNavigateToDetails = { sessionId ->
-                    navController.navigate("workout_details/$sessionId")
+                    navController.navigate(WorkoutDetails(sessionId))
                 },
                 onNavigateBack = { navController.popBackStack() }
             )
         }
 
-        composable(AppRoutes.CAMPAIGN) {
+        composable<Campaign> {
             com.burnout.app.ui.workout.CampaignScreen(
                 workoutViewModel = workoutViewModel,
                 onNavigateBack = { navController.popBackStack() }
             )
         }
 
-        composable(
-            route = AppRoutes.WORKOUT_DETAILS,
-            arguments = listOf(navArgument("sessionId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val sessionId = backStackEntry.arguments?.getString("sessionId") ?: ""
+        composable<WorkoutDetails> { backStackEntry ->
+            val sessionId = backStackEntry.toRoute<WorkoutDetails>().sessionId
             WorkoutDetailsScreen(
                 sessionId = sessionId,
                 workoutViewModel = workoutViewModel,
@@ -361,6 +346,15 @@ fun BurnoutApp(
     val laborCount = remember (uiState) {
         LaborsService.countCompleted(
             uiState.toLaborStats(workoutViewModel::getPersonalRecord)
+        )
+    }
+
+    val navItems = AppDestinations.entries.map {
+        NavigationItem(
+            destination = it,
+            icon = it.icon,
+            selectedIcon = it.selectedIcon,
+            label = stringResource(it.labelRes)
         )
     }
 
@@ -490,6 +484,7 @@ fun BurnoutApp(
         },
         bottomBar = {
             FloatingBottomNavigationBar(
+                items = navItems,
                 selectedDestination = selectedDestination,
                 onDestinationSelected = { dest ->
                     if (dest != selectedDestination) {
@@ -561,150 +556,6 @@ fun BurnoutApp(
                 )
             }
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CustomCollapsibleTopAppBar(
-    title: @Composable () -> Unit,
-    actions: @Composable RowScope.() -> Unit,
-    scrollBehavior: TopAppBarScrollBehavior
-) {
-    val density = LocalDensity.current
-    val statusBarHeight = WindowInsets.statusBars.asPaddingValues(density).calculateTopPadding()
-    val expandedHeight = 136.dp + statusBarHeight
-    val maxOffsetPx = with(density) { -72.dp.toPx() }
-
-    SideEffect {
-        if (scrollBehavior.state.heightOffsetLimit != maxOffsetPx) {
-            scrollBehavior.state.heightOffsetLimit = maxOffsetPx
-        }
-    }
-
-    val collapsedFraction = scrollBehavior.state.collapsedFraction
-    val currentHeight = expandedHeight - (72.dp * collapsedFraction)
-    val titleScale = 1f - (0.38f * collapsedFraction)
-
-    Surface(
-        color = MaterialTheme.colorScheme.surface,
-        modifier = Modifier.fillMaxWidth().height(currentHeight)
-    ) {
-        Box(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars)) {
-            Row(
-                modifier = Modifier.align(Alignment.TopEnd).height(64.dp).padding(end = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                actions()
-            }
-            val bottomPadding = (12.dp * (1f - collapsedFraction)) + (4.dp * collapsedFraction)
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(start = 16.dp, end = 96.dp, bottom = bottomPadding)
-                    .fillMaxWidth()
-                    .height(58.dp)
-                    .graphicsLayer {
-                        scaleX = titleScale
-                        scaleY = titleScale
-                        transformOrigin = TransformOrigin(0f, 0.5f)
-                    }
-                    .clipToBounds(),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                title()
-            }
-        }
-    }
-}
-
-@Composable
-fun FloatingBottomNavigationBar(
-    selectedDestination: AppDestinations,
-    onDestinationSelected: (AppDestinations) -> Unit
-) {
-    val fadeColor = MaterialTheme.colorScheme.surface // match your screen background
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                Brush.verticalGradient(
-                    colorStops = arrayOf(
-                        0f to fadeColor.copy(alpha = 0f),
-//                        0.5f to fadeColor.copy(alpha = 0.85f),
-                        0.5f to fadeColor,
-                        1f to fadeColor
-                    )
-                )
-            )
-            .windowInsetsPadding(WindowInsets.navigationBars)
-            .padding(start = 24.dp, end = 24.dp, top = 72.dp, bottom = 20.dp)
-    ) {
-        Surface(
-            modifier = Modifier.fillMaxWidth().height(64.dp),
-            shape = RoundedCornerShape(36.dp),
-            color = MaterialTheme.colorScheme.surfaceContainerLow,
-            shadowElevation = 12.dp
-        ) {
-            Row(
-                modifier = Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                AppDestinations.entries.forEach { dest ->
-                    FloatingNavItem(
-                        icon = dest.icon,
-                        activeIcon = dest.selectedIcon,
-                        label = stringResource(dest.labelRes),
-                        isSelected = dest == selectedDestination,
-                        onClick = { onDestinationSelected(dest) }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun RowScope.FloatingNavItem(
-    icon: ImageVector,
-    activeIcon: ImageVector,
-    label: String,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    var isAnimating by remember { mutableStateOf(false) }
-    val scale by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (isAnimating) 1.2f else 1.0f,
-        animationSpec = tween(durationMillis = 150),
-        finishedListener = { isAnimating = false },
-        label = "NavItemScaleBounce"
-    )
-
-    Box(
-        modifier = Modifier
-            .weight(1f)
-            .fillMaxHeight()
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
-            .clip(CircleShape)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) {
-                isAnimating = true
-                onClick()
-            },
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = if (isSelected) activeIcon else icon,
-            contentDescription = label,
-            tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(28.dp)
-        )
     }
 }
 
