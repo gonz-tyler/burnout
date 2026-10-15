@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
@@ -32,7 +30,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,11 +38,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.burnout.app.R
 import com.burnout.app.data.datastore.FeatureToggles
-import com.burnout.app.data.pantheonGods
-import com.burnout.app.data.local.entity.BodyMeasurement
 import com.burnout.app.domain.model.Sex
 import com.burnout.app.domain.model.Style
 import com.burnout.app.domain.service.MuscleAnalysisService
@@ -72,7 +66,6 @@ fun DashboardScreen(
     unitSystem: UnitSystem,
     frontSvgRawResId: Int,
     backSvgRawResId: Int,
-    onOpenStrengthLevel: (godName: String, exerciseName: String, variations: List<String>) -> Unit,
     bottomPadding: Dp = 0.dp,
 ) {
     var selectedPeriod by remember { mutableStateOf(StatsPeriod.WEEK) }
@@ -215,59 +208,7 @@ fun DashboardScreen(
 
         item { Spacer(Modifier.height(32.dp)) }
 
-        // --- SECTION 3: THE PANTHEON ---
-        if (features.godsEnabled) {
-            item {
-                Text(
-                    stringResource(R.string.pantheon),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-            item { Spacer(Modifier.height(4.dp)) }
-            item {
-                Text(
-                    stringResource(R.string.legendary_feats),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 13.sp,
-                )
-            }
-            item { Spacer(Modifier.height(16.dp)) }
-            item {
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    items(pantheonGods.size) { index ->
-                        val god = pantheonGods[index]
-                        val godName = when (features.gods) {
-                            "gods" -> stringResource(god.godRes)
-                            "goddesses" -> stringResource(god.goddessRes)
-                            else -> stringResource(god.bothRes)
-                        }
-
-
-                        val prWeight = WeightConverter.displayWeight(
-                            viewModel.getPersonalRecord(god.lift),
-                            unitSystem,
-                        )
-                        GodCard(
-                            godName = godName,
-                            liftName = god.lift.uppercase(),
-                            weight = prWeight,
-                            unitString = weightUnitString,
-                            color = god.color,
-                            icon = god.icon,
-                            index = index,
-                            onTap = { onOpenStrengthLevel(godName, god.lift, god.variations) },
-                        )
-                    }
-                }
-            }
-        }
-
-        item { Spacer(Modifier.height(32.dp)) }
-
-        // --- SECTION 4: PHYSIQUE TRACKER ---
+        // --- SECTION 3: PHYSIQUE TRACKER ---
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),
