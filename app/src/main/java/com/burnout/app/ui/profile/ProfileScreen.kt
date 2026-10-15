@@ -3,10 +3,12 @@ package com.burnout.app.ui.profile
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ListAlt
+import androidx.compose.material.icons.automirrored.rounded.TrendingUp
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -24,16 +26,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.burnout.app.R
 import com.burnout.app.data.datastore.FeatureToggles
+import com.burnout.app.data.pantheonGods
 import com.burnout.app.domain.service.LaborsService
+import com.burnout.app.ui.profile.components.GodCard
 import com.burnout.app.ui.viewmodel.WorkoutViewModel
+import com.burnout.app.util.UnitSystem
+import com.burnout.app.util.WeightConverter
 
+/**
+ * Profile tab. Shared "suite skeleton":
+ *   1. Stat card            (same in every app)
+ *   2. Achievements slot    (workout app: Pantheon, habit app: milestones)
+ *   3. Quick actions        (same pattern in every app)
+ * followed by the support / app-info footer.
+ */
 @Composable
 fun ProfileScreen(
-    workoutViewModel: WorkoutViewModel,
-    onNavigateToHistory: () -> Unit,
-    onNavigateToSettings: () -> Unit,
-    features: FeatureToggles,
-    bottomPadding: Dp = 0.dp,
+    workoutViewModel: com.burnout.app.ui.viewmodel.WorkoutViewModel,
+    onNavigateToHistory: () -> kotlin.Unit,
+    onNavigateToStrengthProgress: () -> kotlin.Unit,
+    onNavigateToSettings: () -> kotlin.Unit,
+    onOpenStrengthLevel: () -> Unit,
+    features: com.burnout.app.data.datastore.FeatureToggles,
+    unitSystem: kotlin.String,
+    bottomPadding: androidx.compose.ui.unit.Dp = 0.dp,
 ) {
     val uiState by workoutViewModel.uiState.collectAsState()
 
@@ -47,8 +63,8 @@ fun ProfileScreen(
         ),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
+        // --- 1. STAT CARD ---
         item {
-            // User Stats Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(28.dp),
@@ -113,8 +129,20 @@ fun ProfileScreen(
             }
         }
 
+        // --- 2. ACHIEVEMENTS SLOT: THE PANTHEON ---
+        if (features.godsEnabled) {
+            item {
+                PantheonSection(
+                    gods = features.gods,
+                    unitSystem = if (unitSystem == "imperial") UnitSystem.IMPERIAL else UnitSystem.METRIC,
+                    personalRecord = { lift -> workoutViewModel.getPersonalRecord(lift) },
+                    onOpenStrengthLevel = onOpenStrengthLevel,
+                )
+            }
+        }
+
+        // --- 3. QUICK ACTIONS ---
         item {
-            // Quick Actions
             Text(
                 text = stringResource(R.string.quick_actions),
                 style = MaterialTheme.typography.titleLarge,
@@ -129,6 +157,14 @@ fun ProfileScreen(
                     iconColor = MaterialTheme.colorScheme.tertiary,
                     onClick = onNavigateToHistory
                 )
+                // New strings: strength_progress, strength_progress_subtitle
+                ActionCard(
+                    title = stringResource(R.string.strength_progress),
+                    subtitle = stringResource(R.string.strength_progress_subtitle),
+                    icon = Icons.AutoMirrored.Rounded.TrendingUp,
+                    iconColor = MaterialTheme.colorScheme.primary,
+                    onClick = onNavigateToStrengthProgress
+                )
                 ActionCard(
                     title = stringResource(R.string.settings),
                     subtitle = stringResource(R.string.customize_preferences),
@@ -138,121 +174,65 @@ fun ProfileScreen(
                 )
             }
         }
+    }
+}
 
-        item {
-            // Support Section
-            Text(
-                text = stringResource(R.string.support_creator),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(Modifier.height(12.dp))
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(28.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-            ) {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Favorite,
-                        tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(32.dp),
-                        contentDescription = null
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    Text(
-                        text = stringResource(R.string.enjoying_app),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        text = stringResource(R.string.support_message),
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        OutlinedButton(
-                            onClick = { /* TODO */ },
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Icon(Icons.Rounded.Star, contentDescription = null)
-                            Spacer(Modifier.width(8.dp))
-                            Text(stringResource(R.string.rate_app))
-                        }
-                        Spacer(Modifier.width(12.dp))
-                        Button(
-                            onClick = { /* TODO */ },
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer)
-                        ) {
-                            Icon(Icons.Rounded.Coffee, contentDescription = null)
-                            Spacer(Modifier.width(8.dp))
-                            Text(stringResource(R.string.buy_coffee))
-                        }
-                    }
-                }
+/** Horizontally-scrolling PR cards, moved over from the dashboard unchanged. */
+@Composable
+private fun PantheonSection(
+    gods: String,
+    unitSystem: UnitSystem,
+    personalRecord: (String) -> Double,
+    onOpenStrengthLevel: () -> Unit,
+) {
+    val weightUnitString = if (unitSystem == UnitSystem.METRIC) "kg" else "lbs"
+
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    stringResource(R.string.pantheon),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    stringResource(R.string.legendary_feats),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 13.sp,
+                )
+            }
+            IconButton(onClick = onOpenStrengthLevel) {
+                Icon(
+                    imageVector = Icons.Rounded.ChevronRight,
+                    contentDescription = stringResource(R.string.legendary_feats_title),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
-
-        item {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = stringResource(R.string.made_with_love),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(Modifier.width(4.dp))
-                    Icon(
-                        imageVector = Icons.Rounded.Favorite,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(16.dp)
-                    )
+        Spacer(Modifier.height(12.dp))
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            items(pantheonGods.size) { index ->
+                val god = pantheonGods[index]
+                val godName = when (gods) {
+                    "gods" -> stringResource(god.godRes)
+                    "goddesses" -> stringResource(god.goddessRes)
+                    else -> stringResource(god.bothRes)
                 }
-                Spacer(Modifier.height(24.dp))
-                // App Info
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Info,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(Modifier.width(12.dp))
-                        Column {
-                            Text(
-                                text = "Burnout v1.0.0",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Medium
-                            )
-                            Text(
-                                text = stringResource(R.string.app_description),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                }
-                Spacer(Modifier.height(100.dp))
+                GodCard(
+                    godName = godName,
+                    liftName = god.lift.uppercase(),
+                    weight = WeightConverter.displayWeight(personalRecord(god.lift), unitSystem),
+                    unitString = weightUnitString,
+                    color = god.color,
+                    icon = god.icon,
+                    index = index,
+                    onTap = onOpenStrengthLevel,
+                )
             }
         }
     }
