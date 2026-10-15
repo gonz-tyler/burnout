@@ -1,12 +1,15 @@
 package com.burnout.app
 
+import android.Manifest
 import android.annotation.SuppressLint
-import android.content.res.Configuration
-import android.content.res.Resources
+import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.SystemBarStyle
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
@@ -30,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
@@ -48,9 +50,15 @@ import com.burnout.app.domain.model.Sex
 import com.burnout.app.domain.model.Style
 import com.burnout.app.data.datastore.SettingsDataStore
 import com.burnout.app.data.local.entity.Routine
+import com.burnout.app.domain.notification.WorkManagerScheduler
 import com.burnout.app.domain.service.LaborsService
+import com.burnout.app.ui.dashboard.DashboardScreen
 import com.burnout.app.ui.labors.toLaborStats
 import com.burnout.app.ui.profile.ProfileScreen
+import com.burnout.app.ui.pantheon.PantheonScreen
+import com.burnout.app.ui.strengthprogress.ExerciseProgressScreen
+import com.burnout.app.ui.strengthprogress.StrengthProgressScreen
+import com.burnout.app.ui.strengthprogress.buildAllExerciseProgress
 import com.burnout.app.ui.routine.CreateEditRoutineScreen
 import com.burnout.app.ui.settings.SettingsScreen
 import com.core.designsystem.components.CustomCollapsibleTopAppBar
@@ -61,9 +69,11 @@ import com.burnout.app.ui.viewmodel.ActiveWorkoutViewModel
 import com.burnout.app.ui.viewmodel.WorkoutViewModel
 import com.burnout.app.ui.workout.ActiveWorkoutScreen
 import com.burnout.app.ui.workout.BattleReportScreen
+import com.burnout.app.ui.workout.CampaignScreen
 import com.burnout.app.ui.workout.WorkoutDetailsScreen
 import com.burnout.app.ui.workout.WorkoutHistoryScreen
 import com.burnout.app.ui.workout.WorkoutsScreen
+import com.burnout.app.util.UnitSystem
 import com.materialkolor.PaletteStyle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.Serializable
@@ -77,6 +87,9 @@ import javax.inject.Inject
 @Serializable data object Campaign
 @Serializable data object WorkoutHistory
 @Serializable data class WorkoutDetails(val sessionId: String)
+@Serializable data object StrengthProgress
+@Serializable data class ExerciseProgressRoute(val exerciseName: String)
+@Serializable data object LegendaryFeats
 
 
 @AndroidEntryPoint
@@ -140,7 +153,7 @@ class MainActivity : AppCompatActivity() {
 
             LaunchedEffect(reminderTime) {
                 reminderTime?.let {
-                    com.burnout.app.domain.notification.WorkManagerScheduler.scheduleDailyReminder(context, it)
+                    WorkManagerScheduler.scheduleDailyReminder(context, it)
                 }
             }
             LaunchedEffect(ui.language) {
@@ -160,14 +173,14 @@ class MainActivity : AppCompatActivity() {
                 else -> isSystemInDarkTheme()
             }
 
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-                val permissionState = androidx.activity.compose.rememberLauncherForActivityResult(
-                    androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                val permissionState = rememberLauncherForActivityResult(
+                    ActivityResultContracts.RequestPermission()
                 ) { isGranted ->
                     // Handle permission result if needed
                 }
                 LaunchedEffect(Unit) {
-                    permissionState.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                    permissionState.launch(Manifest.permission.POST_NOTIFICATIONS)
                 }
             }
 
@@ -209,12 +222,15 @@ fun MainNavigation(
     features: FeatureToggles,
     sex: Sex,
     style: Style,
-    activityContext: android.content.Context
+    activityContext: Context
 ) {
     val navController = rememberNavController()
     val workoutState by workoutViewModel.uiState.collectAsState()
 
     var selectedDestination by remember { mutableStateOf(AppDestinations.WORKOUTS) }
+    val progressList = remember(workoutState.workoutSessions, workoutState.exercises) {
+        buildAllExerciseProgress(workoutState.workoutSessions, workoutState.exercises)
+    }
 
     NavHost(
         navController = navController,
@@ -241,7 +257,9 @@ fun MainNavigation(
                 },
                 onNavigateToSettings = { navController.navigate(Settings) },
                 onNavigateToHistory = { navController.navigate(WorkoutHistory) },
-                onNavigateToCampaign = { navController.navigate(Campaign) }
+                onNavigateToCampaign = { navController.navigate(Campaign) },
+                onNavigateToStrengthProgress = { navController.navigate(StrengthProgress)},
+                onOpenStrengthLevel = { navController.navigate(LegendaryFeats) }
             )
         }
 
@@ -307,7 +325,7 @@ fun MainNavigation(
         }
 
         composable<Campaign> {
-            com.burnout.app.ui.workout.CampaignScreen(
+            CampaignScreen(
                 workoutViewModel = workoutViewModel,
                 onNavigateBack = { navController.popBackStack() }
             )
@@ -319,6 +337,38 @@ fun MainNavigation(
                 sessionId = sessionId,
                 workoutViewModel = workoutViewModel,
                 onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable<StrengthProgress> {
+            StrengthProgressScreen(
+                exercises = progressList,
+                unitSystem = workoutState.unitSystem,
+                onBack = { navController.popBackStack() },
+                onExerciseClick = { navController.navigate(ExerciseProgressRoute(it.name)) },
+            )
+        }
+
+        composable<ExerciseProgressRoute> { entry ->
+            val route = entry.toRoute<ExerciseProgressRoute>()
+            val progress = progressList.firstOrNull { it.name == route.exerciseName }
+            if (progress != null) {
+                ExerciseProgressScreen(
+                    progress = progress,
+                    unitSystem = workoutState.unitSystem,
+                    onBack = { navController.popBackStack() },
+                )
+            } else {
+                PlaceholderScreen(title = route.exerciseName)
+            }
+        }
+
+        composable<LegendaryFeats> {
+            PantheonScreen(
+                workoutViewModel = workoutViewModel,
+                sex = sex,
+                features = features,
+                onBack = { navController.popBackStack() },
             )
         }
     }
@@ -337,7 +387,9 @@ fun BurnoutApp(
     onStartWorkout: (Routine?) -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToHistory: () -> Unit,
-    onNavigateToCampaign: () -> Unit
+    onNavigateToCampaign: () -> Unit,
+    onNavigateToStrengthProgress: () -> Unit,
+    onOpenStrengthLevel: () -> Unit,
 ) {
     val scrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
@@ -517,20 +569,19 @@ fun BurnoutApp(
                     )
                 }
             },
-//            modifier = Modifier.fillMaxSize().padding(innerPadding),//.calculateTopPadding()),
             modifier = Modifier.fillMaxSize().padding(top = innerPadding.calculateTopPadding()),
             label = "ScreenTransition"
         ) { destination ->
             when (destination) {
-                AppDestinations.DASHBOARD -> com.burnout.app.ui.dashboard.DashboardScreen(
+                AppDestinations.DASHBOARD -> DashboardScreen(
                     viewModel = workoutViewModel,
-                    unitSystem = if (uiState.unitSystem == "imperial") com.burnout.app.util.UnitSystem.IMPERIAL else com.burnout.app.util.UnitSystem.METRIC,
+                    unitSystem = if (uiState.unitSystem == "imperial") UnitSystem.IMPERIAL else UnitSystem.METRIC,
                     features = features,
                     sex = sex,
                     style = style,
                     frontSvgRawResId = if (uiState.gender == "male") R.raw.male_front_muscle else R.raw.female_front_muscle,
                     backSvgRawResId = if (uiState.gender == "male") R.raw.male_back_muscle else R.raw.female_back_muscle,
-                    onOpenStrengthLevel = { _, _, _ -> /* TODO */ },
+                    onOpenStrengthLevel = onOpenStrengthLevel,
                     bottomPadding = bottomBarPadding,
                 )
 
@@ -551,8 +602,11 @@ fun BurnoutApp(
                     workoutViewModel = workoutViewModel,
                     onNavigateToHistory = onNavigateToHistory,
                     onNavigateToSettings = onNavigateToSettings,
+                    onNavigateToStrengthProgress = onNavigateToStrengthProgress,
+                    onOpenStrengthLevel = onOpenStrengthLevel,
                     features = features,
                     bottomPadding = bottomBarPadding,
+                    unitSystem = uiState.unitSystem,
                 )
             }
         }
