@@ -78,8 +78,8 @@ val pantheonGods: List<PantheonGod> = listOf(
         godRes = R.string.deity_ares,
         goddessRes = R.string.deity_artemis,
         bothRes = R.string.deity_artemis,
-        lift = "Incline Bench",
-        variations = listOf("Reverse Grip Bench", "Hammer Strength"),
+        lift = "Pull Up",
+        variations = listOf("Chin Up", "Lat Pulldown", "Inverted Row"),
         color = Color(0xFFBF360C), // deepOrange 900
         icon = Icons.Rounded.SportsMartialArts
     )
