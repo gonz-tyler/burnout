@@ -1,8 +1,9 @@
-package com.burnout.app.ui.dashboard.components
+package com.burnout.app.ui.profile.components
 
 import com.burnout.app.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -87,7 +88,7 @@ fun GodCard(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Column {
                 Text(
