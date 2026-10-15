@@ -581,7 +581,6 @@ fun BurnoutApp(
                     style = style,
                     frontSvgRawResId = if (uiState.gender == "male") R.raw.male_front_muscle else R.raw.female_front_muscle,
                     backSvgRawResId = if (uiState.gender == "male") R.raw.male_back_muscle else R.raw.female_back_muscle,
-                    onOpenStrengthLevel = onOpenStrengthLevel,
                     bottomPadding = bottomBarPadding,
                 )
 
