@@ -394,4 +394,17 @@
     <string name="q3_title">Madrugador</string>
     <string name="q3_description">Haz un entrenamiento antes de las 10:00.</string>
     <string name="q3_requirement">1 entrenamiento antes de las 10:00</string>
+    <string name="legendary_feats_title">Hazañas Legendarias</string>
+    <string name="pantheon_header_subtitle">Los 6 Ejercicios Compuestos del Monte Olimpo</string>
+    <string name="rank_mortal">Mortal</string>
+    <string name="rank_hero">Héroe</string>
+    <string name="rank_demigod">Semidiós</string>
+    <string name="rank_olympian">Olímpico</string>
+    <string name="rank_titan">Titán</string>
+    <string name="bodyweight_ratio">%1$.2fx Peso Corporal</string>
+    <string name="next_rank_needed">Faltan +%1$.1f %2$s para %3$s</string>
+    <string name="rank_maxed">Rango Máximo Alcanzado</string>
+    <string name="pantheon_overall_rank">Rango General del Panteón</string>
+    <string name="bodyweight_ref">Basado en %1$.1f %2$s de peso corporal (%3$s)</string>
+    <string name="rank_thresholds_title">Desglose de Rangos de Fuerza</string>
 </resources>
